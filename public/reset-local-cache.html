@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Memperbarui Kampus Digital</title>
+    <style>
+      body { display: grid; min-height: 100vh; margin: 0; place-items: center; color: #fff; background: #1e1e24; font-family: system-ui, sans-serif; }
+      main { max-width: 28rem; padding: 2rem; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <strong>Memperbarui game…</strong>
+      <p>Cache pengembangan sedang dibersihkan.</p>
+    </main>
+    <script>
+      (async () => {
+        const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+        if (!isLocal) return;
+
+        const registrations = await navigator.serviceWorker?.getRegistrations?.() ?? [];
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+
+        const cacheNames = await window.caches?.keys?.() ?? [];
+        await Promise.all(
+          cacheNames
+            .filter((name) => name.startsWith("sisfor-game-"))
+            .map((name) => window.caches.delete(name))
+        );
+
+        window.location.replace("/");
+      })().catch(() => {
+        window.location.replace("/");
+      });
+    </script>
+  </body>
+</html>
