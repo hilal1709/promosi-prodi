@@ -1,5 +1,5 @@
 import type { DataIssueType, MissionBrief, MissionId } from "@/lib/types";
-import { DATA_TABLE, ERP_BOARD, ERP_ORDERS, MISSION_BRIEFS } from "@/lib/data/missions";
+import { DATA_TABLE, ERP_ORDERS, MISSION_BRIEFS } from "@/lib/data/missions";
 
 /** Info level versi dunia 3D, termasuk petunjuk kontrol. */
 export interface WorldLevelInfo {
@@ -44,18 +44,18 @@ export const WORLD_LEVELS: Record<MissionId, WorldLevelInfo[]> = {
       kontrolSentuh: "Joystick jalan · tombol Aksi · tahan Lari",
     },
     {
-      judul: "Balapan vs Sistem Manual",
-      misi: "Kalahkan truk 'Sistem Manual' dalam 2 putaran. Ambil boost ERP, hindari tumpukan kertas, dan jawab gerbang rapat direksi.",
-      kontrol: "W gas · S rem · A/D belok",
-      kontrolSentuh: "Joystick untuk menyetir",
+      judul: "Drone Integrasi: Hari Go-Live",
+      misi: "Terbangkan drone kargo ERP di atas kawasan industri. Ambil paket data (pesanan, sales order, PO, faktur…) lalu antar ke divisi yang memprosesnya berikutnya. Lewati cincin sinkron untuk turbo, isi baterai, tabrak drone bug 'Data Silo' dengan turbo, lalu kembali ke Pusat Operasi untuk Go-Live!",
+      kontrol: "W/S maju-mundur · A/D belok · Spasi naik · C turun · Shift turbo · E ambil/antar",
+      kontrolSentuh: "Joystick terbang · tahan Naik/Turun/Turbo · tombol Aksi",
     },
   ],
   "data-science": [
     {
-      judul: "Ban Berjalan Data",
-      misi: "Arahkan tiap kubus data ke keranjang yang sesuai jenis masalahnya. Data bersih masuk keranjang hijau.",
-      kontrol: "A/D geser kubus · Spasi jatuhkan cepat",
-      kontrolSentuh: "Tombol ‹ › geser · Jatuhkan",
+      judul: "Pemburu Data Liar",
+      misi: "12 sprite data kabur ke Lembah Data! Jelajahi padang, hutan, danau & reruntuhan server, tangkap tiap sprite dengan scanner, lalu tentukan masalah datanya — format, tidak masuk akal, duplikat, kosong, atau bersih. Isi Menara Data Lake sebelum waktu habis.",
+      kontrol: "WASD jalan · Shift lari · tahan E/Spasi scan · 1–5 pilih jenis · seret mouse putar kamera",
+      kontrolSentuh: "Joystick jalan · tahan Lari/Scan · ketuk jenis data · geser layar putar kamera",
     },
     {
       judul: "Bangun Grafik",
@@ -95,7 +95,7 @@ export const WORLD_BRIEFS: Record<MissionId, MissionBrief> = {
         "Selamat datang, sopir andalan! Truk semen ini terhubung ke sistem ERP pabrik kita.",
         "Setiap gerbang yang kamu lewati adalah modul ERP: penjualan, gudang, produksi, logistik, keuangan. Urutannya penting!",
         "Setelah itu kamu pegang shift gudang: muat palet ke truk pelanggan, jalankan produksi, dan pantau dasbor ERP.",
-        "Terakhir, kita balapan melawan truk 'Sistem Manual' yang masih pakai kertas. Tunjukkan kalau sistem terintegrasi lebih unggul!",
+        "Terakhir, hari Go-Live! Terbangkan drone dari Pusat Operasi dan alirkan data antar divisi — tunjukkan kalau sistem terintegrasi menghapus data silo!",
       ],
     },
     level: WORLD_LEVELS["enterprise-system"],
@@ -106,7 +106,7 @@ export const WORLD_BRIEFS: Record<MissionId, MissionBrief> = {
       ...MISSION_BRIEFS["data-science"].npc,
       dialog: [
         "Hai, detektif! Data penjualan semen masuk ke lab… tapi banyak yang rusak.",
-        "Pertama, sortir kubus data di ban berjalan. Lalu bangun grafik dari data bersih.",
+        "Pertama, buru sprite data liar di lembah dan kenali masalah datanya. Lalu bangun grafik dari data bersih.",
         "Grafikmu akan berubah jadi kota. Jelajahi dan temukan kenapa ada toko yang penjualannya nol!",
       ],
     },
@@ -283,26 +283,11 @@ export const TRACK_POINTS: [number, number][] = [
   [26, 112], [-14, 130], [-62, 122], [-100, 88], [-108, 42], [-80, 10], [-40, 10],
 ];
 
-export const BOARD_GATES = ERP_BOARD.opsi.map((option) => ({
-  id: option.id,
-  label: option.id === "o1" ? "Laporan manual via email/Excel" : option.id === "o2" ? "Konsolidasi otomatis di ERP" : "Tunda sampai sinkron manual",
-}));
-
 export const RUSH_STOPS = [
   { id: "pabrik", nama: "Pabrik & Gudang", t: 0.03 },
   { id: "A", nama: "Proyek Tol", t: 0.3 },
   { id: "B", nama: "Perumahan", t: 0.55 },
   { id: "C", nama: "Toko Bangunan", t: 0.8 },
-];
-
-export const RACE_PADS: { t: number; offset: number; type: "boost" | "trap"; label: string }[] = [
-  { t: 0.12, offset: -3.6, type: "boost", label: "Sinkron data otomatis" },
-  { t: 0.22, offset: 3.6, type: "trap", label: "Input ulang manual" },
-  { t: 0.35, offset: 3.6, type: "boost", label: "Stok real-time" },
-  { t: 0.62, offset: -3.6, type: "trap", label: "Rekap Excel" },
-  { t: 0.72, offset: 0, type: "boost", label: "Faktur otomatis" },
-  { t: 0.86, offset: -3.6, type: "boost", label: "Dasbor terpadu" },
-  { t: 0.93, offset: 3.6, type: "trap", label: "Tumpukan kertas" },
 ];
 
 /** --- Level Shift Gudang Pintar --- */
@@ -350,3 +335,141 @@ export const OPS_ORDERS: OpsOrder[] = ERP_ORDERS.map((order, index) => ({
 
 /** Waktu (detik) alarm kejadian ERP berbunyi di Terminal Ruang Kendali. */
 export const OPS_EVENT_TIMES = [30, 78, 124];
+
+/** --- Level Drone Integrasi --- */
+
+export type DroneSiteId = "hq" | "penjualan" | "keuangan" | "gudang" | "pabrik" | "pelabuhan" | "proyek" | "perumahan";
+
+export interface DroneSite {
+  id: DroneSiteId;
+  nama: string;
+  divisi: string;
+  /** Pusat landasan antar-jemput (x, z). */
+  x: number;
+  z: number;
+  color: string;
+}
+
+export const DRONE_SITES: DroneSite[] = [
+  { id: "hq", nama: "Pusat Operasi", divisi: "Menara ERP", x: 0, z: 0, color: "#ffc857" },
+  { id: "penjualan", nama: "Kantor Penjualan", divisi: "Penjualan (SD/CRM)", x: 140, z: -70, color: "#3fa7ff" },
+  { id: "keuangan", nama: "Kantor Keuangan", divisi: "Keuangan (FI/CO)", x: 170, z: -5, color: "#2fae66" },
+  { id: "gudang", nama: "Gudang Distribusi", divisi: "Gudang (WM)", x: -140, z: 125, color: "#f2a93b" },
+  { id: "pabrik", nama: "Pabrik Semen", divisi: "Produksi (PP)", x: -210, z: 20, color: "#e5664b" },
+  { id: "pelabuhan", nama: "Pelabuhan Pemasok", divisi: "Pengadaan (MM)", x: 190, z: 268, color: "#8e7cf0" },
+  { id: "proyek", nama: "Proyek Tol Gresik", divisi: "Pelanggan", x: 40, z: -230, color: "#ff8fb1" },
+  { id: "perumahan", nama: "Perumahan Asri", divisi: "Pelanggan", x: 240, z: 140, color: "#4fd1c5" },
+];
+
+export interface DroneJob {
+  id: string;
+  paket: string;
+  kode: string;
+  deskripsi: string;
+  dari: DroneSiteId;
+  ke: DroneSiteId;
+  pengecoh: [DroneSiteId, DroneSiteId];
+  konsep: string;
+  benar: string;
+  petunjuk: string;
+}
+
+/** Rantai data ERP end-to-end: order-to-cash dan procure-to-pay. */
+export const DRONE_JOBS: DroneJob[] = [
+  {
+    id: "j1",
+    paket: "Pesanan Pelanggan",
+    kode: "PO-TOL-80T",
+    deskripsi: "Proyek Tol Gresik memesan 80 ton semen OPC.",
+    dari: "proyek",
+    ke: "penjualan",
+    pengecoh: ["gudang", "keuangan"],
+    konsep: "Order entry",
+    benar: "Pesanan dicatat sekali di modul Penjualan — langsung terlihat oleh gudang, produksi, dan keuangan.",
+    petunjuk: "Pesanan harus dicatat dulu sebagai Sales Order sebelum divisi lain bisa bergerak.",
+  },
+  {
+    id: "j2",
+    paket: "Sales Order",
+    kode: "SO-1042",
+    deskripsi: "SO sudah tercatat. Siapa yang mengecek ketersediaan barangnya?",
+    dari: "penjualan",
+    ke: "gudang",
+    pengecoh: ["pabrik", "pelabuhan"],
+    konsep: "Cek stok real-time",
+    benar: "Gudang melihat SO secara real-time dan langsung mengecek stok yang tersedia.",
+    petunjuk: "Sebelum memproduksi atau membeli, cek dulu apakah stok gudang masih cukup.",
+  },
+  {
+    id: "j3",
+    paket: "Permintaan Produksi",
+    kode: "MRP-077",
+    deskripsi: "Stok OPC kurang 50 ton. Kebutuhan ini harus dipenuhi siapa?",
+    dari: "gudang",
+    ke: "pabrik",
+    pengecoh: ["keuangan", "penjualan"],
+    konsep: "Perencanaan kebutuhan (MRP)",
+    benar: "ERP membuat jadwal produksi otomatis begitu stok di bawah kebutuhan.",
+    petunjuk: "Kekurangan stok barang jadi ditutup dengan menjadwalkan produksi.",
+  },
+  {
+    id: "j4",
+    paket: "Purchase Order Gipsum",
+    kode: "PO-MM-311",
+    deskripsi: "Produksi butuh bahan baku gipsum. Ke mana PO dikirim?",
+    dari: "pabrik",
+    ke: "pelabuhan",
+    pengecoh: ["gudang", "perumahan"],
+    konsep: "Pengadaan (procure-to-pay)",
+    benar: "Modul Pengadaan mengirim PO ke pemasok — bahan baku datang lewat pelabuhan.",
+    petunjuk: "Bahan baku dibeli dari pemasok melalui modul Pengadaan.",
+  },
+  {
+    id: "j5",
+    paket: "Tagihan Pemasok",
+    kode: "INV-SUP-58",
+    deskripsi: "Gipsum sudah diterima. Tagihan pemasok diproses siapa?",
+    dari: "pelabuhan",
+    ke: "keuangan",
+    pengecoh: ["pabrik", "penjualan"],
+    konsep: "Three-way match",
+    benar: "Keuangan mencocokkan PO, bukti terima barang, dan tagihan secara otomatis sebelum membayar.",
+    petunjuk: "Tagihan dibayar oleh Keuangan setelah dicocokkan dengan PO dan penerimaan barang.",
+  },
+  {
+    id: "j6",
+    paket: "Surat Jalan",
+    kode: "DO-221",
+    deskripsi: "Semen sudah diproduksi dan siap kirim. Surat jalan dibawa ke mana?",
+    dari: "gudang",
+    ke: "proyek",
+    pengecoh: ["perumahan", "pelabuhan"],
+    konsep: "Pengiriman terlacak",
+    benar: "Surat jalan mengikuti truk ke pelanggan yang memesan — statusnya bisa dilacak di ERP.",
+    petunjuk: "Barang dikirim ke pelanggan yang memesan: Proyek Tol Gresik.",
+  },
+  {
+    id: "j7",
+    paket: "Faktur Penjualan",
+    kode: "FKT-9001",
+    deskripsi: "Barang terkirim. Faktur otomatis terbit — kirim ke siapa?",
+    dari: "keuangan",
+    ke: "proyek",
+    pengecoh: ["penjualan", "perumahan"],
+    konsep: "Faktur otomatis",
+    benar: "Faktur terbit otomatis dari data pengiriman, tanpa input ulang.",
+    petunjuk: "Tagihan dikirim ke pelanggan yang menerima barang.",
+  },
+  {
+    id: "j8",
+    paket: "Bukti Pembayaran",
+    kode: "PAY-TOL-80T",
+    deskripsi: "Pelanggan sudah membayar. Siapa yang mencatat pembayarannya?",
+    dari: "proyek",
+    ke: "keuangan",
+    pengecoh: ["gudang", "penjualan"],
+    konsep: "Rekonsiliasi kas",
+    benar: "Pembayaran tercatat di Keuangan dan laporan laba-rugi langsung terbarui.",
+    petunjuk: "Pembayaran pelanggan dicatat oleh Keuangan untuk menutup piutang.",
+  },
+];

@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { clampDelta, Label } from "../world-kit";
 
 /* ------------------------------------------------------------------ */
-/* Truk molen (pemain & rival) dan kendaraan lalu lintas               */
+/* Truk molen dan kendaraan lalu lintas                               */
 /* Semua model menghadap +Z.                                           */
 /* ------------------------------------------------------------------ */
 
@@ -119,19 +119,15 @@ export interface TruckLivery {
 }
 
 export const PLAYER_LIVERY: TruckLivery = { cab: "#f26b3a", stripe: "#fff4e8", drum: "#f4f1ea", helix: "#f26b3a" };
-export const RIVAL_LIVERY: TruckLivery = { cab: "#7b8088", stripe: "#c9c2b4", drum: "#b8ad9a", helix: "#6b5f4d" };
 
 export function CementTruck({
   livery = PLAYER_LIVERY,
   motion,
   label,
-  paperwork = false,
 }: {
   livery?: TruckLivery;
   motion?: MotionRef;
   label?: string;
-  /** Tumpukan berkas di atap — ciri truk "Sistem Manual". */
-  paperwork?: boolean;
 }) {
   const drumRef = useRef<THREE.Group>(null);
   const geo = useDrumGeometry();
@@ -222,13 +218,6 @@ export function CementTruck({
             <meshStandardMaterial color="#23262d" />
           </mesh>
         ))}
-        {paperwork &&
-          [0, 1, 2, 3].map((k) => (
-            <mesh key={k} position={[((k * 37) % 5) * 0.08 - 0.15, 3.05 + k * 0.22, -0.1]} rotation={[0, k * 0.35, 0]} castShadow>
-              <boxGeometry args={[1.1, 0.2, 0.8]} />
-              <meshStandardMaterial color={k % 2 ? "#fffdf5" : "#efe6cf"} />
-            </mesh>
-          ))}
       </group>
       {/* Knalpot tegak & tangki */}
       <mesh position={[1.08, 2.55, 1.45]}>

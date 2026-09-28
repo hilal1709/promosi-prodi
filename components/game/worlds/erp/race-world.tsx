@@ -1,27 +1,12 @@
 "use client";
 
-import { useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useContext, useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Flag, Timer, Trophy } from "lucide-react";
-import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import type { GameQuality } from "@/lib/types";
-import { ERP_BOARD_SCORES } from "@/lib/data/missions";
-import { BOARD_GATES, RACE_PADS } from "@/lib/data/worlds";
-import { TouchControls } from "../touch-controls";
 import { readAxis, type WorldInput } from "../world-controls";
+import { clampDelta, Label } from "../world-kit";
 import {
-  clampDelta,
-  HudChip,
-  Label,
-  LevelEnd,
-  WorldHud,
-  WorldStage,
-  useThrottled,
-  type WorldLevelProps,
-} from "../world-kit";
-import {
-  crossed,
   headingAt,
   indexAt,
   nearestIndex,
@@ -33,7 +18,7 @@ import {
   TRACK,
 } from "./race-track";
 import { RaceScenery, Traffic, TrafficContext, type TrafficCarState } from "./race-scenery";
-import { CementTruck, RIVAL_LIVERY, TRAFFIC_SIZE } from "./truck-models";
+import { CementTruck, TRAFFIC_SIZE } from "./truck-models";
 
 /* ------------------------------------------------------------------ */
 /* Fisika truk                                                        */
@@ -429,178 +414,3 @@ export function MiniMap({ truckRef, markers, rival }: { truckRef: RefObject<Truc
 }
 
 export const DRIVE_TOUCH = [{ press: "up" as const, label: "Gas", holdKey: "w" }, { press: "down" as const, label: "Rem", holdKey: "s", tone: "light" as const }];
-
-/* ------------------------------------------------------------------ */
-/* Level 3 · Balapan vs Sistem Manual                                 */
-/* ------------------------------------------------------------------ */
-
-const LAPS = 2;
-const BOARD_T = 0.5;
-const RACE_LIMIT = 240;
-const RIVAL_SPEED = 16.2;
-
-function RivalTruck({ distanceRef }: { distanceRef: RefObject<number> }) {
-  const group = useRef<THREE.Group>(null);
-  const motion = useRef({ speed: 0, steer: 0, braking: false });
-  const last = useRef(0);
-  const pos = useMemo(() => new THREE.Vector3(), []);
-  useFrame((_, raw) => {
-    if (!group.current) return;
-    const delta = clampDelta(raw);
-    const distance = distanceRef.current;
-    motion.current.speed = delta > 0 ? (distance - last.current) / delta : 0;
-    last.current = distance;
-    const heading = sampleTrack((distance / TRACK.length) % 1, 0, pos);
-    group.current.position.copy(pos);
-    group.current.rotation.y = heading;
-  });
-  return (
-    <group ref={group}>
-      <CementTruck livery={RIVAL_LIVERY} motion={motion} label="Sistem Manual" paperwork />
-    </group>
-  );
-}
-
-export function RaceLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
-  const truck = useRef<TruckState>(createTruck(-4.3));
-  const rival = useRef(0);
-  const clock = useRef(0);
-  const [hud, setHud] = useState({ time: 0, lap: 0, ahead: true, rivalLap: 0 });
-  const push = useThrottled(setHud, 6);
-  const [board, setBoard] = useState<number | null>(null);
-  const boardLive = useRef<number | null>(null);
-  const padsLive = useRef<string[]>([]);
-  const [padsHit, setPadsHit] = useState<string[]>([]);
-  const [toast, setToast] = useState<Feedback>(null);
-  const [result, setResult] = useState<null | { won: boolean; time: number }>(null);
-  const resolved = useRef(false);
-  const boardScore = board === null ? 0 : ERP_BOARD_SCORES[BOARD_GATES[board].id] ?? 0;
-  const boosts = padsHit.filter((key) => RACE_PADS[Number(key.split(":")[1])].type === "boost").length;
-  const score = clampPercent((result?.won ? 60 : 30) + boardScore * 0.3 + Math.min(10, boosts * 2));
-
-  const onMove = (from: number, to: number, lapDone: boolean, delta: number) => {
-    if (resolved.current) return;
-    const s = truck.current;
-    clock.current += delta;
-    const lap = Math.max(0, s.lap);
-    const playerDistance = lap * TRACK.length + (s.lap < 0 ? 0 : (to / SAMPLES) * TRACK.length);
-    const gap = rival.current - playerDistance;
-    const rivalSpeed = RIVAL_SPEED + (gap > 60 ? -2.2 : gap < -60 ? 2.2 : 0);
-    if (rival.current < LAPS * TRACK.length) rival.current += rivalSpeed * delta;
-    push({ time: clock.current, lap, ahead: playerDistance >= rival.current, rivalLap: Math.floor(rival.current / TRACK.length) });
-
-    RACE_PADS.forEach((pad, k) => {
-      const key = `${lap}:${k}`;
-      if (!crossed(from, to, indexAt(pad.t)) || Math.abs(s.lateral - pad.offset) > 2.2 || padsLive.current.includes(key)) return;
-      padsLive.current = [...padsLive.current, key];
-      setPadsHit(padsLive.current);
-      if (pad.type === "boost") {
-        s.boost = 2.2;
-        sound("pickup");
-        setToast({ ok: true, judul: `Boost: ${pad.label}`, teks: "Proses otomatis di ERP memangkas pekerjaan manual.", konsep: "Sistem terintegrasi" });
-      } else {
-        s.slow = 1.5;
-        sound("error");
-        setToast({ ok: false, judul: `Terjebak: ${pad.label}`, teks: "Pekerjaan manual memperlambat alur dan rawan salah input.", konsep: "Proses manual" });
-      }
-    });
-
-    if (lap === 0 && boardLive.current === null && crossed(from, to, indexAt(BOARD_T))) {
-      const picked = pickGate(s.lateral, 3);
-      const option = BOARD_GATES[picked];
-      const value = ERP_BOARD_SCORES[option.id] ?? 0;
-      boardLive.current = picked;
-      setBoard(picked);
-      if (value === 100) s.boost = 3.5;
-      else s.slow = 1.5;
-      sound(value === 100 ? "success" : "error");
-      setToast({
-        ok: value === 100,
-        judul: value === 100 ? "Direksi terkesan — BOOST!" : "Laporan terlambat…",
-        teks: value === 100 ? "Konsolidasi otomatis: cepat, seragam, bisa ditelusuri." : "Laporan manual lambat dan rawan salah. Konsolidasi otomatis di ERP jauh lebih cepat.",
-        konsep: "Laporan terkonsolidasi",
-      });
-    }
-
-    if ((lapDone && s.lap >= LAPS) || clock.current >= RACE_LIMIT) {
-      resolved.current = true;
-      const won = s.lap >= LAPS && rival.current < LAPS * TRACK.length;
-      setResult({ won, time: clock.current });
-      sound(won ? "success" : "error");
-    }
-  };
-
-  const markers: MapMarker[] = [
-    ...RACE_PADS.map((pad) => ({ t: pad.t, offset: pad.offset, color: pad.type === "boost" ? "#3fd0ff" : "#f5f1e8" })),
-    ...(board === null && hud.lap === 0 ? [{ t: BOARD_T, big: true, color: "#ffc857" }] : []),
-  ];
-
-  return (
-    <WorldStage
-      quality={quality}
-      paused={paused || Boolean(result)}
-      camera={STAGE_CAMERA}
-      overlay={
-        <>
-          <WorldHud
-            levelIndex={levelIndex}
-            info={info}
-            onPause={onPause}
-            toast={toast}
-            stats={
-              <>
-                <HudChip><Timer />{hud.time.toFixed(1)}s</HudChip>
-                <HudChip tone="gold"><Flag />Putaran {Math.min(hud.lap + 1, LAPS)}/{LAPS}</HudChip>
-                <HudChip tone={hud.ahead ? "green" : "red"}><Trophy />{hud.ahead ? "Posisi 1" : "Posisi 2"}</HudChip>
-              </>
-            }
-          />
-          <MiniMap truckRef={truck} markers={markers} rival={rival} />
-          <TouchControls inputRef={input} mode="stick" buttons={DRIVE_TOUCH} />
-          {result && (
-            <LevelEnd
-              score={score}
-              reason={result.won ? "Kamu menang!" : "Sistem Manual unggul"}
-              detail={`${result.won ? "ERP terbukti lebih cepat." : "Coba ambil lebih banyak boost ERP."} Waktu ${result.time.toFixed(1)} detik · ${boosts} boost.`}
-              isLast
-              onNext={() => onFinish(score)}
-            />
-          )}
-        </>
-      }
-    >
-      <RaceWorld quality={quality} truck={truck}>
-        {RACE_PADS.map((pad, k) => {
-          const p = pointAt(pad.t, pad.offset);
-          const boost = pad.type === "boost";
-          return (
-            <group key={k} position={[p.x, 0, p.z]} rotation={[0, headingAt(indexAt(pad.t)), 0]}>
-              <mesh position={[0, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <planeGeometry args={[3.6, 4.2]} />
-                <meshStandardMaterial
-                  color={boost ? "#3fd0ff" : "#f5f1e8"}
-                  emissive={boost ? "#3fd0ff" : "#000"}
-                  emissiveIntensity={boost ? 0.9 : 0}
-                  polygonOffset
-                  polygonOffsetFactor={-6}
-                  polygonOffsetUnits={-6}
-                />
-              </mesh>
-              {!boost && [0, 1, 2].map((i) => (
-                <mesh key={i} position={[(i - 1) * 0.9, 0.3 + i * 0.12, 0]} rotation={[0, i * 0.4, 0]} castShadow>
-                  <boxGeometry args={[0.9, 0.5, 1.2]} />
-                  <meshStandardMaterial color="#fffdf5" />
-                </mesh>
-              ))}
-              <Label position={[0, 2.2, 0]} className={boost ? "is-green" : "is-red"} distanceFactor={20}>{boost ? "⚡ " : ""}{pad.label}</Label>
-            </group>
-          );
-        })}
-        {board === null && hud.lap === 0 && <GateRow t={BOARD_T} labels={BOARD_GATES.map((gate) => gate.label)} />}
-        <RivalTruck distanceRef={rival} />
-        <PlayerTruck input={input} running={!paused && !result} truckRef={truck} onMove={onMove} onBump={() => sound("boom")} />
-      </RaceWorld>
-    </WorldStage>
-  );
-}
-

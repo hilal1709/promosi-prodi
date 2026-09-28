@@ -1122,9 +1122,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-world.tsx": {
-    "mtime": 1790616039.4417787,
-    "seen": 1790616307.8376803,
-    "ast_hash": "a6dacc288bb72d91509d853503e79ec8",
+    "mtime": 1790620497.7921379,
+    "seen": 1790621252.800673,
+    "ast_hash": "f7f55b19756fb066ccb8f731b0cad9c8",
     "semantic_hash": ""
   },
   "components/game/worlds/mission-world.tsx": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "lib/data/worlds.ts": {
-    "mtime": 1790615987.394637,
-    "seen": 1790616307.8523169,
-    "ast_hash": "3cf75de82f48f80a08b3ca2828e20f59",
+    "mtime": 1790620498.048493,
+    "seen": 1790621252.8181407,
+    "ast_hash": "f5d7fb27ffa7282a36bfb7a1f3c97479",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspect-extras.tsx": {
@@ -1182,9 +1182,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-scenery.tsx": {
-    "mtime": 1790611769.950088,
-    "seen": 1790616307.8373592,
-    "ast_hash": "f9d6d81e37180b160a511af53553937d",
+    "mtime": 1790617051.4991846,
+    "seen": 1790618422.1793127,
+    "ast_hash": "4da8dee2b56deaab7e9c8b1f705fea18",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-track.ts": {
@@ -1194,15 +1194,15 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/truck-models.tsx": {
-    "mtime": 1790610727.0241966,
-    "seen": 1790611269.8986073,
-    "ast_hash": "f0ffc825ebb5aa831c21acdbe671f854",
+    "mtime": 1790620497.9330118,
+    "seen": 1790621252.8009768,
+    "ast_hash": "83692af9214cc375c4d780e1f45345ec",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/levels.ts": {
-    "mtime": 1790611893.9909196,
-    "seen": 1790616307.8373485,
-    "ast_hash": "4c34acbc6e2094083d7279dacb014179",
+    "mtime": 1790621185.7875402,
+    "seen": 1790621252.7986042,
+    "ast_hash": "64c2ead2bf4579d15489930a6e1052a2",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-fx.tsx": {
@@ -1215,6 +1215,60 @@
     "mtime": 1790616253.572642,
     "seen": 1790616307.8376844,
     "ast_hash": "5acff54ecae0c4dffe91f11ac2beb2aa",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/ops-layout.ts": {
+    "mtime": 1790617206.4194098,
+    "seen": 1790618422.1789799,
+    "ast_hash": "48c7f521f41f00bc9ca5f27583e62587",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/ops-level.tsx": {
+    "mtime": 1790618385.1293585,
+    "seen": 1790618422.1789834,
+    "ast_hash": "8afb21c824627ee995406bef2cd91f75",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/ops-models.tsx": {
+    "mtime": 1790618160.3966537,
+    "seen": 1790618422.1789865,
+    "ast_hash": "98c02c64eca39782b6b35a5127d3944b",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/ops-scenery.tsx": {
+    "mtime": 1790619607.5710697,
+    "seen": 1790621252.79965,
+    "ast_hash": "3032aa08861c5f3fdb5402c5f7a14457",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/drone-city.tsx": {
+    "mtime": 1790620514.6331112,
+    "seen": 1790621252.7985854,
+    "ast_hash": "f29b49fc1352b3882746725f44c7a1d5",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/drone-layout.ts": {
+    "mtime": 1790621113.334134,
+    "seen": 1790621252.798591,
+    "ast_hash": "6f333e27ead420a7ac9e9631bf348a4b",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/drone-level.tsx": {
+    "mtime": 1790621185.786537,
+    "seen": 1790621252.7985935,
+    "ast_hash": "70b24829476b6765f29f4e79bbb13259",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/drone-models.tsx": {
+    "mtime": 1790620918.8624663,
+    "seen": 1790621252.7985969,
+    "ast_hash": "6a40b5994fd76fbc1d2ad3d08c55b776",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/drone-scenery.tsx": {
+    "mtime": 1790621139.395941,
+    "seen": 1790621252.7985997,
+    "ast_hash": "50a84fcdd8190415eac225bf24dd6527",
     "semantic_hash": ""
   }
 }

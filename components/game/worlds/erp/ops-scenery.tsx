@@ -688,7 +688,7 @@ const ProductionArea = memo(function ProductionArea({ kilnRunning }: { kilnRunni
 });
 
 /** Asap dari cerobong & kiln: bola-bola yang naik, membesar, lalu diulang. */
-function Smoke({ sources, count }: { sources: [number, number, number][]; count: number }) {
+export function Smoke({ sources, count }: { sources: [number, number, number][]; count: number }) {
   const mesh = useRef<THREE.InstancedMesh>(null);
   const puffs = useMemo(() => {
     const rand = seeded(8);

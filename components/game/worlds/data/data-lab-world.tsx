@@ -2,14 +2,13 @@
 
 import { useRef, useState, type ReactNode, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Float, RoundedBox } from "@react-three/drei";
+import { Float } from "@react-three/drei";
 import * as THREE from "three";
-import { BarChart3, Flame, LineChart, PieChart, Search, Timer } from "lucide-react";
+import { BarChart3, LineChart, PieChart, Search, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { cn } from "@/lib/utils";
-import { CHART_QUESTIONS, DATA_ISSUE_LABELS, INSIGHT_QUESTIONS } from "@/lib/data/missions";
-import { DATA_BINS, DATA_CUBES } from "@/lib/data/worlds";
+import { CHART_QUESTIONS, INSIGHT_QUESTIONS } from "@/lib/data/missions";
 import type { ChartKind } from "@/lib/types";
 import { TouchControls } from "../touch-controls";
 import { usePressReader, type WorldInput } from "../world-controls";
@@ -26,220 +25,7 @@ import {
   useThrottled,
   type WorldLevelProps,
 } from "../world-kit";
-
-/* ------------------------------------------------------------------ */
-/* Level 1 · Ban berjalan                                             */
-/* ------------------------------------------------------------------ */
-
-const LANES = DATA_BINS.map((_, index) => (index - 2) * 2.2);
-const BELT_START = -20;
-const BELT_END = 2.4;
-const SORT_TIME = 110;
-
-function Belt() {
-  const slats = useRef<THREE.Group>(null);
-  useFrame((_, raw) => {
-    slats.current?.children.forEach((child) => {
-      child.position.z += clampDelta(raw) * 2.5;
-      if (child.position.z > BELT_END) child.position.z -= BELT_END - BELT_START;
-    });
-  });
-  return (
-    <group>
-      <mesh position={[0, 0.2, (BELT_START + BELT_END) / 2]} receiveShadow>
-        <boxGeometry args={[12, 0.4, BELT_END - BELT_START]} />
-        <meshStandardMaterial color="#2a2f3a" roughness={0.8} />
-      </mesh>
-      <group ref={slats}>
-        {Array.from({ length: 14 }, (_, index) => (
-          <mesh key={index} position={[0, 0.41, BELT_START + index * ((BELT_END - BELT_START) / 14)]}>
-            <boxGeometry args={[11.6, 0.02, 0.18]} />
-            <meshStandardMaterial color="#454c5c" />
-          </mesh>
-        ))}
-      </group>
-      {[-6.2, 6.2].map((x) => (
-        <mesh key={x} position={[x, 0.55, (BELT_START + BELT_END) / 2]} castShadow>
-          <boxGeometry args={[0.4, 0.5, BELT_END - BELT_START]} />
-          <meshStandardMaterial color="#ffa987" metalness={0.2} roughness={0.5} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function Bins({ flash }: { flash: { lane: number; ok: boolean; n: number } | null }) {
-  return (
-    <group position={[0, 0, BELT_END + 2]}>
-      {DATA_BINS.map((bin, index) => {
-        const lit = flash?.lane === index;
-        return (
-          <group key={bin.id} position={[LANES[index], 0, 0]}>
-            <mesh position={[0, 0.6, 0]} castShadow receiveShadow>
-              <boxGeometry args={[2, 1.2, 2]} />
-              <meshStandardMaterial color={bin.color} emissive={lit ? (flash.ok ? "#2fae66" : "#e54b4b") : "#000000"} emissiveIntensity={lit ? 0.8 : 0} />
-            </mesh>
-            <mesh position={[0, 1.21, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-              <planeGeometry args={[1.6, 1.6]} />
-              <meshStandardMaterial color="#0d0f14" />
-            </mesh>
-            <Label position={[0, 1.9, 0.4]} fixed>{bin.label}</Label>
-          </group>
-        );
-      })}
-    </group>
-  );
-}
-
-function ConveyorScene({
-  input,
-  running,
-  onResolve,
-  onTick,
-}: {
-  input: WorldInput;
-  running: boolean;
-  onResolve: (index: number, lane: number) => boolean;
-  onTick: (time: number, index: number) => void;
-}) {
-  const cube = useRef<THREE.Group>(null);
-  const marker = useRef<THREE.Mesh>(null);
-  const pressed = usePressReader(input);
-  const state = useRef({ index: 0, lane: 2, x: 0, z: BELT_START, drop: 0, fast: false, time: SORT_TIME, speed: 3.4 });
-  const [index, setIndex] = useState(0);
-  const [flash, setFlash] = useState<{ lane: number; ok: boolean; n: number } | null>(null);
-  const current = DATA_CUBES[index];
-
-  useFrame((_, raw) => {
-    const s = state.current;
-    const delta = clampDelta(raw);
-    if (running && s.index < DATA_CUBES.length && s.time > 0) {
-      s.time = Math.max(0, s.time - delta);
-      if (pressed("left")) s.lane = Math.max(0, s.lane - 1);
-      if (pressed("right")) s.lane = Math.min(DATA_BINS.length - 1, s.lane + 1);
-      if (pressed("action") || pressed("down")) s.fast = true;
-      s.x = THREE.MathUtils.damp(s.x, LANES[s.lane], 14, delta);
-      if (s.z < BELT_END + 2) {
-        s.z += s.speed * (s.fast ? 5 : 1) * delta;
-      } else {
-        s.drop += delta;
-        if (s.drop > 0.3) {
-          const ok = onResolve(s.index, s.lane);
-          s.speed = ok ? Math.min(6.5, s.speed + 0.3) : 3.4;
-          setFlash({ lane: s.lane, ok, n: s.index });
-          s.index += 1;
-          s.z = BELT_START;
-          s.drop = 0;
-          s.fast = false;
-          setIndex(s.index);
-        }
-      }
-      onTick(s.time, s.index);
-    }
-    if (cube.current) {
-      cube.current.position.set(s.x, 1 - s.drop * s.drop * 14, s.z);
-      cube.current.rotation.y += delta * 0.6;
-    }
-    if (marker.current) marker.current.position.x = THREE.MathUtils.damp(marker.current.position.x, LANES[s.lane], 14, delta);
-  });
-
-  return (
-    <>
-      <FixedCamera position={[0, 12, 13.5]} target={[0, 0, -1.5]} />
-      <WorldLights />
-      <fog attach="fog" args={["#10131a", 24, 48]} />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[60, 60]} />
-        <meshStandardMaterial color="#1b2029" />
-      </mesh>
-      <Belt />
-      <mesh ref={marker} position={[LANES[2], 0.43, (BELT_START + BELT_END) / 2]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[2, BELT_END - BELT_START]} />
-        <meshBasicMaterial color="#ffa987" transparent opacity={0.16} />
-      </mesh>
-      <Bins flash={flash} />
-      {current && (
-        <group ref={cube} position={[0, 1, BELT_START]}>
-          <RoundedBox args={[1.5, 1.2, 1.5]} radius={0.12} castShadow>
-            <meshStandardMaterial color="#f7ebe8" emissive="#ffa987" emissiveIntensity={0.15} />
-          </RoundedBox>
-          <Label position={[0, 1.4, 0]} className="is-light" fixed>
-            <span className="block text-[0.65rem] font-black text-muted-foreground">{current.kolom}</span>
-            {current.nilai}
-          </Label>
-        </group>
-      )}
-    </>
-  );
-}
-
-function ConveyorLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
-  const total = DATA_CUBES.length;
-  const [hud, setHud] = useState({ time: SORT_TIME, index: 0 });
-  const push = useThrottled(setHud);
-  const [correct, setCorrect] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [toast, setToast] = useState<Feedback>(null);
-  const ended = hud.index >= total || hud.time <= 0;
-  const score = clampPercent((correct / total) * 100);
-
-  const resolve = (index: number, lane: number) => {
-    const cube = DATA_CUBES[index];
-    const bin = DATA_BINS[lane];
-    const ok = bin.id === cube.jenis;
-    sound(ok ? "pickup" : "error");
-    if (ok) {
-      setCorrect((value) => value + 1);
-      setCombo((value) => value + 1);
-    } else {
-      setCombo(0);
-    }
-    const right = cube.jenis === "bersih" ? "Bersih" : DATA_ISSUE_LABELS[cube.jenis];
-    setToast({
-      ok,
-      judul: ok ? `Tepat! ${cube.kolom}: ${cube.nilai}` : `Seharusnya: ${right}`,
-      teks: cube.penjelasan,
-      konsep: right,
-    });
-    return ok;
-  };
-
-  return (
-    <WorldStage
-      quality={quality}
-      paused={paused || ended}
-      overlay={
-        <>
-          <WorldHud
-            levelIndex={levelIndex}
-            info={info}
-            onPause={onPause}
-            toast={toast}
-            prompt={!ended && DATA_CUBES[hud.index] ? <><kbd>{DATA_CUBES[hud.index].kolom}</kbd>{DATA_CUBES[hud.index].nilai}</> : undefined}
-            stats={
-              <>
-                <HudChip tone={hud.time <= 15 ? "red" : "dark"} pulse={hud.time <= 15}><Timer />{Math.ceil(hud.time)}s</HudChip>
-                <HudChip>{Math.min(hud.index + 1, total)}/{total} kubus</HudChip>
-                {combo >= 2 && <HudChip tone="gold"><Flame />×{combo}</HudChip>}
-              </>
-            }
-          />
-          <TouchControls inputRef={input} mode="lanes" buttons={[{ press: "action", label: "Jatuhkan" }]} />
-          {ended && (
-            <LevelEnd
-              score={score}
-              reason={hud.index >= total ? "Semua kubus tersortir" : "Waktu habis"}
-              detail={`${correct} dari ${total} kubus masuk keranjang yang benar.`}
-              onNext={() => onFinish(score)}
-            />
-          )}
-        </>
-      }
-    >
-      <ConveyorScene input={input} running={!paused && !ended} onResolve={resolve} onTick={(time, index) => push({ time, index }, index !== hud.index || time <= 0)} />
-    </WorldStage>
-  );
-}
+import { HuntLevel } from "./hunt-level";
 
 /* ------------------------------------------------------------------ */
 /* Level 2 · Bangun grafik                                            */
@@ -789,4 +575,4 @@ function CityClock({ clockRef, running, onTick }: { clockRef: RefObject<{ time: 
   return null;
 }
 
-export const DATA_LEVELS = [ConveyorLevel, ChartLevel, CityLevel];
+export const DATA_LEVELS = [HuntLevel, ChartLevel, CityLevel];
