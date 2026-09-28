@@ -156,6 +156,129 @@ export interface WorkspaceScenario {
   tipeInteraksi: TipeInteraksi;
 }
 
+/** --- Misi Kampus (mini-game) --- */
+
+export interface MissionNpc {
+  nama: string;
+  peran: string;
+  dialog: string[];
+}
+
+export interface MissionBrief {
+  kicker: string;
+  judul: string;
+  npc: MissionNpc;
+  level: { judul: string; misi: string }[];
+  pelajaran: string[];
+}
+
+export interface AccessPolicy {
+  peran: string;
+  hakAkses: string;
+}
+
+export interface AccessRequest {
+  id: string;
+  nama: string;
+  peran: string;
+  data: string;
+  jam: string;
+  alasan: string;
+  izinkan: boolean;
+  konsep: string;
+  penjelasan: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  waktu: string;
+  pengguna: string;
+  aksi: string;
+  detail: string;
+  mencurigakan: boolean;
+  temuan?: string;
+  konsep?: string;
+}
+
+export type RiskLevel = "Tinggi" | "Sedang" | "Rendah";
+
+export interface AuditFinding {
+  id: string;
+  judul: string;
+  risikoBenar: RiskLevel[];
+  rekomendasi: string[];
+  rekomendasiBenar: number;
+  penjelasan: string;
+}
+
+export interface ErpModule {
+  id: string;
+  label: string;
+  divisi: string;
+  aliranData: string;
+}
+
+export interface ErpOrder {
+  id: string;
+  pelanggan: string;
+  jumlah: number;
+  muncul: number;
+}
+
+export interface ErpEventOption {
+  label: string;
+  benar: boolean;
+  hasil: string;
+  stok?: number;
+  kepuasan?: number;
+  stokSusulan?: number;
+}
+
+export interface ErpEvent {
+  id: string;
+  muncul: number;
+  judul: string;
+  deskripsi: string;
+  konsep: string;
+  opsi: ErpEventOption[];
+}
+
+export type DataIssueType = "format" | "invalid" | "duplikat" | "kosong";
+
+export interface DataIssue {
+  baris: string;
+  kolom: string | "*";
+  jenis: DataIssueType;
+  perbaikan?: string | number;
+  /** Untuk duplikat: id baris aslinya (yang dipertahankan). */
+  asli?: string;
+  penjelasan: string;
+}
+
+export interface DataDetectiveTable {
+  kolom: string[];
+  baris: { id: string; data: Record<string, string | number> }[];
+  masalah: DataIssue[];
+}
+
+export type ChartKind = "bar" | "line" | "pie";
+
+export interface ChartQuestion {
+  id: string;
+  pertanyaan: string;
+  jawaban: ChartKind;
+  penjelasan: string;
+  data: { label: string; nilai: number }[];
+}
+
+export interface InsightQuestion {
+  id: string;
+  pertanyaan: string;
+  grafik: ChartKind;
+  data: { label: string; nilai: number }[];
+  opsi: DataInsightOpsi[];
+}
+
 /** --- FAQ Chatbot --- */
 
 export interface FaqItem {

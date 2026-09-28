@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "components/game/game-canvas.tsx": {
-    "mtime": 1790590270.540753,
-    "seen": 1790590312.8528295,
-    "ast_hash": "21dd729a2126f8330d35f2db1ac4ed10",
+    "mtime": 1790590487.4898567,
+    "seen": 1790590541.1916177,
+    "ast_hash": "aca247d86275d0541334b469416c7555",
     "semantic_hash": ""
   },
   "components/game/game-entry.tsx": {
