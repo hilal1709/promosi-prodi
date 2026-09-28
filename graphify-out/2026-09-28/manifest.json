@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "components/game/game-entry.tsx": {
-    "mtime": 1790150057.6887684,
-    "seen": 1790580751.5050745,
-    "ast_hash": "aa2c4e30e48ceee08f3b699eb41b0d44",
+    "mtime": 1790594652.4207404,
+    "seen": 1790597919.9240425,
+    "ast_hash": "3b7b8c7e6f90a0d044b7a2b9d8152687",
     "semantic_hash": ""
   },
   "components/game/legacy-redirect.tsx": {
@@ -492,15 +492,15 @@
     "semantic_hash": ""
   },
   "components/game/mission-panel.tsx": {
-    "mtime": 1790091718.2300763,
-    "seen": 1790580751.5050778,
-    "ast_hash": "093e8a63592ea38fa57766ddcbff057a",
+    "mtime": 1790591663.722773,
+    "seen": 1790592130.5997825,
+    "ast_hash": "e61687639143cdfe24bcd0dd4b361378",
     "semantic_hash": ""
   },
   "components/game/use-game-audio.ts": {
-    "mtime": 1790162591.1366012,
-    "seen": 1790580751.5050795,
-    "ast_hash": "b2d1a79198b6d02afd23122ac227d3a7",
+    "mtime": 1790593704.793093,
+    "seen": 1790597919.9267957,
+    "ast_hash": "dd51b521bc183d51896fed1b6fc9021b",
     "semantic_hash": ""
   },
   "components/gsap/page-transition.tsx": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "lib/types.ts": {
-    "mtime": 1790100133.1358654,
-    "seen": 1790580751.5051565,
-    "ast_hash": "9d5e33c19fdd93c8f8d036404c80f4cb",
+    "mtime": 1790591663.5976827,
+    "seen": 1790592130.6130288,
+    "ast_hash": "287e4e3adb45f9d132f8288676197461",
     "semantic_hash": ""
   },
   "lib/utils.ts": {
@@ -1077,6 +1077,90 @@
     "mtime": 1790590215.674908,
     "seen": 1790590312.85254,
     "ast_hash": "d1d1688e2acd131eebc12deb75a1d230",
+    "semantic_hash": ""
+  },
+  "components/game/missions/audit-mission.tsx": {
+    "mtime": 1790591470.645196,
+    "seen": 1790592130.599789,
+    "ast_hash": "a8a98bfc8d6bc43341c8486d56d2e436",
+    "semantic_hash": ""
+  },
+  "components/game/missions/data-mission.tsx": {
+    "mtime": 1790592048.4008412,
+    "seen": 1790592130.5997925,
+    "ast_hash": "7d13ffd8b75f82cfaeaadcf6736acd78",
+    "semantic_hash": ""
+  },
+  "components/game/missions/erp-mission.tsx": {
+    "mtime": 1790591715.2350237,
+    "seen": 1790592130.5997946,
+    "ast_hash": "410f680d4902b9c78d43fce5ee7e7f2c",
+    "semantic_hash": ""
+  },
+  "components/game/missions/mission-kit.tsx": {
+    "mtime": 1790593873.411299,
+    "seen": 1790597919.9267876,
+    "ast_hash": "d3aaaedd822deb745b8489941bc9d38e",
+    "semantic_hash": ""
+  },
+  "lib/data/missions.ts": {
+    "mtime": 1790591663.5986834,
+    "seen": 1790592130.6107395,
+    "ast_hash": "f0be133efc4c4551d275148aa3d63148",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/audit/inspektur-world.tsx": {
+    "mtime": 1790602914.9551814,
+    "seen": 1790602956.84799,
+    "ast_hash": "a6c03d897af96cd1fc2809524df43445",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/data/data-lab-world.tsx": {
+    "mtime": 1790595128.8279605,
+    "seen": 1790597919.9268086,
+    "ast_hash": "f258c0e47bd8f1bfc9fff27278db4023",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/erp/race-world.tsx": {
+    "mtime": 1790594756.2600536,
+    "seen": 1790597919.9268136,
+    "ast_hash": "b145d79f1b65c5222f470b6f21f32c90",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/mission-world.tsx": {
+    "mtime": 1790593967.1175418,
+    "seen": 1790597919.926817,
+    "ast_hash": "1d479a47eb5b4d2603af781c8e2dfbd9",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/touch-controls.tsx": {
+    "mtime": 1790598258.178242,
+    "seen": 1790598908.5282469,
+    "ast_hash": "f84fb38e75835b145aa840f3a2069505",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/world-controls.ts": {
+    "mtime": 1790598258.1752439,
+    "seen": 1790598908.528256,
+    "ast_hash": "55b39e2881d7a045b4bfc6707768b8b5",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/world-kit.tsx": {
+    "mtime": 1790598268.8913138,
+    "seen": 1790598908.5282624,
+    "ast_hash": "acc073b8ffaf46fa1802b000a7d275e7",
+    "semantic_hash": ""
+  },
+  "lib/data/worlds.ts": {
+    "mtime": 1790602449.3433454,
+    "seen": 1790602956.8657222,
+    "ast_hash": "2583d0e84bbe2c80c85c7ea19a7ba8f9",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/audit/inspect-extras.tsx": {
+    "mtime": 1790598388.309685,
+    "seen": 1790598908.5266998,
+    "ast_hash": "b07dcb814e3ac9b7b0a572c9ffb336f9",
     "semantic_hash": ""
   }
 }

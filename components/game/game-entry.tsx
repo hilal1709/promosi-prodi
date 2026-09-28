@@ -59,6 +59,16 @@ const GameCanvas = dynamic(() => import("@/components/game/game-canvas"), {
   ),
 });
 
+const MissionWorld = dynamic(() => import("@/components/game/worlds/mission-world"), {
+  ssr: false,
+  loading: () => (
+    <div className="game-loading" role="status">
+      <span className="game-loader" />
+      <strong>Memasuki dunia misi…</strong>
+    </div>
+  ),
+});
+
 const ZONE_LABELS: Record<CampusZone | "plaza", string> = {
   plaza: "Plaza Digital",
   "it-audit": "Pusat Keamanan",
@@ -270,6 +280,9 @@ export default function GameEntry() {
   const [resultOpen, setResultOpen] = useState(false);
   const [paused, setPaused] = useState(false);
   const [liteMode, setLiteMode] = useState(false);
+  // Dunia misi 3D juga dipakai di HP; hanya perangkat tanpa WebGL yang memakai misi pop-up.
+  const [webglOk, setWebglOk] = useState(false);
+  const [worldOpen, setWorldOpen] = useState(false);
   const { startAudio, playSound } = useGameAudio(progress.audio);
   const handleStep = useCallback(() => playSound("step"), [playSound]);
 
@@ -286,7 +299,9 @@ export default function GameEntry() {
       setProgress(next);
       setStarted(Boolean(stored.avatar) && (stored.phase !== "start" || params.has("zone") || params.has("panel") || params.has("mode")));
       setInfoOpen(params.get("panel") === "info");
-      setLiteMode(window.matchMedia("(max-width: 767px)").matches || !supportsWebGL());
+      const webgl = supportsWebGL();
+      setWebglOk(webgl);
+      setLiteMode(window.matchMedia("(max-width: 767px)").matches || !webgl);
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(timer);
@@ -328,9 +343,16 @@ export default function GameEntry() {
       return;
     }
     setActiveMission(zone);
-    setMissionOpen(true);
+    if (webglOk) setWorldOpen(true);
+    else setMissionOpen(true);
     setProgress((current) => ({ ...current, phase: "mission", spawnZone: zone }));
-  }, [playSound]);
+  }, [playSound, webglOk]);
+
+  const exitWorld = useCallback(() => {
+    setWorldOpen(false);
+    setActiveMission(null);
+    setProgress((current) => ({ ...current, phase: "explore" }));
+  }, []);
 
   const interact = useCallback(() => {
     if (nearZone) openZone(nearZone);
@@ -338,7 +360,7 @@ export default function GameEntry() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (!started) return;
+      if (!started || worldOpen) return;
       if (event.key.toLowerCase() === "e" && !missionOpen && !infoOpen && !assistantOpen) interact();
       if (event.key === "Escape" && !missionOpen && !infoOpen && !assistantOpen && !helpOpen && !settingsOpen) {
         setPaused((current) => !current);
@@ -346,7 +368,7 @@ export default function GameEntry() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activeMission, assistantOpen, helpOpen, infoOpen, interact, missionOpen, settingsOpen, started]);
+  }, [activeMission, assistantOpen, helpOpen, infoOpen, interact, missionOpen, settingsOpen, started, worldOpen]);
 
   const finishMission = (performance: number, affinityBonus: 0 | 15 | 30) => {
     if (!activeMission) return;
@@ -365,6 +387,7 @@ export default function GameEntry() {
       spawnZone: missionId,
     }));
     setMissionOpen(false);
+    setWorldOpen(false);
     setActiveMission(null);
     if (Object.keys(missions).length === 3) setResultOpen(true);
   };
@@ -385,6 +408,19 @@ export default function GameEntry() {
         onSelectCharacter={selectCharacter}
         onStart={startGame}
         onReset={resetGame}
+      />
+    );
+  }
+
+  if (worldOpen && activeMission) {
+    return (
+      <MissionWorld
+        missionId={activeMission}
+        avatar={progress.avatar ?? "arga"}
+        quality={progress.quality}
+        sound={playSound}
+        onComplete={finishMission}
+        onExit={exitWorld}
       />
     );
   }

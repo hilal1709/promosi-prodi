@@ -22,13 +22,13 @@ import { cn } from "@/lib/utils";
 import { CURRICULUM } from "@/lib/data/curriculum";
 import { MISSION_BRIEFS } from "@/lib/data/missions";
 import { TRACKS } from "@/lib/data/tracks";
-import type { MissionId } from "@/lib/types";
+import type { MissionBrief, MissionId } from "@/lib/types";
 
 export type Affinity = 0 | 15 | 30;
 export type OnMissionComplete = (performance: number, affinity: Affinity) => void;
 export type LevelProps = { onFinish: (score: number) => void };
 
-const THEME = {
+export const MISSION_THEME = {
   "it-audit": { color: "#e54b4b", soft: "#fce0dc", ink: "#ffffff", Icon: ShieldCheck },
   "enterprise-system": { color: "#ffa987", soft: "#fff0ea", ink: "#1e1e24", Icon: Database },
   "data-science": { color: "#444140", soft: "#eee9e7", ink: "#ffffff", Icon: BarChart3 },
@@ -86,8 +86,15 @@ function TypedLine({ text }: { text: string }) {
   );
 }
 
-function MissionIntro({ missionId, onStart }: { missionId: MissionId; onStart: () => void }) {
-  const brief = MISSION_BRIEFS[missionId];
+export function MissionIntro({
+  missionId,
+  onStart,
+  brief = MISSION_BRIEFS[missionId],
+}: {
+  missionId: MissionId;
+  onStart: () => void;
+  brief?: MissionBrief;
+}) {
   const [line, setLine] = useState(0);
   const lastLine = line >= brief.npc.dialog.length - 1;
   const initials = brief.npc.nama.split(" ").map((word) => word[0]).join("");
@@ -270,7 +277,7 @@ export function LevelComplete({
   );
 }
 
-function AffinityStep({ performance, onComplete }: { performance: number; onComplete: OnMissionComplete }) {
+export function AffinityStep({ performance, onComplete }: { performance: number; onComplete: OnMissionComplete }) {
   return (
     <div className="mt-5 rounded-3xl bg-brand-navy p-5 text-white">
       <div className="flex items-start gap-3">
@@ -299,8 +306,17 @@ function AffinityStep({ performance, onComplete }: { performance: number; onComp
   );
 }
 
-function LearningCard({ missionId, scores, performance }: { missionId: MissionId; scores: number[]; performance: number }) {
-  const brief = MISSION_BRIEFS[missionId];
+export function LearningCard({
+  missionId,
+  scores,
+  performance,
+  brief = MISSION_BRIEFS[missionId],
+}: {
+  missionId: MissionId;
+  scores: number[];
+  performance: number;
+  brief?: MissionBrief;
+}) {
   return (
     <div className="mt-5 grid gap-3">
       <div className="mission-pop rounded-3xl border-2 p-5 text-center" style={{ borderColor: "var(--mission)", background: "var(--mission-soft)" }}>
@@ -351,7 +367,7 @@ export function MissionRunner({
   onComplete: OnMissionComplete;
 }) {
   const brief = MISSION_BRIEFS[missionId];
-  const theme = THEME[missionId];
+  const theme = MISSION_THEME[missionId];
   const [stage, setStage] = useState(-1);
   const [scores, setScores] = useState<number[]>([]);
   const done = stage >= levels.length;

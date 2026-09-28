@@ -3,7 +3,16 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { AudioSettings } from "@/lib/types";
 
-type SoundName = "interact" | "success" | "step";
+export type SoundName = "interact" | "success" | "step" | "error" | "pickup";
+
+// [gelombang, frekuensi awal, frekuensi akhir, lama sapuan, volume, lama bunyi]
+const SOUNDS: Record<SoundName, [OscillatorType, number, number, number, number, number]> = {
+  success: ["triangle", 440, 880, 0.42, 0.12, 0.5],
+  interact: ["sine", 260, 520, 0.1, 0.12, 0.14],
+  step: ["sine", 95, 70, 0.1, 0.045, 0.14],
+  error: ["sawtooth", 220, 110, 0.22, 0.06, 0.26],
+  pickup: ["square", 660, 1320, 0.08, 0.05, 0.12],
+};
 
 export function useGameAudio(settings: AudioSettings) {
   const contextRef = useRef<AudioContext | null>(null);
@@ -91,20 +100,18 @@ export function useGameAudio(settings: AudioSettings) {
       if (name === "step" && context.currentTime - lastStepRef.current < 0.24) return;
       if (name === "step") lastStepRef.current = context.currentTime;
 
+      const [type, from, to, sweep, volume, length] = SOUNDS[name];
       const oscillator = context.createOscillator();
       const gain = context.createGain();
       const now = context.currentTime;
-      oscillator.type = name === "success" ? "triangle" : "sine";
-      oscillator.frequency.setValueAtTime(name === "success" ? 440 : name === "interact" ? 260 : 95, now);
-      oscillator.frequency.exponentialRampToValueAtTime(
-        name === "success" ? 880 : name === "interact" ? 520 : 70,
-        now + (name === "success" ? 0.42 : 0.1)
-      );
-      gain.gain.setValueAtTime(name === "step" ? 0.045 : 0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + (name === "success" ? 0.5 : 0.14));
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(from, now);
+      oscillator.frequency.exponentialRampToValueAtTime(to, now + sweep);
+      gain.gain.setValueAtTime(volume, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + length);
       oscillator.connect(gain).connect(master);
       oscillator.start(now);
-      oscillator.stop(now + (name === "success" ? 0.52 : 0.16));
+      oscillator.stop(now + length + 0.02);
     },
     [settings.muted]
   );
