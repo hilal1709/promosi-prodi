@@ -480,8 +480,8 @@
     "semantic_hash": ""
   },
   "components/game/game-entry.tsx": {
-    "mtime": 1790594652.4207404,
-    "seen": 1790597919.9240425,
+    "mtime": 1790609272.858961,
+    "seen": 1790609323.3744612,
     "ast_hash": "3b7b8c7e6f90a0d044b7a2b9d8152687",
     "semantic_hash": ""
   },
@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "components/game/use-game-audio.ts": {
-    "mtime": 1790593704.793093,
-    "seen": 1790597919.9267957,
-    "ast_hash": "dd51b521bc183d51896fed1b6fc9021b",
+    "mtime": 1790605404.1249177,
+    "seen": 1790606499.8299105,
+    "ast_hash": "c8b55a177afd822e064a67191b44d836",
     "semantic_hash": ""
   },
   "components/gsap/page-transition.tsx": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspektur-world.tsx": {
-    "mtime": 1790602914.9551814,
-    "seen": 1790602956.84799,
-    "ast_hash": "a6c03d897af96cd1fc2809524df43445",
+    "mtime": 1790609273.3030791,
+    "seen": 1790609323.377242,
+    "ast_hash": "4aee21661ea469bdb7758100aeb398a7",
     "semantic_hash": ""
   },
   "components/game/worlds/data/data-lab-world.tsx": {
@@ -1152,15 +1152,33 @@
     "semantic_hash": ""
   },
   "lib/data/worlds.ts": {
-    "mtime": 1790602449.3433454,
-    "seen": 1790602956.8657222,
-    "ast_hash": "2583d0e84bbe2c80c85c7ea19a7ba8f9",
+    "mtime": 1790606337.8969166,
+    "seen": 1790606499.8450208,
+    "ast_hash": "f7654a10a6ecee735699ec17241aa861",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspect-extras.tsx": {
     "mtime": 1790598388.309685,
     "seen": 1790598908.5266998,
     "ast_hash": "b07dcb814e3ac9b7b0a572c9ffb336f9",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/audit/data-center.tsx": {
+    "mtime": 1790605404.1234078,
+    "seen": 1790606499.8299167,
+    "ast_hash": "3f71d7deb1aa008b75cb1c81ebc1fb4b",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/audit/hacker-arena.tsx": {
+    "mtime": 1790609273.0701005,
+    "seen": 1790609323.3768334,
+    "ast_hash": "5e19ef43f943ad4318f71908e65ab8a0",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/audit/arena-models.tsx": {
+    "mtime": 1790609272.6459875,
+    "seen": 1790609323.3765373,
+    "ast_hash": "90b586d62bcd03cc99736a3a1ea0a030",
     "semantic_hash": ""
   }
 }

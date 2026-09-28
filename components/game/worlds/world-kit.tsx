@@ -52,7 +52,7 @@ export function WorldStage({
 }: {
   quality: GameQuality;
   paused: boolean;
-  camera?: { position?: [number, number, number]; fov?: number };
+  camera?: { position?: [number, number, number]; fov?: number; near?: number; far?: number };
   background?: string;
   children: ReactNode;
   overlay: ReactNode;
@@ -64,7 +64,7 @@ export function WorldStage({
         frameloop={paused ? "demand" : "always"}
         shadows={quality !== "hemat" ? "percentage" : false}
         dpr={dpr}
-        camera={{ fov: camera?.fov ?? 55, near: 0.1, far: 260, position: camera?.position ?? [0, 8, 10] }}
+        camera={{ fov: camera?.fov ?? 55, near: camera?.near ?? 0.1, far: camera?.far ?? 260, position: camera?.position ?? [0, 8, 10] }}
         gl={{ antialias: quality !== "hemat", powerPreference: "high-performance" }}
       >
         <color attach="background" args={[background]} />

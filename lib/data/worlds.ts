@@ -1,5 +1,5 @@
 import type { DataIssueType, MissionBrief, MissionId } from "@/lib/types";
-import { DATA_TABLE, ERP_BOARD, MISSION_BRIEFS } from "@/lib/data/missions";
+import { DATA_TABLE, ERP_BOARD, ERP_ORDERS, MISSION_BRIEFS } from "@/lib/data/missions";
 
 /** Info level versi dunia 3D, termasuk petunjuk kontrol. */
 export interface WorldLevelInfo {
@@ -24,24 +24,24 @@ export const WORLD_LEVELS: Record<MissionId, WorldLevelInfo[]> = {
       kontrolSentuh: "Ketuk paket untuk memblokir",
     },
     {
-      judul: "Konfrontasi",
-      misi: "Bantah pernyataan tersangka dengan bukti yang tepat, lalu tentukan tingkat risikonya.",
-      kontrol: "Klik kartu bukti",
-      kontrolSentuh: "Ketuk kartu bukti",
+      judul: "Serbuan Peretas",
+      misi: "Peretas menyerbu server database! Tembak virus & bot sebelum menembus server, jangan kena staf yang bekerja normal, lalu kalahkan boss Peretas Bayangan dengan kontrol audit yang tepat.",
+      kontrol: "WASD gerak · tahan Spasi tembak · Shift dash",
+      kontrolSentuh: "Joystick gerak · tahan Tembak · tombol Dash",
     },
   ],
   "enterprise-system": [
     {
       judul: "Rute Order-to-Cash",
-      misi: "Setir truk melewati gerbang modul ERP sesuai urutan alur pesanan, lalu kembali ke garis finis.",
-      kontrol: "W gas · S rem · A/D belok",
-      kontrolSentuh: "Joystick: dorong ke atas untuk gas, kiri/kanan untuk belok",
+      misi: "Balapan melawan waktu! Lewati 6 gerbang modul ERP sesuai urutan order-to-cash (gerbang benar = +15 detik & combo). Kumpulkan paket data untuk nitro, lompati ramp, basmi drone bug, dan hindari kerucut, tumpukan kertas, serta genangan data error.",
+      kontrol: "W gas · S rem · A/D belok · tahan Spasi nitro",
+      kontrolSentuh: "Joystick untuk menyetir · tahan tombol Nitro untuk ngebut",
     },
     {
-      judul: "Jam Sibuk",
-      misi: "Antar semen ke pelanggan sebelum mereka menunggu terlalu lama. Isi muatan di pabrik dan pilih jalur yang tepat saat ada kejadian.",
-      kontrol: "W gas · S rem · A/D belok",
-      kontrolSentuh: "Joystick untuk menyetir",
+      judul: "Shift Gudang Pintar",
+      misi: "Truk pelanggan antre di dermaga! Ambil palet semen yang tepat dari rak, muat ke truk sebelum sopirnya bosan, jalankan produksi saat dasbor ERP bilang stok menipis, dan tangani alarm di Terminal ERP. Awas forklift yang lewat!",
+      kontrol: "WASD jalan · Shift lari · E ambil / muat / produksi",
+      kontrolSentuh: "Joystick jalan · tombol Aksi · tahan Lari",
     },
     {
       judul: "Balapan vs Sistem Manual",
@@ -81,7 +81,7 @@ export const WORLD_BRIEFS: Record<MissionId, MissionBrief> = {
       dialog: [
         "Inspektur, ada laporan kebocoran data pelanggan di kantor pusat. Malam ini kamu turun langsung.",
         "Periksa kantor: cari kontrol yang bolong. Setelah itu jaga firewall server database — blokir lalu lintas data yang mencurigakan.",
-        "Terakhir, konfrontasi dengan bukti. Auditor TI bekerja dengan fakta, bukan tebakan. Siap bertugas?",
+        "Terakhir, peretas akan menyerbu server langsung. Lindungi datanya dan jebol perisai bos mereka dengan kontrol yang tepat. Siap bertugas?",
       ],
     },
     level: WORLD_LEVELS["it-audit"],
@@ -94,7 +94,8 @@ export const WORLD_BRIEFS: Record<MissionId, MissionBrief> = {
       dialog: [
         "Selamat datang, sopir andalan! Truk semen ini terhubung ke sistem ERP pabrik kita.",
         "Setiap gerbang yang kamu lewati adalah modul ERP: penjualan, gudang, produksi, logistik, keuangan. Urutannya penting!",
-        "Nanti kita juga balapan melawan truk 'Sistem Manual' yang masih pakai kertas. Tunjukkan kalau sistem terintegrasi lebih unggul!",
+        "Setelah itu kamu pegang shift gudang: muat palet ke truk pelanggan, jalankan produksi, dan pantau dasbor ERP.",
+        "Terakhir, kita balapan melawan truk 'Sistem Manual' yang masih pakai kertas. Tunjukkan kalau sistem terintegrasi lebih unggul!",
       ],
     },
     level: WORLD_LEVELS["enterprise-system"],
@@ -243,33 +244,43 @@ export const FIREWALL_PACKETS: FirewallPacket[] = [
   { id: "n13", pengguna: "sinta.cs", aksi: "Lembur dengan izin atasan", jam: "20.00", bahaya: false, konsep: "Kontrol waktu akses", alasan: "Di luar jam kerja, tapi sudah ada persetujuan atasan." },
 ];
 
-export interface Statement {
-  teks: string;
-  bukti: string;
-  bantahan: string;
+export type ArenaEnemyKind = "virus" | "bot" | "phish" | "yatim";
+
+export interface ArenaEnemyInfo {
+  nama: string;
+  konsep: string;
+  alasan: string;
+  hp: number;
+  speed: number;
+  /** Kerusakan pada server bila berhasil menembus; 0 = mengejar pemain. */
+  damage: number;
+  color: string;
 }
 
-export const EVIDENCE: { id: string; judul: string; isi: string }[] = [
-  { id: "l3", judul: "Log 08.11", isi: "budi.fin · login gagal 7× dari IP luar negeri" },
-  { id: "l6", judul: "Log 02.14", isi: "sinta.cs · buka 300 profil pelanggan" },
-  { id: "l9", judul: "Log 16.50", isi: "lala.intern · ekspor 12.000 data ke USB" },
-  { id: "l11", judul: "Log 10.05", isi: "rudi.hr (resign) · login berhasil" },
-  { id: "doc", judul: "Dokumen", isi: "Kebijakan password terakhir diperbarui 2 tahun lalu" },
-];
+/** Ancaman di level Serbuan Peretas. */
+export const ARENA_ENEMIES: Record<ArenaEnemyKind, ArenaEnemyInfo> = {
+  virus: { nama: "Virus USB", konsep: "Malware", alasan: "Flashdisk tak dikenal bisa membawa malware — port USB perlu dibatasi.", hp: 1, speed: 3.3, damage: 5, color: "#e54b4b" },
+  bot: { nama: "Bot brute force", konsep: "Brute force", alasan: "Bot menebak password berulang kali — kunci akun & MFA menghentikannya.", hp: 2, speed: 2.3, damage: 7, color: "#9b5de5" },
+  phish: { nama: "Email phishing", konsep: "Phishing", alasan: "Phishing menyasar manusia, bukan server — pelatihan kesadaran keamanan itu penting.", hp: 2, speed: 3, damage: 0, color: "#f2a93b" },
+  yatim: { nama: "Akun resign", konsep: "Offboarding", alasan: "Akun karyawan yang sudah keluar harus dinonaktifkan di hari terakhirnya.", hp: 3, speed: 1.8, damage: 10, color: "#8a94a6" },
+};
 
-export const STATEMENTS: Statement[] = [
-  { teks: "Semua akses data pelanggan di kantor ini terjadi di jam kerja.", bukti: "l6", bantahan: "Log 02.14 menunjukkan 300 profil dibuka tengah malam!" },
-  { teks: "Tidak pernah ada data pelanggan yang keluar dari kantor.", bukti: "l9", bantahan: "12.000 data diekspor ke USB pukul 16.50!" },
-  { teks: "Karyawan yang sudah keluar otomatis tidak bisa login.", bukti: "l11", bantahan: "Akun rudi.hr yang resign masih berhasil login!" },
-  { teks: "Sistem login kita aman, tidak ada yang mencoba menebak password.", bukti: "l3", bantahan: "Ada 7 kali login gagal dari IP luar negeri!" },
-  { teks: "Semua dokumen kebijakan keamanan kami selalu terbaru.", bukti: "doc", bantahan: "Kebijakan password sudah 2 tahun tidak diperbarui!" },
+/** Staf yang mengakses server secara sah — jangan ditembak. */
+export const ARENA_STAFF: string[] = [
+  "dewi.hr · proses gaji",
+  "hendra.gdg · cek stok",
+  "rani.cs · buka 1 profil",
+  "fajar.dba · tiket #CR-204",
+  "budi.fin · laporan rutin",
+  "backup.sys · backup harian",
 ];
 
 /** --- Enterprise System --- */
 
 /** Titik kendali lintasan (x, z); dibuat lingkaran tertutup dengan Catmull-Rom. */
 export const TRACK_POINTS: [number, number][] = [
-  [0, 0], [28, -14], [58, -6], [70, 22], [52, 50], [22, 58], [-10, 64], [-38, 50], [-50, 22], [-34, 2],
+  [0, 0], [46, -24], [96, -24], [136, 2], [148, 46], [128, 90], [92, 110], [60, 102],
+  [26, 112], [-14, 130], [-62, 122], [-100, 88], [-108, 42], [-80, 10], [-40, 10],
 ];
 
 export const BOARD_GATES = ERP_BOARD.opsi.map((option) => ({
@@ -285,11 +296,57 @@ export const RUSH_STOPS = [
 ];
 
 export const RACE_PADS: { t: number; offset: number; type: "boost" | "trap"; label: string }[] = [
-  { t: 0.12, offset: -2.5, type: "boost", label: "Sinkron data otomatis" },
-  { t: 0.22, offset: 2.5, type: "trap", label: "Input ulang manual" },
-  { t: 0.35, offset: 2.5, type: "boost", label: "Stok real-time" },
-  { t: 0.62, offset: -2.5, type: "trap", label: "Rekap Excel" },
+  { t: 0.12, offset: -3.6, type: "boost", label: "Sinkron data otomatis" },
+  { t: 0.22, offset: 3.6, type: "trap", label: "Input ulang manual" },
+  { t: 0.35, offset: 3.6, type: "boost", label: "Stok real-time" },
+  { t: 0.62, offset: -3.6, type: "trap", label: "Rekap Excel" },
   { t: 0.72, offset: 0, type: "boost", label: "Faktur otomatis" },
-  { t: 0.86, offset: -2.5, type: "boost", label: "Dasbor terpadu" },
-  { t: 0.93, offset: 2.5, type: "trap", label: "Tumpukan kertas" },
+  { t: 0.86, offset: -3.6, type: "boost", label: "Dasbor terpadu" },
+  { t: 0.93, offset: 3.6, type: "trap", label: "Tumpukan kertas" },
 ];
+
+/** --- Level Shift Gudang Pintar --- */
+
+export type OpsProductId = "pcc" | "opc" | "putih";
+
+export const OPS_PRODUCTS: Record<OpsProductId, { nama: string; singkat: string; color: string; sack: string }> = {
+  pcc: { nama: "Semen PCC", singkat: "PCC", color: "#e0513f", sack: "#f0d9c4" },
+  opc: { nama: "Semen OPC", singkat: "OPC", color: "#3f7fd8", sack: "#dfe6ee" },
+  putih: { nama: "Semen Putih", singkat: "PUTIH", color: "#f4f1ea", sack: "#fbfaf6" },
+};
+
+export const OPS_PRODUCT_IDS: OpsProductId[] = ["pcc", "opc", "putih"];
+
+export interface OpsOrder {
+  id: string;
+  pelanggan: string;
+  jumlah: number;
+  /** Detik munculnya truk di jalan masuk. */
+  muncul: number;
+  /** Palet yang harus dimuat (1 palet ≈ 20–30 ton). */
+  palet: OpsProductId[];
+}
+
+const OPS_ORDER_MIX: OpsProductId[][] = [
+  ["opc", "opc"],
+  ["pcc", "pcc"],
+  ["putih"],
+  ["pcc", "opc"],
+  ["pcc", "pcc", "opc"],
+  ["putih", "putih"],
+  ["opc", "opc", "putih"],
+  ["pcc"],
+];
+const OPS_ORDER_TIMES = [1, 8, 20, 36, 52, 70, 88, 106];
+
+/** Pesanan ERP yang sama dengan misi kampus, dikemas jadi palet per jenis semen. */
+export const OPS_ORDERS: OpsOrder[] = ERP_ORDERS.map((order, index) => ({
+  id: order.id,
+  pelanggan: order.pelanggan,
+  jumlah: order.jumlah,
+  muncul: OPS_ORDER_TIMES[index] ?? order.muncul * 1.4,
+  palet: OPS_ORDER_MIX[index % OPS_ORDER_MIX.length],
+}));
+
+/** Waktu (detik) alarm kejadian ERP berbunyi di Terminal Ruang Kendali. */
+export const OPS_EVENT_TIMES = [30, 78, 124];

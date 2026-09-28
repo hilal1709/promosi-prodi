@@ -18,7 +18,7 @@ import { useWorldInput } from "./world-controls";
 import type { WorldLevelProps } from "./world-kit";
 import { AUDIT_LEVELS } from "./audit/inspektur-world";
 import { DATA_LEVELS } from "./data/data-lab-world";
-import { ERP_LEVELS } from "./erp/race-world";
+import { ERP_LEVELS } from "./erp/levels";
 
 const LEVELS: Record<MissionId, ComponentType<WorldLevelProps>[]> = {
   "it-audit": AUDIT_LEVELS,

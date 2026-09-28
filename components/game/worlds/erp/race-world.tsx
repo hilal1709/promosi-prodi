@@ -1,190 +1,51 @@
 "use client";
 
-import { useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Flag, Gauge, Package, Smile, Timer, Trophy } from "lucide-react";
+import { Flag, Timer, Trophy } from "lucide-react";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
-import { ERP_BOARD_SCORES, ERP_EVENTS, ERP_MODULES, ERP_ORDERS } from "@/lib/data/missions";
-import { BOARD_GATES, RACE_PADS, RUSH_STOPS, TRACK_POINTS } from "@/lib/data/worlds";
+import type { GameQuality } from "@/lib/types";
+import { ERP_BOARD_SCORES } from "@/lib/data/missions";
+import { BOARD_GATES, RACE_PADS } from "@/lib/data/worlds";
 import { TouchControls } from "../touch-controls";
 import { readAxis, type WorldInput } from "../world-controls";
 import {
   clampDelta,
   HudChip,
-  HudMeter,
   Label,
   LevelEnd,
   WorldHud,
-  WorldLights,
   WorldStage,
   useThrottled,
   type WorldLevelProps,
 } from "../world-kit";
+import {
+  crossed,
+  headingAt,
+  indexAt,
+  nearestIndex,
+  pointAt,
+  RAIL_OFFSET,
+  ROAD_HALF,
+  sampleTrack,
+  SAMPLES,
+  TRACK,
+} from "./race-track";
+import { RaceScenery, Traffic, TrafficContext, type TrafficCarState } from "./race-scenery";
+import { CementTruck, RIVAL_LIVERY, TRAFFIC_SIZE } from "./truck-models";
 
 /* ------------------------------------------------------------------ */
-/* Lintasan & fisika truk                                             */
+/* Fisika truk                                                        */
 /* ------------------------------------------------------------------ */
 
-const ROAD_WIDTH = 10;
-const SAMPLES = 600;
+const TOP_SPEED = 24;
+const OFFROAD_SPEED = 13;
+const TRUCK_HALF_LENGTH = 3.8;
+const TRUCK_HALF_WIDTH = 1.3;
+export const STAGE_CAMERA = { position: [0, 8, -14] as [number, number, number], fov: 60, near: 0.5, far: 1000 };
 
-const TRACK = (() => {
-  const curve = new THREE.CatmullRomCurve3(TRACK_POINTS.map(([x, z]) => new THREE.Vector3(x, 0, z)), true, "centripetal");
-  const points = curve.getSpacedPoints(SAMPLES).slice(0, SAMPLES);
-  const tangents = points.map((_, index) => curve.getTangentAt(index / SAMPLES));
-  // Normal "kanan" di bidang XZ. Offset gerbang dan posisi lateral truk memakai normal yang sama.
-  const normals = tangents.map((t) => new THREE.Vector3(-t.z, 0, t.x));
-  return { points, tangents, normals, length: curve.getLength() };
-})();
-
-const indexAt = (t: number) => ((Math.round(t * SAMPLES) % SAMPLES) + SAMPLES) % SAMPLES;
-
-function pointAt(t: number, offset = 0) {
-  const index = indexAt(t);
-  return TRACK.points[index].clone().addScaledVector(TRACK.normals[index], offset);
-}
-
-function nearestIndex(position: THREE.Vector3, hint: number) {
-  let best = hint;
-  let bestDistance = Infinity;
-  for (let step = -40; step <= 40; step++) {
-    const index = (hint + step + SAMPLES) % SAMPLES;
-    const distance = TRACK.points[index].distanceToSquared(position);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = index;
-    }
-  }
-  return best;
-}
-
-/** Apakah perjalanan dari indeks `from` ke `to` (maju) melewati indeks `mark`. */
-function crossed(from: number, to: number, mark: number) {
-  if (from === to) return false;
-  if (to > from) return mark > from && mark <= to;
-  return mark > from || mark <= to;
-}
-
-function Road() {
-  const geometry = useMemo(() => {
-    const vertices: number[] = [];
-    const indices: number[] = [];
-    TRACK.points.forEach((point, index) => {
-      const n = TRACK.normals[index];
-      vertices.push(point.x + n.x * (ROAD_WIDTH / 2), 0.02, point.z + n.z * (ROAD_WIDTH / 2));
-      vertices.push(point.x - n.x * (ROAD_WIDTH / 2), 0.02, point.z - n.z * (ROAD_WIDTH / 2));
-      const a = index * 2;
-      const b = ((index + 1) % SAMPLES) * 2;
-      indices.push(a, b, a + 1, a + 1, b, b + 1);
-    });
-    const shape = new THREE.BufferGeometry();
-    shape.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-    shape.setIndex(indices);
-    shape.computeVertexNormals();
-    return shape;
-  }, []);
-
-  return (
-    <group>
-      <mesh geometry={geometry} receiveShadow>
-        <meshStandardMaterial color="#3a3f4b" side={THREE.DoubleSide} roughness={0.9} />
-      </mesh>
-      {TRACK.points.map((point, index) =>
-        index % 12 === 0 ? (
-          <mesh key={index} position={[point.x, 0.04, point.z]} rotation={[-Math.PI / 2, 0, Math.atan2(TRACK.tangents[index].x, TRACK.tangents[index].z)]}>
-            <planeGeometry args={[0.35, 2.6]} />
-            <meshBasicMaterial color="#f7ebe8" />
-          </mesh>
-        ) : null
-      )}
-      {TRACK.points.map((point, index) =>
-        index % 6 === 0
-          ? [1, -1].map((side) => {
-              const edge = point.clone().addScaledVector(TRACK.normals[index], side * (ROAD_WIDTH / 2 + 0.3));
-              return (
-                <mesh key={`${index}-${side}`} position={[edge.x, 0.15, edge.z]}>
-                  <boxGeometry args={[0.6, 0.3, 0.6]} />
-                  <meshStandardMaterial color={(index / 6) % 2 === 0 ? "#e54b4b" : "#f7ebe8"} />
-                </mesh>
-              );
-            })
-          : null
-      )}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 25]} receiveShadow>
-        <circleGeometry args={[130, 48]} />
-        <meshStandardMaterial color="#86b86c" />
-      </mesh>
-    </group>
-  );
-}
-
-function Scenery() {
-  const trees = useMemo(
-    () =>
-      Array.from({ length: 46 }, (_, index) => {
-        const t = index / 46;
-        const side = index % 2 === 0 ? 1 : -1;
-        const p = pointAt(t, side * (ROAD_WIDTH / 2 + 5 + (index % 5)));
-        return { x: p.x, z: p.z, s: 0.8 + ((index * 37) % 10) / 20 };
-      }),
-    []
-  );
-  return (
-    <group>
-      {trees.map((tree, index) => (
-        <group key={index} position={[tree.x, 0, tree.z]} scale={tree.s}>
-          <mesh position={[0, 0.8, 0]} castShadow>
-            <cylinderGeometry args={[0.2, 0.28, 1.6, 6]} />
-            <meshStandardMaterial color="#6b4a2f" />
-          </mesh>
-          <mesh position={[0, 2.2, 0]} castShadow>
-            <coneGeometry args={[1.3, 2.6, 7]} />
-            <meshStandardMaterial color={index % 3 ? "#3f8f4b" : "#2f7a44"} flatShading />
-          </mesh>
-        </group>
-      ))}
-    </group>
-  );
-}
-
-function TruckModel({ color = "#ffa987", drum = "#e8e2dc", label }: { color?: string; drum?: string; label?: string }) {
-  const drumRef = useRef<THREE.Mesh>(null);
-  useFrame((_, raw) => {
-    if (drumRef.current) drumRef.current.rotation.y += clampDelta(raw) * 2.4;
-  });
-  return (
-    <group>
-      <mesh position={[0, 1.15, 1.55]} castShadow>
-        <boxGeometry args={[2.1, 1.6, 1.3]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[0, 1.45, 2.22]}>
-        <boxGeometry args={[1.8, 0.7, 0.05]} />
-        <meshStandardMaterial color="#9fd3ff" emissive="#9fd3ff" emissiveIntensity={0.2} />
-      </mesh>
-      <mesh position={[0, 0.55, -0.2]} castShadow>
-        <boxGeometry args={[2.2, 0.4, 4.4]} />
-        <meshStandardMaterial color="#2a2f3a" />
-      </mesh>
-      <group position={[0, 1.65, -0.5]} rotation={[Math.PI / 2 - 0.25, 0, 0]}>
-        <mesh ref={drumRef} castShadow>
-          <cylinderGeometry args={[0.95, 1.1, 2.9, 12]} />
-          <meshStandardMaterial color={drum} flatShading />
-        </mesh>
-      </group>
-      {[[-1.05, 1.5], [1.05, 1.5], [-1.05, -1.3], [1.05, -1.3]].map(([x, z], index) => (
-        <mesh key={index} position={[x, 0.45, z]} rotation={[0, 0, Math.PI / 2]} castShadow>
-          <cylinderGeometry args={[0.45, 0.45, 0.35, 12]} />
-          <meshStandardMaterial color="#15171c" />
-        </mesh>
-      ))}
-      {label && <Label position={[0, 3.6, 0]} className="is-red" distanceFactor={16}>{label}</Label>}
-    </group>
-  );
-}
-
-type TruckState = {
+export type TruckState = {
   pos: THREE.Vector3;
   heading: number;
   speed: number;
@@ -193,50 +54,164 @@ type TruckState = {
   lateral: number;
   boost: number;
   slow: number;
+  /** Ketinggian & kecepatan vertikal saat melompat dari ramp. */
+  y: number;
+  vy: number;
+  /** Sisa detik setir goyang (genangan data error). */
+  wobble: number;
+  /** Nitro sedang menyala (dibaca efek layar). */
+  nitro: boolean;
 };
 
-function createTruck(): TruckState {
+/** Bahan bakar nitro 0..100 yang dikelola level. */
+export type NitroTank = { fuel: number };
+
+export function createTruck(offset = 0): TruckState {
   const t = TRACK.tangents[0];
-  return { pos: TRACK.points[0].clone(), heading: Math.atan2(t.x, t.z), speed: 0, index: 0, lap: 0, lateral: 0, boost: 0, slow: 0 };
+  return {
+    pos: TRACK.points[0].clone().addScaledVector(TRACK.normals[0], offset).addScaledVector(t, -4),
+    heading: Math.atan2(t.x, t.z),
+    speed: 0,
+    index: SAMPLES - 7,
+    lap: -1,
+    lateral: offset,
+    boost: 0,
+    slow: 0,
+    y: 0,
+    vy: 0,
+    wobble: 0,
+    nitro: false,
+  };
 }
 
+const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
+const forward = new THREE.Vector3();
+const desired = new THREE.Vector3();
+const lookTarget = new THREE.Vector3();
+
 /**
- * Menjalankan fisika truk dan kamera kejar. `onMove(from, to, lapDone)` dipanggil
- * setiap frame dengan indeks lintasan sebelum/sesudah untuk deteksi gerbang.
+ * Fisika truk, pagar pembatas, tabrakan dengan lalu lintas, dan kamera kejar.
+ * `onMove(from, to, lapDone)` dipanggil setiap frame untuk deteksi gerbang.
  */
-function PlayerTruck({
+export function PlayerTruck({
   input,
   running,
   truckRef,
   onMove,
+  onBump,
+  nitroRef,
+  onNearMiss,
+  onLand,
 }: {
   input: WorldInput;
   running: boolean;
   truckRef: RefObject<TruckState>;
   onMove: (from: number, to: number, lapDone: boolean, delta: number) => void;
+  onBump?: () => void;
+  /** Bila ada, tombol Spasi/Nitro menghabiskan bahan bakar untuk boost. */
+  nitroRef?: RefObject<NitroTank>;
+  /** Dipanggil sekali saat menyalip kendaraan dari jarak sangat dekat. */
+  onNearMiss?: () => void;
+  onLand?: () => void;
 }) {
   const group = useRef<THREE.Group>(null);
-  const { camera } = useThree();
+  const traffic = useContext(TrafficContext);
   const look = useRef(new THREE.Vector3());
+  const placed = useRef(false);
+  const bumpCooldown = useRef(0);
+  const motion = useRef({ speed: 0, steer: 0, braking: false });
+  const nearMissed = useRef(new Set<TrafficCarState>());
+  const clock = useRef(0);
 
-  useFrame((_, raw) => {
+  useFrame((state, raw) => {
+    const camera = state.camera as THREE.PerspectiveCamera;
     const s = truckRef.current;
     const delta = clampDelta(raw);
+    bumpCooldown.current = Math.max(0, bumpCooldown.current - delta);
+    const bump = () => {
+      if (bumpCooldown.current > 0) return;
+      bumpCooldown.current = 0.9;
+      onBump?.();
+    };
+    let axis = { x: 0, y: 0 };
+
     if (running) {
-      const axis = readAxis(input.current);
-      const onRoad = Math.abs(s.lateral) < ROAD_WIDTH / 2 + 0.6;
+      clock.current += delta;
+      axis = readAxis(input.current);
+      const airborne = s.y > 0.01 || s.vy > 0;
+      s.nitro = Boolean(nitroRef && input.current.held.space && nitroRef.current.fuel > 0 && s.speed > 2);
+      if (s.nitro && nitroRef) {
+        nitroRef.current.fuel = Math.max(0, nitroRef.current.fuel - 34 * delta);
+        s.boost = Math.max(s.boost, 0.15);
+      }
+      if (s.wobble > 0) {
+        s.wobble = Math.max(0, s.wobble - delta);
+        axis = { x: axis.x + Math.sin(clock.current * 11) * 0.9, y: axis.y };
+      }
+      if (airborne) {
+        // Di udara: tidak ada gas/rem dan setir hampir tak berpengaruh.
+        s.vy -= 30 * delta;
+        s.y += s.vy * delta;
+        if (s.y <= 0) {
+          s.y = 0;
+          s.vy = 0;
+          onLand?.();
+        }
+        axis = { x: axis.x * 0.25, y: 0 };
+      }
+      const onRoad = Math.abs(s.lateral) < ROAD_HALF + 0.6;
       s.boost = Math.max(0, s.boost - delta);
       s.slow = Math.max(0, s.slow - delta);
-      const maxSpeed = (onRoad ? 18 : 8) * (s.boost > 0 ? 1.45 : 1) * (s.slow > 0 ? 0.5 : 1);
-      if (axis.y > 0.1) s.speed += 15 * axis.y * delta;
-      else if (axis.y < -0.1) s.speed += 24 * axis.y * delta;
-      else s.speed -= Math.sign(s.speed) * Math.min(Math.abs(s.speed), 5 * delta);
-      if (s.boost > 0) s.speed += 10 * delta;
-      if (s.speed > maxSpeed) s.speed = THREE.MathUtils.damp(s.speed, maxSpeed, 4, delta);
-      s.speed = Math.max(-6, s.speed);
-      s.heading -= axis.x * 1.9 * delta * THREE.MathUtils.clamp(s.speed / 7, -1, 1);
+      const maxSpeed = (onRoad ? TOP_SPEED : OFFROAD_SPEED) * (s.boost > 0 ? 1.4 : 1) * (s.slow > 0 ? 0.55 : 1);
+      if (axis.y > 0.1) s.speed += 16 * axis.y * delta;
+      else if (axis.y < -0.1) s.speed += (s.speed > 0.5 ? 30 : 12) * axis.y * delta;
+      else if (!airborne) s.speed -= Math.sign(s.speed) * Math.min(Math.abs(s.speed), 6 * delta);
+      if (s.boost > 0) s.speed += 12 * delta;
+      if (s.speed > maxSpeed) s.speed = THREE.MathUtils.damp(s.speed, maxSpeed, 3, delta);
+      s.speed = Math.max(-7, s.speed);
+      const grip = THREE.MathUtils.clamp(s.speed / 6, -1, 1) * (1 - Math.min(0.3, Math.abs(s.speed) / 90));
+      s.heading -= axis.x * 1.75 * delta * grip;
       s.pos.x += Math.sin(s.heading) * s.speed * delta;
       s.pos.z += Math.cos(s.heading) * s.speed * delta;
+
+      // Tabrakan dengan kendaraan lain (didorong keluar dari kotak tabrakannya).
+      traffic?.current.forEach((car: TrafficCarState) => {
+        const dx = s.pos.x - car.pos.x;
+        const dz = s.pos.z - car.pos.z;
+        if (dx * dx + dz * dz > 120) return;
+        const fx = Math.sin(car.heading);
+        const fz = Math.cos(car.heading);
+        const along = dx * fx + dz * fz;
+        const side = dx * fz - dz * fx;
+        const [halfLen, halfWidth] = TRAFFIC_SIZE[car.kind];
+        const needA = halfLen + TRUCK_HALF_LENGTH;
+        const needS = halfWidth + TRUCK_HALF_WIDTH;
+        if (Math.abs(along) > needA + 4) nearMissed.current.delete(car);
+        if (s.y > 2.2) return; // melayang di atas mobil
+        if (Math.abs(along) < needA && Math.abs(side) >= needS && Math.abs(side) < needS + 1.6 && s.speed > car.speed + 4 && !nearMissed.current.has(car)) {
+          nearMissed.current.add(car);
+          onNearMiss?.();
+        }
+        if (Math.abs(along) >= needA || Math.abs(side) >= needS) return;
+        nearMissed.current.add(car);
+        const penA = needA - Math.abs(along);
+        const penS = needS - Math.abs(side);
+        if (penA < penS) {
+          const push = Math.sign(along || 1) * penA;
+          s.pos.x += fx * push;
+          s.pos.z += fz * push;
+          if (along < 0 && s.speed > car.speed) {
+            if (s.speed - car.speed > 5) bump();
+            s.speed = car.speed * 0.6;
+          } else if (along > 0) s.speed = Math.max(s.speed, car.speed);
+        } else {
+          const push = Math.sign(side || 1) * penS;
+          s.pos.x += fz * push;
+          s.pos.z -= fx * push;
+          s.speed *= 0.92;
+          if (Math.abs(s.speed) > 8) bump();
+        }
+      });
 
       const from = s.index;
       s.index = nearestIndex(s.pos, s.index);
@@ -244,42 +219,84 @@ function PlayerTruck({
       if (lapDone) s.lap += 1;
       // Mundur melewati garis start tidak dihitung sebagai putaran.
       if (s.index > from + SAMPLES / 2) s.lap -= 1;
-      s.lateral = s.pos.clone().sub(TRACK.points[s.index]).dot(TRACK.normals[s.index]);
+
+      // Pagar pembatas: truk tidak bisa keluar dari koridor jalan.
+      const p = TRACK.points[s.index];
+      const n = TRACK.normals[s.index];
+      let lateral = (s.pos.x - p.x) * n.x + (s.pos.z - p.z) * n.z;
+      const limit = RAIL_OFFSET - TRUCK_HALF_WIDTH - 0.2;
+      if (Math.abs(lateral) > limit) {
+        const target = Math.sign(lateral) * limit;
+        s.pos.x += n.x * (target - lateral);
+        s.pos.z += n.z * (target - lateral);
+        lateral = target;
+        if (Math.abs(s.speed) > 7) bump();
+        s.speed *= 1 - Math.min(1, delta * 1.6);
+        const along = headingAt(s.index) + (s.speed < 0 ? Math.PI : 0);
+        s.heading += wrapAngle(along - s.heading) * Math.min(1, delta * 3);
+      }
+      s.lateral = lateral;
       onMove(from, s.index, lapDone, delta);
     }
 
+    motion.current.speed = s.speed;
+    motion.current.steer = axis.x;
+    motion.current.braking = axis.y < -0.1 && s.speed > 0.5;
     if (group.current) {
-      group.current.position.copy(s.pos);
+      group.current.position.copy(s.pos).setY(s.y);
       group.current.rotation.y = s.heading;
+      // Moncong sedikit terangkat saat naik, menunduk saat turun.
+      group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, s.y > 0.01 ? -s.vy * 0.018 : 0, 8, delta);
     }
-    const forward = new THREE.Vector3(Math.sin(s.heading), 0, Math.cos(s.heading));
-    const desired = s.pos.clone().addScaledVector(forward, -11).add(new THREE.Vector3(0, 5.5, 0));
-    camera.position.lerp(desired, 1 - Math.exp(-delta * 4));
-    look.current.lerp(s.pos.clone().addScaledVector(forward, 6).add(new THREE.Vector3(0, 1.2, 0)), 1 - Math.exp(-delta * 8));
+
+    forward.set(Math.sin(s.heading), 0, Math.cos(s.heading));
+    desired.copy(s.pos).addScaledVector(forward, s.nitro ? -14.5 : -13).setY(6.4 + s.y * 0.7);
+    lookTarget.copy(s.pos).addScaledVector(forward, 8).setY(1.8 + s.y * 0.8);
+    if (!placed.current) {
+      camera.position.copy(desired);
+      look.current.copy(lookTarget);
+      placed.current = true;
+    }
+    camera.position.lerp(desired, 1 - Math.exp(-delta * 4.5));
+    look.current.lerp(lookTarget, 1 - Math.exp(-delta * 8));
     camera.lookAt(look.current);
+    const fov = 58 + Math.min(14, Math.abs(s.speed) * 0.35) + (s.nitro ? 6 : 0);
+    if (Math.abs(camera.fov - fov) > 0.05) {
+      camera.fov = THREE.MathUtils.damp(camera.fov, fov, 3, delta);
+      camera.updateProjectionMatrix();
+    }
   });
 
   return (
     <group ref={group}>
-      <TruckModel />
+      <CementTruck motion={motion} />
     </group>
   );
 }
 
-const GATE_OFFSETS = [-3.3, 0, 3.3];
+/* ------------------------------------------------------------------ */
+/* Gerbang                                                            */
+/* ------------------------------------------------------------------ */
 
-function GateRow({
+export const GATE_OFFSETS = [-4.3, 0, 4.3];
+const GATE_HALF = 1.75;
+
+export function GateRow({
   t,
   labels,
   status,
+  active = true,
+  showLabels = true,
 }: {
   t: number;
   labels: string[];
   status?: { picked: number; correct: number | null } | null;
+  /** Gerbang yang sedang dituju: menyala terang. */
+  active?: boolean;
+  showLabels?: boolean;
 }) {
   const index = indexAt(t);
-  const tangent = TRACK.tangents[index];
-  const rotation = Math.atan2(tangent.x, tangent.z);
+  const rotation = headingAt(index);
   const offsets = labels.length === 1 ? [0] : GATE_OFFSETS;
   return (
     <group>
@@ -287,22 +304,33 @@ function GateRow({
         const p = pointAt(t, offsets[k]);
         const isPicked = status?.picked === k;
         const isCorrect = status?.correct === k;
-        const color = status ? (isCorrect ? "#2fae66" : isPicked ? "#e54b4b" : "#555b66") : "#ffa987";
+        const color = status ? (isCorrect ? "#2fae66" : isPicked ? "#e54b4b" : "#6b717b") : active ? "#ffa987" : "#b9b2ab";
+        const glow = status ? 0.35 : active ? 0.55 : 0.08;
         return (
           <group key={k} position={[p.x, 0, p.z]} rotation={[0, rotation, 0]}>
-            {[-1.4, 1.4].map((x) => (
-              <mesh key={x} position={[x, 1.6, 0]} castShadow>
-                <boxGeometry args={[0.25, 3.2, 0.25]} />
-                <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.25} />
+            {[-GATE_HALF, GATE_HALF].map((x) => (
+              <mesh key={x} position={[x, 2.1, 0]} castShadow>
+                <boxGeometry args={[0.3, 4.2, 0.3]} />
+                <meshStandardMaterial color={color} emissive={color} emissiveIntensity={glow} />
               </mesh>
             ))}
-            <mesh position={[0, 3.25, 0]}>
-              <boxGeometry args={[3.1, 0.3, 0.3]} />
-              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.35} />
+            <mesh position={[0, 4.25, 0]} castShadow>
+              <boxGeometry args={[GATE_HALF * 2 + 0.3, 0.45, 0.35]} />
+              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={glow + 0.1} />
             </mesh>
-            <Label position={[0, 4.1, 0]} className={status ? (isCorrect ? "is-green" : isPicked ? "is-red" : undefined) : "is-gold"} distanceFactor={18}>
-              <span className="block max-w-[9rem] whitespace-normal">{label}</span>
-            </Label>
+            <mesh position={[0, 2.05, 0]}>
+              <planeGeometry args={[GATE_HALF * 2 - 0.3, 3.9]} />
+              <meshBasicMaterial color={color} transparent opacity={active || status ? 0.16 : 0.06} side={THREE.DoubleSide} depthWrite={false} />
+            </mesh>
+            <mesh position={[0, 0.07, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[GATE_HALF * 2, 1.4]} />
+              <meshBasicMaterial color={color} transparent opacity={0.75} polygonOffset polygonOffsetFactor={-6} polygonOffsetUnits={-6} />
+            </mesh>
+            {showLabels && (
+              <Label position={[0, 5.3, 0]} className={status ? (isCorrect ? "is-green" : isPicked ? "is-red" : undefined) : "is-gold"} distanceFactor={20}>
+                <span className="block max-w-[9rem] whitespace-normal">{label}</span>
+              </Label>
+            )}
           </group>
         );
       })}
@@ -310,7 +338,7 @@ function GateRow({
   );
 }
 
-function pickGate(lateral: number, count: number) {
+export function pickGate(lateral: number, count: number) {
   if (count === 1) return 0;
   let best = 0;
   GATE_OFFSETS.forEach((offset, k) => {
@@ -319,308 +347,88 @@ function pickGate(lateral: number, count: number) {
   return best;
 }
 
-function RaceWorld({ children }: { children: ReactNode }) {
+export function RaceWorld({ quality, truck, children }: { quality: GameQuality; truck: RefObject<TruckState>; children: ReactNode }) {
+  const traffic = useRef<TrafficCarState[]>([]);
   return (
-    <>
-      <WorldLights />
-      <color attach="background" args={["#bcd9ef"]} />
-      <fog attach="fog" args={["#bcd9ef", 60, 150]} />
-      <Road />
-      <Scenery />
-      {(() => {
-        const p = pointAt(0);
-        const tangent = TRACK.tangents[0];
-        return (
-          <mesh position={[p.x, 0.05, p.z]} rotation={[-Math.PI / 2, 0, Math.atan2(tangent.x, tangent.z)]}>
-            <planeGeometry args={[ROAD_WIDTH, 1.2]} />
-            <meshBasicMaterial color="#f7ebe8" />
-          </mesh>
-        );
-      })()}
+    <TrafficContext.Provider value={traffic}>
+      <RaceScenery quality={quality} focus={truck} />
+      <Traffic trafficRef={traffic} quality={quality} player={truck} />
       {children}
-    </>
-  );
-}
-
-const DRIVE_TOUCH = [{ press: "up" as const, label: "Gas", holdKey: "w" }, { press: "down" as const, label: "Rem", holdKey: "s", tone: "light" as const }];
-
-/* ------------------------------------------------------------------ */
-/* Level 1 · Rute order-to-cash                                       */
-/* ------------------------------------------------------------------ */
-
-const ROUTE = ERP_MODULES.map((module, k) => {
-  const distractors = [ERP_MODULES[(k + 1) % 6], ERP_MODULES[(k + 3) % 6]];
-  const options = [module, ...distractors];
-  const shift = k % 3;
-  const ordered = [...options.slice(shift), ...options.slice(0, shift)];
-  return { t: 0.1 + k * 0.13, options: ordered, correct: ordered.indexOf(module) };
-});
-
-function RouteLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
-  const truck = useRef<TruckState>(createTruck());
-  const [results, setResults] = useState<number[]>([]);
-  const [hud, setHud] = useState({ time: 0, speed: 0 });
-  const push = useThrottled(setHud, 8);
-  const [toast, setToast] = useState<Feedback>(null);
-  const [finished, setFinished] = useState(false);
-  const elapsed = useRef(0);
-  const mistakes = results.filter((picked, k) => picked !== ROUTE[k].correct).length;
-  const score = clampPercent(100 - mistakes * 12 - Math.max(0, hud.time - 70) * 0.5);
-
-  const onMove = (from: number, to: number, lapDone: boolean, delta: number) => {
-    elapsed.current += delta;
-    push({ time: elapsed.current, speed: truck.current.speed });
-    const next = results.length;
-    if (next < ROUTE.length && crossed(from, to, indexAt(ROUTE[next].t))) {
-      const row = ROUTE[next];
-      const picked = pickGate(truck.current.lateral, 3);
-      const ok = picked === row.correct;
-      const target = row.options[row.correct];
-      setResults((current) => [...current, picked]);
-      sound(ok ? "pickup" : "error");
-      if (!ok) {
-        truck.current.speed = -4;
-        truck.current.slow = 1.2;
-      }
-      setToast({
-        ok,
-        judul: ok ? `${target.label} ✓` : `Harusnya: ${target.label}`,
-        teks: target.aliranData,
-        konsep: `Modul ${target.divisi}`,
-      });
-    }
-    if (lapDone && next >= ROUTE.length) {
-      setFinished(true);
-      push({ time: elapsed.current, speed: 0 }, true);
-      sound("success");
-    }
-  };
-
-  return (
-    <WorldStage
-      quality={quality}
-      paused={paused || finished}
-      camera={{ position: [0, 8, -14], fov: 60 }}
-      overlay={
-        <>
-          <WorldHud
-            levelIndex={levelIndex}
-            info={info}
-            onPause={onPause}
-            toast={toast}
-            stats={
-              <>
-                <HudChip><Timer />{hud.time.toFixed(1)}s</HudChip>
-                <HudChip tone="gold"><Flag />{results.length}/{ROUTE.length} modul</HudChip>
-                <HudChip><Gauge />{Math.round(Math.abs(hud.speed) * 6)} km/j</HudChip>
-              </>
-            }
-            prompt={results.length >= ROUTE.length && !finished ? <>Semua modul terlewati — kembali ke garis finis!</> : undefined}
-          />
-          <TouchControls inputRef={input} mode="stick" buttons={DRIVE_TOUCH} />
-          {finished && (
-            <LevelEnd
-              score={score}
-              reason="Alur order-to-cash tuntas"
-              detail={`${ROUTE.length - mistakes}/${ROUTE.length} gerbang benar · waktu ${hud.time.toFixed(1)} detik.`}
-              onNext={() => onFinish(score)}
-            />
-          )}
-        </>
-      }
-    >
-      <RaceWorld>
-        {ROUTE.map((row, k) => (
-          <GateRow
-            key={k}
-            t={row.t}
-            labels={row.options.map((module) => module.label)}
-            status={k < results.length ? { picked: results[k], correct: row.correct } : null}
-          />
-        ))}
-        <PlayerTruck input={input} running={!paused && !finished} truckRef={truck} onMove={onMove} />
-      </RaceWorld>
-    </WorldStage>
+    </TrafficContext.Provider>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Level 2 · Jam sibuk                                                */
+/* Minimap                                                            */
 /* ------------------------------------------------------------------ */
 
-const RUSH_TIME = 130;
-const CAPACITY = 100;
-const PATIENCE = 45;
-const CUSTOMER_STOPS = ["A", "B", "C"];
-const RUSH_ORDERS = ERP_ORDERS.map((order, index) => ({ ...order, stop: CUSTOMER_STOPS[index % 3], muncul: order.muncul * 1.2 }));
-const RUSH_EVENT_TIMES = [24, 58, 92];
+const MAP_W = 150;
 
-type RushState = {
-  delivered: string[];
-  answers: Record<string, number>;
-  eventRows: Record<string, number>;
-  cargo: number;
-  susulan: number | null;
-};
+export type MapMarker = { t: number; color: string; big?: boolean; offset?: number; x?: number; z?: number };
 
-const createRush = (): RushState => ({ delivered: [], answers: {}, eventRows: {}, cargo: CAPACITY, susulan: null });
+export function MiniMap({ truckRef, markers, rival }: { truckRef: RefObject<TruckState>; markers: MapMarker[]; rival?: RefObject<number> }) {
+  const arrow = useRef<SVGGElement>(null);
+  const rivalDot = useRef<SVGCircleElement>(null);
+  const map = useMemo(() => {
+    const pad = 9;
+    const { min, max } = TRACK.box;
+    const scale = (MAP_W - pad * 2) / (max.x - min.x);
+    const height = (max.z - min.z) * scale + pad * 2;
+    const project = (x: number, z: number) => [pad + (x - min.x) * scale, pad + (z - min.z) * scale] as const;
+    const d =
+      TRACK.points
+        .filter((_, i) => i % 8 === 0)
+        .map((p, i) => {
+          const [x, y] = project(p.x, p.z);
+          return `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`;
+        })
+        .join(" ") + "Z";
+    return { project, d, height };
+  }, []);
 
-function RushLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
-  const truck = useRef<TruckState>(createTruck());
-  const clock = useRef(0);
-  const [time, setTime] = useState(0);
-  const push = useThrottled(setTime, 6);
-  const live = useRef<RushState>(createRush());
-  const [state, setState] = useState<RushState>(createRush);
-  const [toast, setToast] = useState<Feedback>(null);
-  const [done, setDone] = useState(false);
-
-  const failed = RUSH_ORDERS.filter((order) => !state.delivered.includes(order.id) && time >= order.muncul + PATIENCE);
-  const active = RUSH_ORDERS.filter((order) => order.muncul <= time && !state.delivered.includes(order.id) && !failed.includes(order));
-  const kepuasanEvents = ERP_EVENTS.reduce((sum, event) => sum + (state.answers[event.id] !== undefined ? event.opsi[state.answers[event.id]].kepuasan ?? 0 : 0), 0);
-  const satisfaction = Math.max(0, Math.min(100, 100 - failed.length * 12 + kepuasanEvents));
-  const eventsCorrect = ERP_EVENTS.filter((event) => state.answers[event.id] !== undefined && event.opsi[state.answers[event.id]].benar).length;
-  const allResolved =
-    RUSH_ORDERS.every((order) => state.delivered.includes(order.id) || time >= order.muncul + PATIENCE) &&
-    ERP_EVENTS.every((event) => state.answers[event.id] !== undefined);
-  const ended = done || time >= RUSH_TIME || allResolved;
-  const score = clampPercent((state.delivered.length / RUSH_ORDERS.length) * 50 + (eventsCorrect / ERP_EVENTS.length) * 30 + satisfaction * 0.2);
-
-  const onMove = (from: number, to: number, _lap: boolean, delta: number) => {
-    clock.current += delta;
-    const now = clock.current;
-    push(now);
-    if (now >= RUSH_TIME) {
-      setDone(true);
-      push(now, true);
-    }
-
-    const st = live.current;
-    let changed = false;
-    const update = (patch: Partial<RushState>) => {
-      Object.assign(st, patch);
-      changed = true;
+  useEffect(() => {
+    let frame = 0;
+    const tmp = new THREE.Vector3();
+    const loop = () => {
+      const s = truckRef.current;
+      if (arrow.current && s) {
+        const [x, y] = map.project(s.pos.x, s.pos.z);
+        arrow.current.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(180 - (s.heading * 180) / Math.PI).toFixed(1)})`);
+      }
+      if (rival && rivalDot.current) {
+        sampleTrack((rival.current / TRACK.length) % 1, 0, tmp);
+        const [x, y] = map.project(tmp.x, tmp.z);
+        rivalDot.current.setAttribute("cx", x.toFixed(1));
+        rivalDot.current.setAttribute("cy", y.toFixed(1));
+      }
+      frame = requestAnimationFrame(loop);
     };
-    // Munculkan gerbang kejadian di depan truk.
-    ERP_EVENTS.forEach((event, k) => {
-      if (now < RUSH_EVENT_TIMES[k] || st.eventRows[event.id] !== undefined) return;
-      update({ eventRows: { ...st.eventRows, [event.id]: (to / SAMPLES + 0.1) % 1 } });
-      setToast({ ok: false, judul: `Kejadian: ${event.judul}`, teks: `${event.deskripsi} Setir ke gerbang jawabanmu!`, konsep: event.konsep });
-      sound("interact");
-    });
-    // Lewati gerbang kejadian.
-    ERP_EVENTS.forEach((event) => {
-      const rowT = st.eventRows[event.id];
-      if (rowT === undefined || st.answers[event.id] !== undefined || !crossed(from, to, indexAt(rowT))) return;
-      const picked = pickGate(truck.current.lateral, 3);
-      const option = event.opsi[picked];
-      update({
-        answers: { ...st.answers, [event.id]: picked },
-        cargo: Math.max(0, Math.min(CAPACITY, st.cargo + (option.stok ?? 0))),
-        susulan: option.stokSusulan ? now + 12 : st.susulan,
-      });
-      sound(option.benar ? "pickup" : "error");
-      setToast({ ok: option.benar, judul: option.benar ? "Keputusan tepat!" : "Kurang tepat", teks: option.hasil, konsep: event.konsep });
-    });
-    if (st.susulan !== null && now >= st.susulan) {
-      update({ cargo: Math.max(0, st.cargo - 40), susulan: null });
-      setToast({ ok: false, judul: "Selisih stok membesar!", teks: "Selisih yang diabaikan ternyata membuat muatan fisik kurang 40 ton.", konsep: "Stock opname" });
-      sound("error");
-    }
-    // Pemberhentian.
-    RUSH_STOPS.forEach((stop) => {
-      if (!crossed(from, to, indexAt(stop.t))) return;
-      if (stop.id === "pabrik") {
-        if (st.cargo < CAPACITY) {
-          update({ cargo: CAPACITY });
-          setToast({ ok: true, judul: "Muatan penuh lagi", teks: "Produksi tercatat otomatis dan stok gudang langsung ter-update di ERP.", konsep: "Real-time inventory" });
-          sound("pickup");
-        }
-        return;
-      }
-      RUSH_ORDERS.filter(
-        (order) => order.stop === stop.id && order.muncul <= now && now < order.muncul + PATIENCE && !st.delivered.includes(order.id)
-      ).forEach((order) => {
-        if (st.cargo >= order.jumlah) {
-          update({ cargo: st.cargo - order.jumlah, delivered: [...st.delivered, order.id] });
-          setToast({ ok: true, judul: `${order.jumlah} ton → ${order.pelanggan}`, teks: "Faktur terbit otomatis di modul keuangan.", konsep: "Integrasi" });
-          sound("success");
-        } else {
-          setToast({ ok: false, judul: "Muatan kurang!", teks: `${order.pelanggan} butuh ${order.jumlah} ton. Isi ulang di Pabrik & Gudang.`, konsep: "Perencanaan stok" });
-          sound("error");
-        }
-      });
-    });
-    if (changed) setState({ ...st });
-  };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [map, truckRef, rival]);
 
+  const [sx, sy] = map.project(TRACK.points[0].x, TRACK.points[0].z);
   return (
-    <WorldStage
-      quality={quality}
-      paused={paused || ended}
-      camera={{ position: [0, 8, -14], fov: 60 }}
-      overlay={
-        <>
-          <WorldHud
-            levelIndex={levelIndex}
-            info={info}
-            onPause={onPause}
-            toast={toast}
-            stats={
-              <>
-                <HudChip tone={RUSH_TIME - time <= 15 ? "red" : "dark"}><Timer />{Math.max(0, Math.ceil(RUSH_TIME - time))}s</HudChip>
-                <HudChip tone="gold"><Package />{state.delivered.length}/{RUSH_ORDERS.length}</HudChip>
-                <HudMeter label={`MUATAN ${state.cargo} TON`} value={state.cargo} tone={state.cargo < 30 ? "red" : "gold"} />
-                <HudChip tone={satisfaction < 60 ? "red" : "green"}><Smile />{satisfaction}%</HudChip>
-              </>
-            }
-          />
-          <TouchControls inputRef={input} mode="stick" buttons={DRIVE_TOUCH} />
-          {ended && (
-            <LevelEnd
-              score={score}
-              reason={allResolved ? "Semua pesanan tertangani" : "Jam kerja selesai"}
-              detail={`${state.delivered.length}/${RUSH_ORDERS.length} terkirim · ${eventsCorrect}/${ERP_EVENTS.length} keputusan tepat · kepuasan ${satisfaction}%`}
-              onNext={() => onFinish(score)}
-            />
-          )}
-        </>
-      }
-    >
-      <RaceWorld>
-        {RUSH_STOPS.map((stop) => {
-          const p = pointAt(stop.t, ROAD_WIDTH / 2 + 2.5);
-          const waiting = active.filter((order) => order.stop === stop.id);
-          const isFactory = stop.id === "pabrik";
-          return (
-            <group key={stop.id} position={[p.x, 0, p.z]}>
-              <mesh position={[0, isFactory ? 2 : 1.2, 0]} castShadow>
-                <boxGeometry args={isFactory ? [4, 4, 4] : [2.6, 2.4, 2.6]} />
-                <meshStandardMaterial color={isFactory ? "#7d95a3" : waiting.length ? "#ffa987" : "#c9bfb8"} />
-              </mesh>
-              <Label position={[0, isFactory ? 5 : 3.4, 0]} className={waiting.length ? "is-gold" : undefined} distanceFactor={20}>
-                <span className="block">{stop.nama}</span>
-                {waiting.map((order) => (
-                  <span key={order.id} className="block text-[0.7rem]">
-                    {order.pelanggan}: {order.jumlah} t · {Math.max(0, Math.ceil(order.muncul + PATIENCE - time))}s
-                  </span>
-                ))}
-              </Label>
-            </group>
-          );
+    <div className="race-minimap" aria-hidden>
+      <svg viewBox={`0 0 ${MAP_W} ${map.height.toFixed(0)}`}>
+        <path d={map.d} fill="none" stroke="rgb(255 255 255 / .22)" strokeWidth={8} strokeLinejoin="round" />
+        <path d={map.d} fill="none" stroke="#f4f1ea" strokeWidth={2.4} strokeLinejoin="round" />
+        <rect x={sx - 3.5} y={sy - 3.5} width={7} height={7} fill="#111318" stroke="#fff" strokeWidth={1} />
+        {markers.map((marker, k) => {
+          const p = marker.x !== undefined && marker.z !== undefined ? { x: marker.x, z: marker.z } : pointAt(marker.t, marker.offset ?? 0);
+          const [x, y] = map.project(p.x, p.z);
+          return <circle key={k} cx={x} cy={y} r={marker.big ? 4.2 : 2.8} fill={marker.color} stroke="#10131a" strokeWidth={1} />;
         })}
-        {ERP_EVENTS.map((event) => {
-          const rowT = state.eventRows[event.id];
-          if (rowT === undefined) return null;
-          const answered = state.answers[event.id];
-          if (answered !== undefined) return null;
-          return <GateRow key={event.id} t={rowT} labels={event.opsi.map((option) => option.label)} />;
-        })}
-        <PlayerTruck input={input} running={!paused && !ended} truckRef={truck} onMove={onMove} />
-      </RaceWorld>
-    </WorldStage>
+        {rival && <circle ref={rivalDot} r={3.4} fill="#9aa0a8" stroke="#fff" strokeWidth={1} />}
+        <g ref={arrow}>
+          <path d="M0 -5.5 L4 4 L0 2 L-4 4 Z" fill="#f26b3a" stroke="#fff" strokeWidth={1.1} strokeLinejoin="round" />
+        </g>
+      </svg>
+    </div>
   );
 }
+
+export const DRIVE_TOUCH = [{ press: "up" as const, label: "Gas", holdKey: "w" }, { press: "down" as const, label: "Rem", holdKey: "s", tone: "light" as const }];
 
 /* ------------------------------------------------------------------ */
 /* Level 3 · Balapan vs Sistem Manual                                 */
@@ -628,53 +436,64 @@ function RushLevel({ levelIndex, info, paused, quality, input, sound, onPause, o
 
 const LAPS = 2;
 const BOARD_T = 0.5;
-const RACE_LIMIT = 200;
+const RACE_LIMIT = 240;
+const RIVAL_SPEED = 16.2;
 
 function RivalTruck({ distanceRef }: { distanceRef: RefObject<number> }) {
   const group = useRef<THREE.Group>(null);
-  useFrame(() => {
+  const motion = useRef({ speed: 0, steer: 0, braking: false });
+  const last = useRef(0);
+  const pos = useMemo(() => new THREE.Vector3(), []);
+  useFrame((_, raw) => {
     if (!group.current) return;
-    const t = (distanceRef.current / TRACK.length) % 1;
-    const index = indexAt(t);
-    const p = pointAt(t, 2.2);
-    const tangent = TRACK.tangents[index];
-    group.current.position.copy(p);
-    group.current.rotation.y = Math.atan2(tangent.x, tangent.z);
+    const delta = clampDelta(raw);
+    const distance = distanceRef.current;
+    motion.current.speed = delta > 0 ? (distance - last.current) / delta : 0;
+    last.current = distance;
+    const heading = sampleTrack((distance / TRACK.length) % 1, 0, pos);
+    group.current.position.copy(pos);
+    group.current.rotation.y = heading;
   });
   return (
     <group ref={group}>
-      <TruckModel color="#8a8483" drum="#f5f1e8" label="Sistem Manual" />
+      <CementTruck livery={RIVAL_LIVERY} motion={motion} label="Sistem Manual" paperwork />
     </group>
   );
 }
 
-function RaceLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
-  const truck = useRef<TruckState>(createTruck());
+export function RaceLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
+  const truck = useRef<TruckState>(createTruck(-4.3));
   const rival = useRef(0);
   const clock = useRef(0);
   const [hud, setHud] = useState({ time: 0, lap: 0, ahead: true, rivalLap: 0 });
   const push = useThrottled(setHud, 6);
   const [board, setBoard] = useState<number | null>(null);
+  const boardLive = useRef<number | null>(null);
+  const padsLive = useRef<string[]>([]);
   const [padsHit, setPadsHit] = useState<string[]>([]);
   const [toast, setToast] = useState<Feedback>(null);
   const [result, setResult] = useState<null | { won: boolean; time: number }>(null);
+  const resolved = useRef(false);
   const boardScore = board === null ? 0 : ERP_BOARD_SCORES[BOARD_GATES[board].id] ?? 0;
   const boosts = padsHit.filter((key) => RACE_PADS[Number(key.split(":")[1])].type === "boost").length;
   const score = clampPercent((result?.won ? 60 : 30) + boardScore * 0.3 + Math.min(10, boosts * 2));
 
   const onMove = (from: number, to: number, lapDone: boolean, delta: number) => {
+    if (resolved.current) return;
     const s = truck.current;
     clock.current += delta;
-    const playerDistance = s.lap * TRACK.length + (to / SAMPLES) * TRACK.length;
+    const lap = Math.max(0, s.lap);
+    const playerDistance = lap * TRACK.length + (s.lap < 0 ? 0 : (to / SAMPLES) * TRACK.length);
     const gap = rival.current - playerDistance;
-    const rivalSpeed = 13.2 + (gap > 45 ? -1.8 : gap < -45 ? 1.8 : 0);
+    const rivalSpeed = RIVAL_SPEED + (gap > 60 ? -2.2 : gap < -60 ? 2.2 : 0);
     if (rival.current < LAPS * TRACK.length) rival.current += rivalSpeed * delta;
-    push({ time: clock.current, lap: s.lap, ahead: playerDistance >= rival.current, rivalLap: Math.floor(rival.current / TRACK.length) });
+    push({ time: clock.current, lap, ahead: playerDistance >= rival.current, rivalLap: Math.floor(rival.current / TRACK.length) });
 
     RACE_PADS.forEach((pad, k) => {
-      const key = `${s.lap}:${k}`;
-      if (!crossed(from, to, indexAt(pad.t)) || Math.abs(s.lateral - pad.offset) > 2 || padsHit.includes(key)) return;
-      setPadsHit((current) => [...current, key]);
+      const key = `${lap}:${k}`;
+      if (!crossed(from, to, indexAt(pad.t)) || Math.abs(s.lateral - pad.offset) > 2.2 || padsLive.current.includes(key)) return;
+      padsLive.current = [...padsLive.current, key];
+      setPadsHit(padsLive.current);
       if (pad.type === "boost") {
         s.boost = 2.2;
         sound("pickup");
@@ -686,10 +505,11 @@ function RaceLevel({ levelIndex, info, paused, quality, input, sound, onPause, o
       }
     });
 
-    if (s.lap === 0 && board === null && crossed(from, to, indexAt(BOARD_T))) {
+    if (lap === 0 && boardLive.current === null && crossed(from, to, indexAt(BOARD_T))) {
       const picked = pickGate(s.lateral, 3);
       const option = BOARD_GATES[picked];
       const value = ERP_BOARD_SCORES[option.id] ?? 0;
+      boardLive.current = picked;
       setBoard(picked);
       if (value === 100) s.boost = 3.5;
       else s.slow = 1.5;
@@ -703,17 +523,23 @@ function RaceLevel({ levelIndex, info, paused, quality, input, sound, onPause, o
     }
 
     if ((lapDone && s.lap >= LAPS) || clock.current >= RACE_LIMIT) {
+      resolved.current = true;
       const won = s.lap >= LAPS && rival.current < LAPS * TRACK.length;
       setResult({ won, time: clock.current });
       sound(won ? "success" : "error");
     }
   };
 
+  const markers: MapMarker[] = [
+    ...RACE_PADS.map((pad) => ({ t: pad.t, offset: pad.offset, color: pad.type === "boost" ? "#3fd0ff" : "#f5f1e8" })),
+    ...(board === null && hud.lap === 0 ? [{ t: BOARD_T, big: true, color: "#ffc857" }] : []),
+  ];
+
   return (
     <WorldStage
       quality={quality}
       paused={paused || Boolean(result)}
-      camera={{ position: [0, 8, -14], fov: 60 }}
+      camera={STAGE_CAMERA}
       overlay={
         <>
           <WorldHud
@@ -729,6 +555,7 @@ function RaceLevel({ levelIndex, info, paused, quality, input, sound, onPause, o
               </>
             }
           />
+          <MiniMap truckRef={truck} markers={markers} rival={rival} />
           <TouchControls inputRef={input} mode="stick" buttons={DRIVE_TOUCH} />
           {result && (
             <LevelEnd
@@ -742,33 +569,38 @@ function RaceLevel({ levelIndex, info, paused, quality, input, sound, onPause, o
         </>
       }
     >
-      <RaceWorld>
+      <RaceWorld quality={quality} truck={truck}>
         {RACE_PADS.map((pad, k) => {
           const p = pointAt(pad.t, pad.offset);
-          const tangent = TRACK.tangents[indexAt(pad.t)];
           const boost = pad.type === "boost";
           return (
-            <group key={k} position={[p.x, 0, p.z]} rotation={[0, Math.atan2(tangent.x, tangent.z), 0]}>
+            <group key={k} position={[p.x, 0, p.z]} rotation={[0, headingAt(indexAt(pad.t)), 0]}>
               <mesh position={[0, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <planeGeometry args={[3, 3.6]} />
-                <meshStandardMaterial color={boost ? "#3fd0ff" : "#f5f1e8"} emissive={boost ? "#3fd0ff" : "#000"} emissiveIntensity={boost ? 0.9 : 0} />
+                <planeGeometry args={[3.6, 4.2]} />
+                <meshStandardMaterial
+                  color={boost ? "#3fd0ff" : "#f5f1e8"}
+                  emissive={boost ? "#3fd0ff" : "#000"}
+                  emissiveIntensity={boost ? 0.9 : 0}
+                  polygonOffset
+                  polygonOffsetFactor={-6}
+                  polygonOffsetUnits={-6}
+                />
               </mesh>
               {!boost && [0, 1, 2].map((i) => (
-                <mesh key={i} position={[(i - 1) * 0.8, 0.3 + i * 0.12, 0]} rotation={[0, i * 0.4, 0]} castShadow>
+                <mesh key={i} position={[(i - 1) * 0.9, 0.3 + i * 0.12, 0]} rotation={[0, i * 0.4, 0]} castShadow>
                   <boxGeometry args={[0.9, 0.5, 1.2]} />
                   <meshStandardMaterial color="#fffdf5" />
                 </mesh>
               ))}
-              <Label position={[0, 2, 0]} className={boost ? "is-green" : "is-red"} distanceFactor={18}>{boost ? "⚡ " : ""}{pad.label}</Label>
+              <Label position={[0, 2.2, 0]} className={boost ? "is-green" : "is-red"} distanceFactor={20}>{boost ? "⚡ " : ""}{pad.label}</Label>
             </group>
           );
         })}
         {board === null && hud.lap === 0 && <GateRow t={BOARD_T} labels={BOARD_GATES.map((gate) => gate.label)} />}
         <RivalTruck distanceRef={rival} />
-        <PlayerTruck input={input} running={!paused && !result} truckRef={truck} onMove={onMove} />
+        <PlayerTruck input={input} running={!paused && !result} truckRef={truck} onMove={onMove} onBump={() => sound("boom")} />
       </RaceWorld>
     </WorldStage>
   );
 }
 
-export const ERP_LEVELS = [RouteLevel, RushLevel, RaceLevel];

@@ -1,13 +1,13 @@
 # Graph Report - sisfor-pilih-jalurmu  (2026-09-29)
 
 ## Corpus Check
-- 192 files · ~167,720 words
+- 188 files · ~153,466 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: (none) 3, .glb 3, .gz 2)
 
 ## Summary
-- 1530 nodes · 3327 edges · 78 communities (64 shown, 14 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 21 edges (avg confidence: 0.85)
+- 1392 nodes · 2991 edges · 81 communities (65 shown, 16 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -23,12 +23,12 @@
 - components/game/game-entry.tsx
 - data-lab-world.tsx
 - What You Must Do When Invoked
-- ref_next
-- lib/utils.ts
+- app/ruang-kerja/[jalur]/page.tsx
+- lib/types.ts
 - campus-scenery.tsx
 - site-checkout/components/game/game-entry.tsx
 - data-center.tsx
-- lib/types.ts
+- lib/data/index.ts
 - dependencies
 - race-world.tsx
 - site-checkout/components/game/campus-panels.tsx
@@ -43,7 +43,7 @@
 - site-checkout/public/manifest.json
 - CitySkyline
 - components/game/game-canvas.tsx
-- components/workspace/workspace-shell.tsx
+- ref_lucide_react
 - cn
 - graphify reference: extra exports and benchmark
 - Game characters (Arga & Nara)
@@ -76,33 +76,36 @@
 - site-checkout/postcss.config.mjs
 - site-checkout/public/sw.js
 - ref_react
-- ops-level.tsx
+- components/pwa/install-pwa-prompt.tsx
 - site-checkout/components/workspace/workspace-shell.tsx
-- ops-scenery.tsx
+- site-checkout/components/quiz/quiz-flow.tsx
 - inspektur-world.tsx
 - world-kit.tsx
 - truck-models.tsx
 - worlds.ts
-- ref_lucide_react
+- cn
 - mission-world.tsx
 - race-track.ts
 - pointAt
-- ops-models.tsx
-- clampDelta
-- OpsScene
-- sampleTrack
+- site-checkout/app/ruang-kerja/[jalur]/page.tsx
+- ref_next
+- app/layout.tsx
+- useThrottled
+- site-checkout/app/layout.tsx
+- ArenaLevel
+- ArenaHall
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 90 edges
-2. `clampDelta()` - 62 edges
-3. `cn()` - 57 edges
-4. `clampPercent()` - 30 edges
-5. `Button` - 20 edges
-6. `seeded()` - 19 edges
+1. `cn()` - 88 edges
+2. `cn()` - 57 edges
+3. `clampDelta()` - 44 edges
+4. `clampPercent()` - 29 edges
+5. `Button` - 19 edges
+6. `compilerOptions` - 16 edges
 7. `compilerOptions` - 16 edges
-8. `compilerOptions` - 16 edges
-9. `pointAt()` - 15 edges
-10. `useThrottled()` - 15 edges
+8. `pointAt()` - 15 edges
+9. `JalurId` - 14 edges
+10. `useThrottled()` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Step 2.5 - Transcribe video / audio files (only if video files detected)` --references--> `export()`  [INFERRED]
@@ -119,15 +122,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (78 total, 14 thin omitted)
+## Communities (81 total, 16 thin omitted)
 
 ### Community 0 - "hacker-arena.tsx"
-Cohesion: 0.08
-Nodes (29): arenaBlocked(), ArenaLevel(), ArenaScene(), Boss, BOSS_ATTACK_GAP, BOSS_FINDINGS, BOSS_PATTERNS, BOSS_PHASE_HP (+21 more)
+Cohesion: 0.07
+Nodes (26): ARENA_R, MalwareShots(), PatchShots(), SERVER, StaffModel(), ThreatModel(), DataCenterLights(), Boss (+18 more)
 
 ### Community 1 - "mission-kit.tsx"
-Cohesion: 0.06
-Nodes (63): AuditMission(), GateLevel(), LogLevel(), ReportLevel(), RISKS, CHART_OPTIONS, ChartLevel(), CleanLevel() (+55 more)
+Cohesion: 0.08
+Nodes (50): MissionPanel(), AuditMission(), GateLevel(), LogLevel(), ReportLevel(), RISKS, CHART_OPTIONS, ChartLevel() (+42 more)
 
 ### Community 2 - "package.json"
 Cohesion: 0.07
@@ -138,52 +141,48 @@ Cohesion: 0.07
 Nodes (29): class-variance-authority, clsx, eslint, eslint-config-next, gsap, lucide-react, next, @radix-ui/react-avatar (+21 more)
 
 ### Community 4 - "components/game/game-entry.tsx"
-Cohesion: 0.12
-Nodes (23): CHARACTERS, GameCanvas, GameEntry(), LiteCampus(), StartScreen(), supportsWebGL(), ZONE_LABELS, MissionPanel() (+15 more)
+Cohesion: 0.11
+Nodes (24): CampusAssistant(), InfoCenter(), TrackDetails(), CHARACTERS, GameEntry(), LiteCampus(), StartScreen(), supportsWebGL() (+16 more)
 
 ### Community 5 - "data-lab-world.tsx"
-Cohesion: 0.11
-Nodes (19): Feedback, BAR_X(), BarColumn(), BOARD, CHART_FACES, ChartScene(), CITY, CityLevel() (+11 more)
+Cohesion: 0.10
+Nodes (19): BAR_X(), BarColumn(), BOARD, CHART_FACES, ChartLevel(), ChartScene(), CITY, CityScene() (+11 more)
 
 ### Community 6 - "What You Must Do When Invoked"
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
-### Community 7 - "ref_next"
-Cohesion: 0.06
-Nodes (15): app_globals, metadata, viewport, VALID, LegacyRedirect(), ServiceWorkerRegister(), nextConfig, ref_next (+7 more)
-
-### Community 8 - "lib/utils.ts"
-Cohesion: 0.09
-Nodes (24): NAV_LINKS, Navbar(), BeforeInstallPromptEvent, InstallPwaPrompt(), isIos(), isStandalone(), Button, ButtonProps (+16 more)
+### Community 8 - "lib/types.ts"
+Cohesion: 0.08
+Nodes (33): DataInsightScenario(), DampakBadge(), ErpScenario(), insightContent, WORKSPACE_MENUS, WORKSPACE_SCENARIOS, AccessPolicy, AccessRequest (+25 more)
 
 ### Community 9 - "campus-scenery.tsx"
 Cohesion: 0.08
 Nodes (19): BOUNDS, CANOPY_COLORS, CITY_BOX, CITY_COLORS, DASH_MATERIAL, FOREST_ACCENTS, FOREST_BALL, FOREST_CONE (+11 more)
 
 ### Community 10 - "site-checkout/components/game/game-entry.tsx"
-Cohesion: 0.07
-Nodes (31): ref_three_stdlib, CampusAssistant(), InfoCenter(), TrackDetails(), Avatar(), CampusZone, isBlocked(), SPAWN (+23 more)
+Cohesion: 0.09
+Nodes (26): ref_three_stdlib, Avatar(), CampusZone, isBlocked(), SPAWN, ZONES, GameCanvas, GameEntry() (+18 more)
 
 ### Community 11 - "data-center.tsx"
-Cohesion: 0.15
-Nodes (20): canvasTexture(), DataCenterHall, DataCenterLights(), DataStream(), HALL, LED_COLORS, LED_ROWS, makeFloorTexture() (+12 more)
+Cohesion: 0.16
+Nodes (19): CharacterMotion, canvasTexture(), DataCenterHall, DataStream(), HALL, LED_COLORS, LED_ROWS, makeFloorTexture() (+11 more)
 
-### Community 12 - "lib/types.ts"
-Cohesion: 0.07
-Nodes (39): ChatbotWidget(), KATEGORI_LIST, QuizFlow(), ACHIEVEMENTS, FAQ_ITEMS, fetchFaqItems(), fetchQuizQuestions(), saveQuizResult() (+31 more)
+### Community 12 - "lib/data/index.ts"
+Cohesion: 0.11
+Nodes (23): ChatbotWidget(), KATEGORI_LIST, QuizFlow(), ACHIEVEMENTS, FAQ_ITEMS, fetchFaqItems(), fetchQuizQuestions(), saveQuizResult() (+15 more)
 
 ### Community 13 - "dependencies"
 Cohesion: 0.11
 Nodes (19): dependencies, class-variance-authority, clsx, gsap, lucide-react, next, @radix-ui/react-avatar, @radix-ui/react-dialog (+11 more)
 
 ### Community 14 - "race-world.tsx"
-Cohesion: 0.10
-Nodes (24): ERP_LEVELS, RaceScenery(), TrafficContext, crossed(), nearestIndex(), createTruck(), desired, DRIVE_TOUCH (+16 more)
+Cohesion: 0.09
+Nodes (26): createTraffic(), fleetSize(), RaceScenery(), Traffic(), TrafficContext, nearestIndex(), sampleTrack(), CUSTOMER_STOPS (+18 more)
 
 ### Community 15 - "site-checkout/components/game/campus-panels.tsx"
 Cohesion: 0.13
-Nodes (20): ref_radix_ui_react_tabs, CATEGORIES, sites_runtime_site_checkout_components_ui_dialog_dialog, DialogContent(), DialogDescription(), DialogHeader(), DialogOverlay(), DialogTitle() (+12 more)
+Nodes (21): ref_radix_ui_react_dialog, ref_radix_ui_react_tabs, CampusAssistant(), CATEGORIES, InfoCenter(), TrackDetails(), sites_runtime_site_checkout_components_ui_dialog_dialog, DialogContent() (+13 more)
 
 ### Community 16 - "dependencies"
 Cohesion: 0.11
@@ -202,16 +201,16 @@ Cohesion: 0.20
 Nodes (8): BuildingStyle, CampusBuilding(), FRAME_MATERIAL, GLASS_MATERIAL, PANE_GEOMETRY, Vec3, Instanced(), InstanceSpec
 
 ### Community 20 - "arena-models.tsx"
-Cohesion: 0.05
-Nodes (39): ARENA_R, ArenaHall, ArenaVisualState, BossModel(), BOT_TINTS, CABINETS, CABLES, canvasTexture() (+31 more)
+Cohesion: 0.06
+Nodes (27): ArenaVisualState, BossModel(), BOT_TINTS, CABINETS, CABLES, GHOST_TINTS, ICO_DIRS, INNER_RACKS (+19 more)
 
 ### Community 21 - "site-checkout/components/game/mission-panel.tsx"
-Cohesion: 0.12
-Nodes (15): auditContent, AuditMission(), dataCleanContent, dataInsightContent, DataMission(), erpContent, ErpMission(), META (+7 more)
+Cohesion: 0.13
+Nodes (13): ref_radix_ui_react_progress, auditContent, AuditMission(), dataCleanContent, dataInsightContent, DataMission(), erpContent, ErpMission() (+5 more)
 
 ### Community 22 - "race-scenery.tsx"
 Cohesion: 0.07
-Nodes (35): YardFloor, BILLBOARDS, Birds(), canvasTexture(), Clouds(), DRY, Factory(), fitText() (+27 more)
+Nodes (44): BILLBOARDS, Birds(), canvasTexture(), Clouds(), DRY, Factory(), fitText(), FLEET (+36 more)
 
 ### Community 23 - "public/manifest.json"
 Cohesion: 0.14
@@ -227,15 +226,15 @@ Nodes (10): BoundaryHedge(), CitySkyline(), DistantForest(), GrassPatches(), Hil
 
 ### Community 26 - "components/game/game-canvas.tsx"
 Cohesion: 0.09
-Nodes (19): CampusSurroundings(), Tree(), TreeKind, Avatar(), BUILDING_BOXES, cameraClearance(), CampusZone, FLOWER_COLORS (+11 more)
+Nodes (20): CampusSurroundings(), Tree(), TreeKind, Avatar(), BUILDING_BOXES, cameraClearance(), CampusZone, FLOWER_COLORS (+12 more)
 
-### Community 27 - "components/workspace/workspace-shell.tsx"
-Cohesion: 0.11
-Nodes (19): StaggerChildren(), StaggerChildrenProps, ICONS, MenuGrid(), ScenarioDialog(), TRACK_ICONS, TrackSwitcher(), TRACK_ICONS (+11 more)
+### Community 27 - "ref_lucide_react"
+Cohesion: 0.15
+Nodes (14): TRACK_ICONS, ScenarioDialog(), TRACK_ICONS, TrackSwitcher(), TRACK_ICONS, WorkspaceShell(), fetchScenarioByMenuId(), fetchWorkspaceMenus() (+6 more)
 
 ### Community 28 - "cn"
-Cohesion: 0.13
-Nodes (22): RevealCard(), TRACK_ICONS, initials(), TestimonialCard(), QuestionCard(), ResultCard(), TRACK_ICONS, Avatar() (+14 more)
+Cohesion: 0.09
+Nodes (34): RevealCard(), StaggerChildren(), StaggerChildrenProps, initials(), TestimonialCard(), NAV_LINKS, Navbar(), QuestionCard() (+26 more)
 
 ### Community 29 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -254,16 +253,16 @@ Cohesion: 0.22
 Nodes (9): devDependencies, eslint, eslint-config-next, tailwindcss, @tailwindcss/postcss, @types/node, @types/react, @types/react-dom (+1 more)
 
 ### Community 34 - "route-level.tsx"
-Cohesion: 0.09
-Nodes (31): ConeModel(), Countdown(), DroneModel(), Effects(), FxApi, HintCard(), PaperPile(), Particle (+23 more)
+Cohesion: 0.06
+Nodes (43): Virus(), Technician(), CameraShake(), SparkLayer(), FirewallScene(), PacketNode(), ServerRack(), Belt() (+35 more)
 
 ### Community 35 - "SISFOR UISI: Pilih Jalurmu"
 Cohesion: 0.29
 Nodes (6): Menjalankan secara lokal, Menyambungkan Supabase (opsional, tapi direkomendasikan untuk data real), SISFOR UISI: Pilih Jalurmu, Struktur folder penting, Tech stack, Yang sudah selesai vs. yang masih bisa dikembangkan
 
 ### Community 36 - "components/game/campus-panels.tsx"
-Cohesion: 0.13
-Nodes (19): CampusAssistant(), CATEGORIES, InfoCenter(), TrackDetails(), components_ui_dialog_dialog, DialogContent(), DialogDescription(), DialogHeader() (+11 more)
+Cohesion: 0.17
+Nodes (15): CATEGORIES, components_ui_dialog_dialog, DialogContent(), DialogDescription(), DialogHeader(), DialogOverlay(), DialogTitle(), components_ui_tabs_tabs (+7 more)
 
 ### Community 37 - "SISFOR UISI: Pilih Jalurmu"
 Cohesion: 0.29
@@ -279,7 +278,7 @@ Nodes (4): eslintConfig, ref_eslint, ref_eslint_config_next, eslintConfig
 
 ### Community 40 - "site-checkout/lib/types.ts"
 Cohesion: 0.09
-Nodes (31): ChatbotWidget(), KATEGORI_LIST, QuizFlow(), ACHIEVEMENTS, FAQ_ITEMS, fetchFaqItems(), fetchQuizQuestions(), saveQuizResult() (+23 more)
+Nodes (29): ChatbotWidget(), KATEGORI_LIST, DataCleanScenario(), ACHIEVEMENTS, FAQ_ITEMS, fetchFaqItems(), fetchScenarioByMenuId(), TESTIMONIALS (+21 more)
 
 ### Community 41 - "scripts"
 Cohesion: 0.40
@@ -314,88 +313,96 @@ Cohesion: 0.06
 Nodes (53): argparse, bpy, graphify reference: transcribe video and audio, Step 2.5 - Transcribe video / audio files (only if video files detected), importlib, math, mathutils, numpy (+45 more)
 
 ### Community 62 - "ref_react"
-Cohesion: 0.12
-Nodes (26): ref_gsap, ref_react, RevealCard(), StaggerChildren(), StaggerChildrenProps, NAV_LINKS, Navbar(), QuestionCard() (+18 more)
+Cohesion: 0.10
+Nodes (22): ref_class_variance_authority, ref_clsx, ref_gsap, ref_radix_ui_react_slot, ref_react, ref_tailwind_merge, RevealCard(), NAV_LINKS (+14 more)
 
-### Community 63 - "ops-level.tsx"
-Cohesion: 0.06
-Nodes (49): arrivalPath(), BAY_Z, bezier(), BOUNDS, Box, COFFEE_SPOTS, CONSOLES, CONVEYOR_PATH (+41 more)
+### Community 63 - "components/pwa/install-pwa-prompt.tsx"
+Cohesion: 0.60
+Nodes (4): BeforeInstallPromptEvent, InstallPwaPrompt(), isIos(), isStandalone()
 
 ### Community 64 - "site-checkout/components/workspace/workspace-shell.tsx"
-Cohesion: 0.12
-Nodes (19): TRACK_ICONS, initials(), TestimonialCard(), ResultCard(), ICONS, MenuGrid(), ScenarioDialog(), TRACK_ICONS (+11 more)
+Cohesion: 0.13
+Nodes (17): StaggerChildren(), StaggerChildrenProps, TRACK_ICONS, ResultCard(), ICONS, MenuGrid(), ScenarioDialog(), TRACK_ICONS (+9 more)
 
-### Community 65 - "ops-scenery.tsx"
-Cohesion: 0.07
-Nodes (39): Borders, CAR_COLORS, CONTAINER_COLORS, DIRT, DockArea, DRY, ErpOffice, FOREST (+31 more)
+### Community 65 - "site-checkout/components/quiz/quiz-flow.tsx"
+Cohesion: 0.23
+Nodes (11): QuizFlow(), fetchQuizQuestions(), saveQuizResult(), QUIZ_QUESTIONS, hitungHasilKuis(), JALUR_URUTAN, getSessionId(), randomId() (+3 more)
 
 ### Community 66 - "inspektur-world.tsx"
 Cohesion: 0.05
-Nodes (48): ALARM, BONUS_INFO, BonusItem(), BonusItemData, CALM, ConceptQuiz(), CONE_HALF, CONE_RANGE (+40 more)
+Nodes (44): ALARM, BONUS_INFO, BonusItem(), BonusItemData, CALM, ConceptQuiz(), CONE_HALF, CONE_RANGE (+36 more)
 
 ### Community 67 - "world-kit.tsx"
-Cohesion: 0.15
-Nodes (19): buildCharacter(), CharacterModel(), CharacterMotion, characterUrl(), prepareMaterials(), readAxis(), FixedCamera(), HudChip() (+11 more)
+Cohesion: 0.17
+Nodes (18): buildCharacter(), CharacterModel(), characterUrl(), prepareMaterials(), SoundName, readAxis(), WorldInput, FixedCamera() (+10 more)
 
 ### Community 68 - "truck-models.tsx"
-Cohesion: 0.13
-Nodes (14): CementTruck(), DRUM_PROFILE, DrumHelix, drumRadius(), MotionRef, PLAYER_LIVERY, RIVAL_LIVERY, TRAFFIC_SIZE (+6 more)
+Cohesion: 0.12
+Nodes (15): TrafficCarState, CementTruck(), DRUM_PROFILE, DrumHelix, drumRadius(), MotionRef, PLAYER_LIVERY, RIVAL_LIVERY (+7 more)
 
 ### Community 69 - "worlds.ts"
 Cohesion: 0.09
-Nodes (20): ARENA_ENEMIES, ARENA_STAFF, ArenaEnemyInfo, ArenaEnemyKind, BinId, BONUS_KINDS, BONUS_SPOTS, DataCube (+12 more)
+Nodes (20): DATA_TABLE, ARENA_ENEMIES, ARENA_STAFF, ArenaEnemyInfo, ArenaEnemyKind, BinId, BOARD_GATES, BONUS_KINDS (+12 more)
 
-### Community 70 - "ref_lucide_react"
-Cohesion: 0.21
-Nodes (9): ref_class_variance_authority, ref_lucide_react, BeforeInstallPromptEvent, InstallPwaPrompt(), isIos(), isStandalone(), Badge(), BadgeProps (+1 more)
+### Community 70 - "cn"
+Cohesion: 0.17
+Nodes (17): ref_radix_ui_react_avatar, initials(), TestimonialCard(), QuestionCard(), Avatar(), AvatarFallback(), AvatarImage(), Badge() (+9 more)
 
 ### Community 71 - "mission-world.tsx"
 Cohesion: 0.10
-Nodes (19): MissionWorld, AffinityStep(), MISSION_THEME, MissionIntro(), AUDIT_LEVELS, DATA_LEVELS, LEVELS, MissionWorld() (+11 more)
+Nodes (19): MissionWorld, AffinityStep(), MISSION_THEME, MissionIntro(), AUDIT_LEVELS, DATA_LEVELS, ERP_LEVELS, LEVELS (+11 more)
 
 ### Community 72 - "race-track.ts"
-Cohesion: 0.12
-Nodes (25): inZone(), pick(), Terrain(), useVegetation(), Vegetation(), Village(), distanceToTrack(), fbm() (+17 more)
+Cohesion: 0.13
+Nodes (14): insideTrack(), LAKE, LANES, Paddy, RAIL_OFFSET, ROAD_HALF, ROAD_WIDTH, SAMPLES (+6 more)
 
 ### Community 73 - "pointAt"
+Cohesion: 0.21
+Nodes (20): faceRoad(), LAYOUT, openSide(), crossed(), headingAt(), indexAt(), pointAt(), createRush() (+12 more)
+
+### Community 75 - "ref_next"
+Cohesion: 0.22
+Nodes (3): nextConfig, ref_next, nextConfig
+
+### Community 76 - "app/layout.tsx"
 Cohesion: 0.33
-Nodes (12): faceRoad(), LAYOUT, openSide(), headingAt(), indexAt(), pointAt(), GateRow(), HAZARDS (+4 more)
+Nodes (4): app_globals, metadata, viewport, ServiceWorkerRegister()
 
-### Community 74 - "ops-models.tsx"
-Cohesion: 0.11
-Nodes (23): box(), CarriedStack(), CoffeeCup(), Conveyor(), FlatbedTruck(), GHOST_BOX, GHOST_EDGES, palletCache (+15 more)
+### Community 77 - "useThrottled"
+Cohesion: 0.33
+Nodes (7): FirewallLevel(), firewallPace(), InspectLevel(), shuffle(), CityLevel(), ConveyorLevel(), useThrottled()
 
-### Community 75 - "clampDelta"
-Cohesion: 0.10
-Nodes (20): Virus(), CameraShake(), SparkLayer(), FirewallScene(), PacketNode(), ServerRack(), Belt(), CityClock() (+12 more)
+### Community 78 - "site-checkout/app/layout.tsx"
+Cohesion: 0.33
+Nodes (4): sites_runtime_site_checkout_app_globals, metadata, viewport, ServiceWorkerRegister()
 
-### Community 76 - "OpsScene"
-Cohesion: 0.27
-Nodes (13): opsBlocked(), createSim(), guideTarget(), interact(), nearestStation(), needed(), openDemand(), OpsLevel() (+5 more)
+### Community 79 - "ArenaLevel"
+Cohesion: 0.22
+Nodes (10): arenaBlocked(), ArenaLevel(), ArenaScene(), burst(), createSim(), emit(), hudOf(), makeShots() (+2 more)
 
-### Community 77 - "sampleTrack"
-Cohesion: 0.40
-Nodes (6): createTraffic(), fleetSize(), Traffic(), sampleTrack(), MiniMap(), RivalTruck()
+### Community 80 - "ArenaHall"
+Cohesion: 0.53
+Nodes (6): ArenaHall, canvasTexture(), makeAlertScreen(), makeArenaFloor(), makeGrating(), makeWallTexture()
 
 ## Knowledge Gaps
-- **529 isolated node(s):** `metadata`, `viewport`, `VALID`, `KATEGORI_LIST`, `CATEGORIES` (+524 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 663 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **487 isolated node(s):** `metadata`, `viewport`, `VALID`, `KATEGORI_LIST`, `CATEGORIES` (+482 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 620 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `cn` to `hacker-arena.tsx`, `mission-kit.tsx`, `inspektur-world.tsx`, `route-level.tsx`, `components/game/game-entry.tsx`, `components/game/campus-panels.tsx`, `data-lab-world.tsx`, `world-kit.tsx`, `lib/utils.ts`, `lib/types.ts`, `OpsScene`, `components/workspace/workspace-shell.tsx`, `ops-level.tsx`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Why does `clampDelta()` connect `clampDelta` to `hacker-arena.tsx`, `ops-scenery.tsx`, `inspektur-world.tsx`, `route-level.tsx`, `truck-models.tsx`, `data-lab-world.tsx`, `world-kit.tsx`, `ops-models.tsx`, `data-center.tsx`, `OpsScene`, `sampleTrack`, `race-world.tsx`, `arena-models.tsx`, `race-scenery.tsx`, `ops-level.tsx`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
-- **Why does `clampPercent()` connect `mission-kit.tsx` to `hacker-arena.tsx`, `inspektur-world.tsx`, `route-level.tsx`, `data-lab-world.tsx`, `mission-world.tsx`, `OpsScene`, `race-world.tsx`, `ops-level.tsx`?**
+- **Why does `cn()` connect `cn` to `hacker-arena.tsx`, `mission-kit.tsx`, `inspektur-world.tsx`, `route-level.tsx`, `components/game/game-entry.tsx`, `components/game/campus-panels.tsx`, `data-lab-world.tsx`, `world-kit.tsx`, `truck-models.tsx`, `lib/types.ts`, `lib/data/index.ts`, `useThrottled`, `ArenaLevel`, `ref_lucide_react`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+- **Why does `clampDelta()` connect `route-level.tsx` to `hacker-arena.tsx`, `inspektur-world.tsx`, `world-kit.tsx`, `truck-models.tsx`, `data-lab-world.tsx`, `data-center.tsx`, `race-world.tsx`, `ArenaLevel`, `arena-models.tsx`, `race-scenery.tsx`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `cn()` connect `cn` to `site-checkout/components/workspace/workspace-shell.tsx`, `site-checkout/lib/types.ts`, `site-checkout/components/game/game-entry.tsx`, `site-checkout/components/game/campus-panels.tsx`, `site-checkout/components/game/mission-panel.tsx`, `ref_react`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `metadata`, `viewport`, `VALID` to the rest of the system?**
-  _529 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _487 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `hacker-arena.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.08266129032258064 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06896551724137931 - nodes in this community are weakly interconnected._
 - **Should `mission-kit.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.061971830985915494 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07706766917293233 - nodes in this community are weakly interconnected._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.06666666666666667 - nodes in this community are weakly interconnected._

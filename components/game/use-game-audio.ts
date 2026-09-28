@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { AudioSettings } from "@/lib/types";
 
-export type SoundName = "interact" | "success" | "step" | "error" | "pickup";
+export type SoundName = "interact" | "success" | "step" | "error" | "pickup" | "shoot" | "boom";
 
 // [gelombang, frekuensi awal, frekuensi akhir, lama sapuan, volume, lama bunyi]
 const SOUNDS: Record<SoundName, [OscillatorType, number, number, number, number, number]> = {
@@ -12,6 +12,8 @@ const SOUNDS: Record<SoundName, [OscillatorType, number, number, number, number,
   step: ["sine", 95, 70, 0.1, 0.045, 0.14],
   error: ["sawtooth", 220, 110, 0.22, 0.06, 0.26],
   pickup: ["square", 660, 1320, 0.08, 0.05, 0.12],
+  shoot: ["square", 900, 420, 0.05, 0.018, 0.06],
+  boom: ["sawtooth", 160, 40, 0.28, 0.07, 0.32],
 };
 
 export function useGameAudio(settings: AudioSettings) {

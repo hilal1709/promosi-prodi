@@ -4,14 +4,12 @@ import { memo, useEffect, useMemo, useRef, useState, type ReactNode, type RefObj
 import { useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { Check, Gavel, Heart, Lock, Radar, Search, ShieldAlert, Timer, X, Zap } from "lucide-react";
+import { Check, Heart, Lock, Radar, Search, ShieldAlert, Timer, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { cn } from "@/lib/utils";
-import { AUDIT_FINDINGS } from "@/lib/data/missions";
-import { BONUS_KINDS, BONUS_SPOTS, EVIDENCE, FIREWALL_PACKETS, OFFICE_OBJECTS, STATEMENTS, type FirewallPacket, type OfficeObject } from "@/lib/data/worlds";
-import type { RiskLevel } from "@/lib/types";
+import { BONUS_KINDS, BONUS_SPOTS, FIREWALL_PACKETS, OFFICE_OBJECTS, type FirewallPacket, type OfficeObject } from "@/lib/data/worlds";
 import { TouchControls } from "../touch-controls";
 import {
   BONUS_INFO,
@@ -25,11 +23,11 @@ import {
   type BonusItemData,
   type DroneState,
 } from "./inspect-extras";
-import { DataCenterHall, Technician } from "./data-center";
+import { DataCenterHall, DataCenterLights, Technician } from "./data-center";
+import { ArenaLevel } from "./hacker-arena";
 import { usePressReader, type WorldInput } from "../world-controls";
 import {
   clampDelta,
-  FixedCamera,
   HudChip,
   HudMeter,
   Label,
@@ -955,25 +953,6 @@ function firewallPace(elapsed: number) {
 
 type LivePacket = { uid: number; packet: FirewallPacket; lane: number; blocked: boolean };
 
-function Suspect({ position }: { position?: [number, number, number] }) {
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.95, 0]} castShadow>
-        <capsuleGeometry args={[0.42, 0.9, 6, 12]} />
-        <meshStandardMaterial color="#e54b4b" />
-      </mesh>
-      <mesh position={[0, 1.95, 0]} castShadow>
-        <sphereGeometry args={[0.36, 16, 12]} />
-        <meshStandardMaterial color="#2a2f3a" />
-      </mesh>
-      <mesh position={[0.3, 1.2, -0.3]}>
-        <boxGeometry args={[0.5, 0.35, 0.12]} />
-        <meshStandardMaterial color="#9ca3af" emissive="#3fd0ff" emissiveIntensity={0.5} />
-      </mesh>
-    </group>
-  );
-}
-
 /** Kamera diam; mundur lebih jauh di layar potret agar ketiga jalur tetap terlihat. */
 function FirewallCamera() {
   const { camera, size } = useThree();
@@ -983,28 +962,6 @@ function FirewallCamera() {
     camera.lookAt(0, 0, -3.5);
   }, [camera, far]);
   return null;
-}
-
-/** Cahaya sejuk ala data center: lampu langit-langit putih-kebiruan dengan bayangan lembut. */
-function DataCenterLights() {
-  return (
-    <>
-      <ambientLight intensity={0.35} color="#dfe8ff" />
-      <hemisphereLight intensity={0.9} color="#e4ecff" groundColor="#3a4050" />
-      <directionalLight
-        castShadow
-        position={[6, 20, 8]}
-        intensity={1.3}
-        color="#f4f8ff"
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-18}
-        shadow-camera-right={18}
-        shadow-camera-top={26}
-        shadow-camera-bottom={-26}
-        shadow-bias={-0.0005}
-      />
-    </>
-  );
 }
 
 const NetworkRoom = memo(function NetworkRoom() {
@@ -1372,260 +1329,4 @@ function FirewallLevel({ levelIndex, info, paused, quality, avatar, sound, onPau
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Level 3 · Konfrontasi                                              */
-/* ------------------------------------------------------------------ */
-
-const STATEMENT_TIME = 15;
-const RISKS: RiskLevel[] = ["Tinggi", "Sedang", "Rendah"];
-
-function EvidenceCard({ index, total, picked, onPick, disabled }: { index: number; total: number; picked: boolean; onPick: () => void; disabled: boolean }) {
-  const group = useRef<THREE.Group>(null);
-  const [hover, setHover] = useState(false);
-  const angle = (index - (total - 1) / 2) * 0.32;
-  useFrame(({ clock }) => {
-    if (!group.current) return;
-    group.current.position.y = 1.9 + Math.sin(clock.elapsedTime * 2 + index) * 0.06 + (hover ? 0.2 : 0);
-  });
-  const evidence = EVIDENCE[index];
-  return (
-    <group ref={group} position={[Math.sin(angle) * 5.2, 1.9, 3.6 - Math.cos(angle) * 1.4]} rotation={[-0.35, -angle, 0]}>
-      <mesh
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          if (!disabled) onPick();
-        }}
-        onPointerOver={() => setHover(true)}
-        onPointerOut={() => setHover(false)}
-        castShadow
-      >
-        <boxGeometry args={[1.5, 1.05, 0.06]} />
-        <meshStandardMaterial color={picked ? "#ffd166" : hover ? "#fff4d6" : "#f7ebe8"} emissive={hover ? "#ffa987" : "#000"} emissiveIntensity={hover ? 0.4 : 0} />
-      </mesh>
-      <Label position={[0, 0, 0.06]} className="is-light" distanceFactor={7}>
-        <span className="block text-[0.7rem] font-black text-track-audit">{evidence.judul}</span>
-        <span className="block max-w-[8rem] whitespace-normal text-[0.65rem] font-semibold">{evidence.isi}</span>
-      </Label>
-    </group>
-  );
-}
-
-function CourtScene({ children }: { children: ReactNode }) {
-  return (
-    <>
-      <FixedCamera position={[0, 3.6, 8.4]} target={[0, 1.8, 0]} />
-      <hemisphereLight intensity={1.1} color="#fff1dc" groundColor="#6b4f3a" />
-      <ambientLight intensity={0.3} color="#ffe2c4" />
-      <spotLight position={[0, 7, 1]} angle={0.5} penumbra={0.6} intensity={60} color="#fff1d6" castShadow />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[30, 30]} />
-        <meshStandardMaterial color="#8a6446" roughness={0.8} />
-      </mesh>
-      <mesh position={[0, 0.9, -1]} castShadow receiveShadow>
-        <boxGeometry args={[4, 0.15, 1.8]} />
-        <meshStandardMaterial color="#6b4a2f" />
-      </mesh>
-      <Suspect position={[0, 0, -2.6]} />
-      <mesh position={[0, 3, -6]}>
-        <planeGeometry args={[16, 6]} />
-        <meshStandardMaterial color="#b58a63" />
-      </mesh>
-      {children}
-    </>
-  );
-}
-
-function ConfrontLevel({ levelIndex, info, paused, quality, sound, onPause, onFinish }: WorldLevelProps) {
-  const [step, setStep] = useState(0);
-  const [lives, setLives] = useState(3);
-  const [refuted, setRefuted] = useState(0);
-  const [picked, setPicked] = useState<string | null>(null);
-  const [objection, setObjection] = useState<null | "ok" | "bad">(null);
-  const [timeLeft, setTimeLeft] = useState(STATEMENT_TIME);
-  const push = useThrottled(setTimeLeft, 5);
-  const timer = useRef(STATEMENT_TIME);
-  const [phase, setPhase] = useState<"refute" | "risk" | "done">("refute");
-  const [findingIndex, setFindingIndex] = useState(0);
-  const [answer, setAnswer] = useState<{ risk?: RiskLevel; rec?: number }>({});
-  const [points, setPoints] = useState(0);
-  const [revealed, setRevealed] = useState(false);
-  const [toast, setToast] = useState<Feedback>(null);
-  const statement = STATEMENTS[step];
-  const finding = AUDIT_FINDINGS[findingIndex];
-  const score = clampPercent((refuted / STATEMENTS.length) * 50 + (points / (AUDIT_FINDINGS.length * 2)) * 50);
-
-  const nextStatement = (livesLeft: number) => {
-    setPicked(null);
-    setObjection(null);
-    timer.current = STATEMENT_TIME;
-    push(STATEMENT_TIME, true);
-    if (step + 1 >= STATEMENTS.length || livesLeft <= 0) setPhase("risk");
-    else setStep((value) => value + 1);
-  };
-
-  const pick = (id: string) => {
-    if (objection || phase !== "refute") return;
-    const ok = id === statement.bukti;
-    setPicked(id);
-    setObjection(ok ? "ok" : "bad");
-    sound(ok ? "success" : "error");
-    const livesLeft = ok ? lives : lives - 1;
-    if (ok) setRefuted((value) => value + 1);
-    else setLives(livesLeft);
-    setToast({
-      ok,
-      judul: ok ? "KEBERATAN!" : "Bukti tidak relevan",
-      teks: ok ? statement.bantahan : `Bukti yang tepat: ${EVIDENCE.find((e) => e.id === statement.bukti)?.judul}. ${statement.bantahan}`,
-      konsep: "Pembuktian audit",
-    });
-    window.setTimeout(() => nextStatement(livesLeft), 1600);
-  };
-
-  const confirmRisk = () => {
-    const riskOk = answer.risk ? finding.risikoBenar.includes(answer.risk) : false;
-    const recOk = answer.rec === finding.rekomendasiBenar;
-    setPoints((value) => value + (riskOk ? 1 : 0) + (recOk ? 1 : 0));
-    sound(riskOk && recOk ? "success" : "error");
-    setRevealed(true);
-  };
-
-  return (
-    <WorldStage
-      quality={quality}
-      paused={paused || phase === "done"}
-      background="#4a3a30"
-      overlay={
-        <>
-          <WorldHud
-            levelIndex={levelIndex}
-            info={info}
-            onPause={onPause}
-            toast={phase === "refute" ? toast : null}
-            stats={
-              phase === "refute" ? (
-                <>
-                  <HudChip tone={timeLeft <= 5 ? "red" : "dark"}><Timer />{Math.ceil(timeLeft)}s</HudChip>
-                  <HudChip>{Array.from({ length: 3 }, (_, i) => <Heart key={i} className={i < lives ? "fill-current text-track-audit" : "opacity-30"} />)}</HudChip>
-                  <HudChip tone="gold"><Gavel />{refuted}/{STATEMENTS.length}</HudChip>
-                </>
-              ) : (
-                <HudChip tone="gold">Temuan {Math.min(findingIndex + 1, AUDIT_FINDINGS.length)}/{AUDIT_FINDINGS.length}</HudChip>
-              )
-            }
-          />
-          {phase === "refute" && statement && (
-            <div className="world-statement">
-              <small>PERNYATAAN {step + 1}/{STATEMENTS.length} · KEPALA DIVISI</small>
-              <p>“{statement.teks}”</p>
-              <span>Ketuk kartu bukti yang membantah pernyataan ini.</span>
-            </div>
-          )}
-          {objection && <div className={cn("world-objection", objection === "bad" && "is-bad")}>{objection === "ok" ? "KEBERATAN!" : "SALAH BUKTI"}</div>}
-          {phase === "risk" && finding && (
-            <div className="world-overlay-card mission-pop">
-              <p className="text-xs font-black tracking-[0.15em] text-muted-foreground">PENILAIAN RISIKO · {findingIndex + 1}/{AUDIT_FINDINGS.length}</p>
-              <p className="mt-1 font-black">{finding.judul}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {RISKS.map((risk) => (
-                  <button
-                    key={risk}
-                    disabled={revealed}
-                    onClick={() => setAnswer((current) => ({ ...current, risk }))}
-                    className={cn(
-                      "rounded-full border-2 px-3 py-1 text-xs font-black",
-                      answer.risk === risk ? "border-brand-navy bg-brand-navy text-white" : "border-border",
-                      revealed && finding.risikoBenar.includes(risk) && "ring-2 ring-emerald-500 ring-offset-1"
-                    )}
-                  >
-                    {risk}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-3 grid gap-1.5">
-                {finding.rekomendasi.map((rec, index) => (
-                  <button
-                    key={rec}
-                    disabled={revealed}
-                    onClick={() => setAnswer((current) => ({ ...current, rec: index }))}
-                    className={cn(
-                      "flex items-center gap-2 rounded-2xl border-2 px-3 py-2 text-left text-sm font-semibold",
-                      answer.rec === index ? "border-track-audit bg-track-audit-soft" : "border-border",
-                      revealed && index === finding.rekomendasiBenar && "border-emerald-500 bg-emerald-50"
-                    )}
-                  >
-                    {revealed && index === finding.rekomendasiBenar ? <Check className="h-4 w-4 text-emerald-600" /> : revealed && answer.rec === index ? <X className="h-4 w-4 text-track-audit" /> : null}
-                    {rec}
-                  </button>
-                ))}
-              </div>
-              {revealed && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{finding.penjelasan}</p>}
-              {!revealed ? (
-                <Button className="mt-3 w-full" disabled={!answer.risk || answer.rec === undefined} onClick={confirmRisk}>Catat di laporan</Button>
-              ) : (
-                <Button
-                  className="mt-3 w-full"
-                  onClick={() => {
-                    setRevealed(false);
-                    setAnswer({});
-                    if (findingIndex + 1 >= AUDIT_FINDINGS.length) setPhase("done");
-                    else setFindingIndex((value) => value + 1);
-                  }}
-                >
-                  {findingIndex + 1 < AUDIT_FINDINGS.length ? "Temuan berikutnya" : "Tutup laporan"}
-                </Button>
-              )}
-            </div>
-          )}
-          {phase === "done" && (
-            <LevelEnd
-              score={score}
-              reason="Laporan audit final"
-              detail={`${refuted}/${STATEMENTS.length} pernyataan terbantah · ${points}/${AUDIT_FINDINGS.length * 2} penilaian tepat.`}
-              isLast
-              onNext={() => onFinish(score)}
-            />
-          )}
-        </>
-      }
-    >
-      <CourtScene>
-        <StatementClock
-          running={!paused && phase === "refute" && !objection}
-          timerRef={timer}
-          onTick={(value) => {
-            push(value);
-            if (value <= 0 && !objection) {
-              setObjection("bad");
-              setLives((current) => current - 1);
-              sound("error");
-              setToast({ ok: false, judul: "Waktu habis!", teks: statement.bantahan, konsep: "Pembuktian audit" });
-              window.setTimeout(() => nextStatement(lives - 1), 1600);
-            }
-          }}
-        />
-        {phase === "refute" &&
-          EVIDENCE.map((evidence, index) => (
-            <EvidenceCard
-              key={evidence.id}
-              index={index}
-              total={EVIDENCE.length}
-              picked={picked === evidence.id}
-              disabled={Boolean(objection)}
-              onPick={() => pick(evidence.id)}
-            />
-          ))}
-      </CourtScene>
-    </WorldStage>
-  );
-}
-
-function StatementClock({ running, timerRef, onTick }: { running: boolean; timerRef: RefObject<number>; onTick: (value: number) => void }) {
-  useFrame((_, raw) => {
-    if (!running || timerRef.current <= 0) return;
-    timerRef.current = Math.max(0, timerRef.current - clampDelta(raw));
-    onTick(timerRef.current);
-  });
-  return null;
-}
-
-export const AUDIT_LEVELS = [InspectLevel, FirewallLevel, ConfrontLevel];
+export const AUDIT_LEVELS = [InspectLevel, FirewallLevel, ArenaLevel];

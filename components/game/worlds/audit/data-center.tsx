@@ -410,6 +410,28 @@ function OperatorDesk({ position }: { position: [number, number, number] }) {
   );
 }
 
+/** Cahaya sejuk ala data center: lampu langit-langit putih-kebiruan dengan bayangan lembut. */
+export function DataCenterLights() {
+  return (
+    <>
+      <ambientLight intensity={0.35} color="#dfe8ff" />
+      <hemisphereLight intensity={0.9} color="#e4ecff" groundColor="#3a4050" />
+      <directionalLight
+        castShadow
+        position={[6, 20, 8]}
+        intensity={1.3}
+        color="#f4f8ff"
+        shadow-mapSize={[1024, 1024]}
+        shadow-camera-left={-18}
+        shadow-camera-right={18}
+        shadow-camera-top={26}
+        shadow-camera-bottom={-26}
+        shadow-bias={-0.0005}
+      />
+    </>
+  );
+}
+
 export const DataCenterHall = memo(function DataCenterHall({ lanes, laneFrom, laneTo }: { lanes: number[]; laneFrom: number; laneTo: number }) {
   const floor = useMemo(() => makeFloorTexture(), []);
   const depth = HALL.zFront - HALL.zBack;

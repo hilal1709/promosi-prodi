@@ -1122,9 +1122,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-world.tsx": {
-    "mtime": 1790617084.6249683,
-    "seen": 1790618422.1796014,
-    "ast_hash": "a1d1011a7abf7b2f157081129de23fed",
+    "mtime": 1790616039.4417787,
+    "seen": 1790616307.8376803,
+    "ast_hash": "a6dacc288bb72d91509d853503e79ec8",
     "semantic_hash": ""
   },
   "components/game/worlds/mission-world.tsx": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "lib/data/worlds.ts": {
-    "mtime": 1790617019.533368,
-    "seen": 1790618422.194259,
-    "ast_hash": "bd742c6d6e3f6726af3be501d855aef6",
+    "mtime": 1790615987.394637,
+    "seen": 1790616307.8523169,
+    "ast_hash": "3cf75de82f48f80a08b3ca2828e20f59",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspect-extras.tsx": {
@@ -1182,9 +1182,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-scenery.tsx": {
-    "mtime": 1790617051.4991846,
-    "seen": 1790618422.1793127,
-    "ast_hash": "4da8dee2b56deaab7e9c8b1f705fea18",
+    "mtime": 1790611769.950088,
+    "seen": 1790616307.8373592,
+    "ast_hash": "f9d6d81e37180b160a511af53553937d",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-track.ts": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/levels.ts": {
-    "mtime": 1790618337.29853,
-    "seen": 1790618422.178972,
-    "ast_hash": "6fb51fe5ce5e42d7d7752180e3198aab",
+    "mtime": 1790611893.9909196,
+    "seen": 1790616307.8373485,
+    "ast_hash": "4c34acbc6e2094083d7279dacb014179",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-fx.tsx": {
@@ -1215,30 +1215,6 @@
     "mtime": 1790616253.572642,
     "seen": 1790616307.8376844,
     "ast_hash": "5acff54ecae0c4dffe91f11ac2beb2aa",
-    "semantic_hash": ""
-  },
-  "components/game/worlds/erp/ops-layout.ts": {
-    "mtime": 1790617206.4194098,
-    "seen": 1790618422.1789799,
-    "ast_hash": "48c7f521f41f00bc9ca5f27583e62587",
-    "semantic_hash": ""
-  },
-  "components/game/worlds/erp/ops-level.tsx": {
-    "mtime": 1790618385.1293585,
-    "seen": 1790618422.1789834,
-    "ast_hash": "8afb21c824627ee995406bef2cd91f75",
-    "semantic_hash": ""
-  },
-  "components/game/worlds/erp/ops-models.tsx": {
-    "mtime": 1790618160.3966537,
-    "seen": 1790618422.1789865,
-    "ast_hash": "98c02c64eca39782b6b35a5127d3944b",
-    "semantic_hash": ""
-  },
-  "components/game/worlds/erp/ops-scenery.tsx": {
-    "mtime": 1790618219.746113,
-    "seen": 1790618422.1789894,
-    "ast_hash": "40dc62659c60aca21bdc61abae924d07",
     "semantic_hash": ""
   }
 }
