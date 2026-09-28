@@ -79,14 +79,14 @@ const CHARACTERS: Record<GameAvatarId, {
     name: "Arga",
     gender: "Karakter cowok",
     tagline: "Adaptif, santai, dan siap menjelajah setiap peluang.",
-    image: "/characters/avatar-arga.webp",
+    image: "/characters/avatar-arga-neutral.webp",
   },
   nara: {
     id: "nara",
     name: "Nara",
     gender: "Karakter cewek",
     tagline: "Kreatif, cermat, dan selalu penasaran dengan hal baru.",
-    image: "/characters/avatar-nara.webp",
+    image: "/characters/avatar-nara-neutral.webp",
   },
 };
 
@@ -312,7 +312,13 @@ export default function GameEntry() {
     setProgress(DEFAULT_GAME_PROGRESS);
     setStarted(false);
     setActiveMission(null);
+    setMissionOpen(false);
+    setInfoOpen(false);
+    setAssistantOpen(false);
+    setHelpOpen(false);
+    setSettingsOpen(false);
     setResultOpen(false);
+    setPaused(false);
   }, []);
 
   const openZone = useCallback((zone: CampusZone) => {

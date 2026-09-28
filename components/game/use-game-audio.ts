@@ -14,19 +14,22 @@ export function useGameAudio(settings: AudioSettings) {
   const syncVolume = useCallback(() => {
     const context = contextRef.current;
     const master = masterRef.current;
-    if (!context || !master) return;
+    if (!context || context.state === "closed" || !master) return;
     const value = settings.muted ? 0 : settings.volume * 0.22;
     master.gain.setTargetAtTime(value, context.currentTime, 0.04);
   }, [settings.muted, settings.volume]);
 
   const start = useCallback(async () => {
-    if (!contextRef.current) {
-      const context = new AudioContext();
-      const master = context.createGain();
+    let context = contextRef.current;
+    if (!context || context.state === "closed") {
+      const createdContext = new AudioContext();
+      context = createdContext;
+      contextRef.current = createdContext;
+      const master = createdContext.createGain();
       master.gain.value = settings.muted ? 0 : settings.volume * 0.22;
-      master.connect(context.destination);
+      master.connect(createdContext.destination);
 
-      const filter = context.createBiquadFilter();
+      const filter = createdContext.createBiquadFilter();
       filter.type = "lowpass";
       filter.frequency.value = 620;
       filter.Q.value = 0.7;
@@ -34,8 +37,8 @@ export function useGameAudio(settings: AudioSettings) {
 
       const notes = [110, 164.81, 220];
       ambientRef.current = notes.map((frequency, index) => {
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
+        const oscillator = createdContext.createOscillator();
+        const gain = createdContext.createGain();
         oscillator.type = index === 1 ? "triangle" : "sine";
         oscillator.frequency.value = frequency;
         oscillator.detune.value = index * 3 - 3;
@@ -44,10 +47,16 @@ export function useGameAudio(settings: AudioSettings) {
         oscillator.start();
         return oscillator;
       });
-      contextRef.current = context;
       masterRef.current = master;
     }
-    if (contextRef.current.state === "suspended") await contextRef.current.resume();
+    if (context.state === "suspended") {
+      try {
+        await context.resume();
+      } catch {
+        return;
+      }
+    }
+    if (contextRef.current !== context || context.state === "closed") return;
     syncVolume();
   }, [settings.muted, settings.volume, syncVolume]);
 
@@ -57,8 +66,20 @@ export function useGameAudio(settings: AudioSettings) {
 
   useEffect(() => {
     return () => {
-      ambientRef.current.forEach((node) => node.stop());
-      contextRef.current?.close();
+      const context = contextRef.current;
+      ambientRef.current.forEach((node) => {
+        try {
+          node.stop();
+        } catch {
+          // The context may already have stopped this oscillator during teardown.
+        }
+      });
+      ambientRef.current = [];
+      masterRef.current = null;
+      contextRef.current = null;
+      if (context && context.state !== "closed") {
+        void context.close().catch(() => undefined);
+      }
     };
   }, []);
 
@@ -66,7 +87,7 @@ export function useGameAudio(settings: AudioSettings) {
     (name: SoundName) => {
       const context = contextRef.current;
       const master = masterRef.current;
-      if (!context || !master || settings.muted) return;
+      if (!context || context.state === "closed" || !master || settings.muted) return;
       if (name === "step" && context.currentTime - lastStepRef.current < 0.24) return;
       if (name === "step") lastStepRef.current = context.currentTime;
 
