@@ -107,7 +107,8 @@ function StartScreen({
 
   if (selecting) {
     return (
-      <main className="game-start-screen game-character-screen">
+      // `key` berbeda agar React membuat <main> baru (scroll dari atas), bukan memakai ulang milik layar awal.
+      <main key="character" className="game-start-screen game-character-screen">
         <div className="game-start-grid" aria-hidden="true" />
         <div className="game-start-orb game-start-orb-a" aria-hidden="true" />
         <div className="game-start-orb game-start-orb-b" aria-hidden="true" />
@@ -169,7 +170,7 @@ function StartScreen({
   }
 
   return (
-    <main className="game-start-screen">
+    <main key="start" className="game-start-screen">
       <div className="game-start-grid" aria-hidden="true" />
       <div className="game-start-orb game-start-orb-a" aria-hidden="true" />
       <div className="game-start-orb game-start-orb-b" aria-hidden="true" />

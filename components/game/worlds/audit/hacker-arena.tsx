@@ -922,8 +922,9 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
               <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground">CARA MAIN</p>
               <p className="mt-1 text-lg font-black">Pertahankan server database!</p>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Ancaman datang dari segala arah menuju server. <b className="text-foreground">Tahan Spasi</b> untuk menembakkan patch keamanan (bidikan otomatis),{" "}
-                <b className="text-foreground">Shift</b> untuk dash menghindar.
+                Ancaman datang dari segala arah menuju server.{" "}
+                <span className="hint-pointer-inline"><b className="text-foreground">Tahan Spasi</b> untuk menembakkan patch keamanan (bidikan otomatis), <b className="text-foreground">Shift</b> untuk dash menghindar.</span>
+                <span className="hint-touch-inline"><b className="text-foreground">Tahan tombol bidik</b> untuk menembakkan patch keamanan (bidikan otomatis), <b className="text-foreground">Dash</b> untuk menghindar.</span>
               </p>
               <div className="mt-3 grid gap-2 text-sm">
                 <div className="flex items-center gap-2 rounded-2xl bg-track-audit-soft p-2.5">

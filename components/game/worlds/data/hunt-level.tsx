@@ -13,8 +13,9 @@ import { DATA_BINS, DATA_CUBES, type DataCube } from "@/lib/data/worlds";
 import type { GameAvatarId } from "@/lib/types";
 import { Effects, type FxApi } from "../erp/race-fx";
 import { TouchControls } from "../touch-controls";
+import { stackCompassLabels } from "../hud-layout";
 import { readAxis, type WorldInput } from "../world-controls";
-import { clampDelta, HudChip, HudMeter, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
+import { clampDelta, HudChip, HudMeter, KeyHint, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
 import {
   BIOMES,
   biomeAt,
@@ -710,6 +711,7 @@ function Compass({ playerRef, simRef }: { playerRef: RefObject<PlayerSim>; simRe
             label.textContent = `${t.label} · ${Math.round(t.d)} m`;
           }
         });
+        stackCompassLabels(el);
         if (ticks.current) {
           const offset = ((p.yaw / (Math.PI * 2)) * width * 2) % (width / 2);
           ticks.current.style.backgroundPosition = `${offset.toFixed(1)}px 0`;
@@ -986,8 +988,8 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
   let prompt: ReactNode;
   if (!ended && classify === null && !hud.finale) {
     if (hud.scanning && hud.scan > 0) prompt = <>Menangkap data… {Math.round(hud.scan * 100)}%</>;
-    else if (near && near.dist < SCAN_RANGE) prompt = <><kbd>E</kbd>Tahan untuk scan sprite data</>;
-    else if (near?.fleeing) prompt = <><kbd>Shift</kbd>Dia kabur! Lari untuk mengejar</>;
+    else if (near && near.dist < SCAN_RANGE) prompt = <><KeyHint keyboard="E" touch="Scan" />Tahan untuk scan sprite data</>;
+    else if (near?.fleeing) prompt = <><KeyHint keyboard="Shift" touch="Lari" />Dia kabur! Lari untuk mengejar</>;
     else if (hud.tired) prompt = <>Napasmu habis… tunggu stamina pulih</>;
     else if (!caughtOnce && hud.time > HUNT_TIME - 20) prompt = <>Ikuti <b className="text-[#7ee8fa]">pilar cahaya biru</b>, itu data liar!</>;
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
@@ -265,39 +265,7 @@ export function ScreenFlash({ flash }: { flash: { tone: "good" | "bad"; id: numb
   return <div key={flash.id} className={cn("race-flash", flash.tone === "bad" ? "is-bad" : "is-good")} aria-hidden />;
 }
 
-// Elemen HUD yang bisa berada di atas kartu petunjuk. Chip statistik membungkus
-// ke beberapa baris di layar sempit, jadi tingginya tidak bisa ditebak lewat CSS.
-const HINT_OBSTACLES = ".world-hud-title, .world-hud-stats > *, .world-hud-pause, .race-minimap";
-const HINT_GAP = 8;
-
+/** Posisinya diatur `useHudLayout` (world-kit) agar tidak menimpa HUD/minimap. */
 export function HintCard({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Geser kartu tepat di bawah elemen HUD yang bertumpuk secara horizontal dengannya.
-  useLayoutEffect(() => {
-    const card = ref.current;
-    const stage = card?.parentElement;
-    if (!card || !stage) return;
-    const place = () => {
-      card.style.top = "";
-      const base = card.getBoundingClientRect();
-      const stageTop = stage.getBoundingClientRect().top;
-      let top = base.top - stageTop;
-      stage.querySelectorAll(HINT_OBSTACLES).forEach((node) => {
-        const box = node.getBoundingClientRect();
-        const overlapsX = box.left < base.right && box.right > base.left;
-        if (overlapsX && box.height > 0) top = Math.max(top, box.bottom - stageTop + HINT_GAP);
-      });
-      card.style.top = `${top}px`;
-    };
-    place();
-    const observer = new ResizeObserver(place);
-    stage.querySelectorAll(HINT_OBSTACLES).forEach((node) => observer.observe(node));
-    // Baris HUD ikut diamati: chip combo muncul/hilang dan mengubah jumlah baris.
-    stage.querySelectorAll(".world-hud-top, .world-hud-stats").forEach((node) => observer.observe(node));
-    observer.observe(stage);
-    return () => observer.disconnect();
-  }, []);
-
-  return <div ref={ref} className="race-hint">{children}</div>;
+  return <div className="race-hint">{children}</div>;
 }

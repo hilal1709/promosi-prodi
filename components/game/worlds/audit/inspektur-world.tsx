@@ -845,7 +845,7 @@ export function InspectLevel({ levelIndex, info, paused, quality, avatar, input,
                 {hud.alert > 1 && <HudMeter label="KETAHUAN!" value={hud.alert} tone="red" />}
               </>
             }
-            prompt={nearItem && !stage && !ended ? <><kbd>E</kbd>Periksa: {nearItem.nama}</> : undefined}
+            prompt={nearItem && !stage && !ended ? <><kbd className="hint-pointer">E</kbd>Periksa: {nearItem.nama}</> : undefined}
           />
           <TouchControls
             inputRef={input}

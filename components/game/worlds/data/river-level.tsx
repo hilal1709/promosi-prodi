@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 import type { ChartKind } from "@/lib/types";
 import { Effects, ScreenFlash, type FxApi } from "../erp/race-fx";
 import { TouchControls } from "../touch-controls";
-import { readAxis, usePressReader, type WorldInput } from "../world-controls";
-import { clampDelta, HudChip, HudMeter, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
+import { controlHint, readAxis, usePressReader, type WorldInput } from "../world-controls";
+import { clampDelta, HudChip, HudMeter, KeyHint, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
 import {
   channelLat,
   CHECKPOINTS,
@@ -248,7 +248,7 @@ function RiverController({
         r.spin += delta * 3.2;
         if (!whirlWarned.current) {
           whirlWarned.current = true;
-          ev.toast({ ok: false, judul: "Terseret Pusaran Outlier!", teks: "Outlier (nilai ekstrem) bisa 'menyeret' kesimpulan. Tahan Shift untuk mendayung kuat keluar dari pusaran.", konsep: "Outlier" });
+          ev.toast({ ok: false, judul: "Terseret Pusaran Outlier!", teks: `Outlier (nilai ekstrem) bisa 'menyeret' kesimpulan. ${controlHint("Tahan Shift", "Tahan tombol Kuat")} untuk mendayung kuat keluar dari pusaran.`, konsep: "Outlier" });
         }
       }
     }
@@ -431,7 +431,7 @@ function RiverController({
           ev.sound("error");
           if (!hitOnce.current.batu) {
             hitOnce.current.batu = true;
-            ev.hit("Braak! Rakit menabrak batu", "Arahkan rakit dengan A/D. Batu yang kecil bisa dilompati dengan Spasi.");
+            ev.hit("Braak! Rakit menabrak batu", controlHint("Arahkan rakit dengan A/D. Batu yang kecil bisa dilompati dengan Spasi.", "Arahkan rakit dengan joystick. Batu yang kecil bisa dilompati dengan tombol Lompat."));
           } else ev.hit("", "");
         } else if (hz.kind === "kayu" && Math.abs(ds) < 1.1 && Math.abs(dl) < hz.r + 0.8) {
           if (high < 0.7) {
@@ -445,7 +445,7 @@ function RiverController({
             ev.sound("error");
             if (!hitOnce.current.kayu) {
               hitOnce.current.kayu = true;
-              ev.hit("Tersangkut kayu hanyut!", "Tekan Spasi sesaat sebelum kayu untuk melompatinya.");
+              ev.hit("Tersangkut kayu hanyut!", controlHint("Tekan Spasi sesaat sebelum kayu untuk melompatinya.", "Ketuk Lompat sesaat sebelum kayu untuk melompatinya."));
             } else ev.hit("", "");
           } else {
             sim.hazardCd[i] = 3;
@@ -917,10 +917,15 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
 
   let prompt: ReactNode;
   if (!ended && !hud.finale) {
-    if (hud.whirl) prompt = <>Pusaran outlier! Tahan <kbd>Shift</kbd> untuk mendayung kuat</>;
-    else if (hud.logAhead && !hud.airborne) prompt = <>Kayu di depan, tekan <kbd>Spasi</kbd> untuk melompat!</>;
+    if (hud.whirl) prompt = <>Pusaran outlier! Tahan <KeyHint keyboard="Shift" touch="Kuat" /> untuk mendayung kuat</>;
+    else if (hud.logAhead && !hud.airborne) prompt = <>Kayu di depan, tekan <KeyHint keyboard="Spasi" touch="Lompat" /> untuk melompat!</>;
     else if (hud.tired) prompt = <>Tenaga habis… tunggu pulih</>;
-    else if (hud.time < 9) prompt = <><kbd>A/D</kbd>belok · <kbd>W</kbd>dayung · <kbd>Shift</kbd>dayung kuat · <kbd>Spasi</kbd>lompat</>;
+    else if (hud.time < 9) prompt = (
+      <>
+        <span className="hint-pointer"><kbd>A/D</kbd>belok · <kbd>W</kbd>dayung · <kbd>Shift</kbd>dayung kuat · <kbd>Spasi</kbd>lompat</span>
+        <span className="hint-touch">Joystick: belok & dayung · Kuat: dayung kuat · Lompat</span>
+      </>
+    );
   }
 
   return (

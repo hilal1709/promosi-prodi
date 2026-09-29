@@ -7,6 +7,7 @@ import { IconCoins, IconFire, IconFlag, IconGauge, IconPackage, IconTimer } from
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { ERP_MODULES } from "@/lib/data/missions";
 import { TouchControls } from "../touch-controls";
+import { controlHint } from "../world-controls";
 import { clampDelta, HudChip, HudMeter, Label, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
 import { crossed, headingAt, indexAt, pointAt, sampleTrack, SAMPLES, seeded, TRACK } from "./race-track";
 import {
@@ -611,7 +612,7 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
                 {hud.combo > 1 && <HudChip tone="green"><IconFire />×{hud.combo}</HudChip>}
                 <HudChip><IconFlag />{next}/{ROUTE.length}</HudChip>
                 <HudChip><IconPackage />{hud.packets}</HudChip>
-                <HudMeter label={hud.nitro ? "NITRO AKTIF!" : "NITRO · SPASI"} value={hud.fuel} tone={hud.fuel > 30 ? "green" : "red"} />
+                <HudMeter label={hud.nitro ? "NITRO AKTIF!" : controlHint("NITRO · SPASI", "NITRO")} value={hud.fuel} tone={hud.fuel > 30 ? "green" : "red"} />
                 <HudChip><IconGauge />{Math.round(Math.abs(hud.speed) * 5)} km/j</HudChip>
               </>
             }

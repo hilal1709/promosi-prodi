@@ -11,7 +11,7 @@ import { OPS_EVENT_TIMES, OPS_ORDERS, OPS_PRODUCT_IDS, OPS_PRODUCTS, type OpsOrd
 import { cn } from "@/lib/utils";
 import { TouchControls } from "../touch-controls";
 import { usePressReader, type WorldInput } from "../world-controls";
-import { clampDelta, HudChip, Label, LevelEnd, Walker, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
+import { clampDelta, HudChip, KeyHint, Label, LevelEnd, Walker, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
 import {
   arrivalPath,
   BAY_Z,
@@ -917,7 +917,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
             info={info}
             onPause={onPause}
             toast={phase === "play" ? toast : null}
-            prompt={phase === "play" && prompt ? <><kbd>E</kbd>{prompt}</> : undefined}
+            prompt={phase === "play" && prompt ? <><KeyHint keyboard="E" touch="Aksi" />{prompt}</> : undefined}
             stats={
               <>
                 <HudChip tone={timeLeft <= 20 ? "red" : "dark"}><IconTimer />{timeLeft}s</HudChip>

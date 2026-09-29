@@ -10,8 +10,9 @@ import type { SoundName } from "@/components/game/use-game-audio";
 import { cn } from "@/lib/utils";
 import { Effects, ScreenFlash, type FxApi } from "../erp/race-fx";
 import { TouchControls } from "../touch-controls";
-import { readAxis, usePressReader, type WorldInput } from "../world-controls";
-import { clampDelta, HudChip, HudMeter, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
+import { stackCompassLabels } from "../hud-layout";
+import { controlHint, readAxis, usePressReader, type WorldInput } from "../world-controls";
+import { clampDelta, HudChip, HudMeter, KeyHint, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
 import {
   ANOMALY_TOTAL,
   BOTTLES,
@@ -538,6 +539,7 @@ function Compass({ simRef, view }: { simRef: RefObject<SeaSim>; view: RefObject<
           const label = node.querySelector("span");
           if (label) label.textContent = `${t.label} · ${Math.round(t.d)} m`;
         });
+        stackCompassLabels(el);
         if (ticks.current) {
           const offset = ((view.current.heading / (Math.PI * 2)) * width * 2) % (width / 2);
           ticks.current.style.backgroundPosition = `${offset.toFixed(1)}px 0`;
@@ -829,7 +831,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
       sting: () => {
         sound("boom");
         flashOf("bad");
-        setToast({ ok: false, judul: "Disengat anomali!", teks: "Data janggal yang dibiarkan merusak analisis. Tembak dengan sonar (Spasi) sebelum mendekat." });
+        setToast({ ok: false, judul: "Disengat anomali!", teks: `Data janggal yang dibiarkan merusak analisis. Tembak dengan sonar (${controlHint("Spasi", "tombol Sonar")}) sebelum mendekat.` });
       },
       crash: (hard) => {
         sound("boom");
@@ -925,16 +927,16 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
 
   let prompt: ReactNode;
   if (running) {
-    if (hud.near >= 0) prompt = <><kbd>E</kbd>{hud.near === LIGHTHOUSE_INDEX ? "Labuh di Mercusuar, tarik kesimpulan" : `Labuh & kirim ke Toko ${FORECASTS[SHOP_DOCKS[hud.near].island.shop!].toko}`}</>;
+    if (hud.near >= 0) prompt = <><KeyHint keyboard="E" touch="Labuh" />{hud.near === LIGHTHOUSE_INDEX ? "Labuh di Mercusuar, tarik kesimpulan" : `Labuh & kirim ke Toko ${FORECASTS[SHOP_DOCKS[hud.near].island.shop!].toko}`}</>;
     else if (hud.boundary) prompt = <>Arus balik terlalu kuat, kembali ke kepulauan</>;
-    else if (hud.whirl) prompt = <>Pusaran! Tahan <kbd>Shift</kbd> untuk menyalakan mesin</>;
-    else if (hud.grounded) prompt = <>Kandas! Mundur & putar haluan · <kbd>S</kbd> turunkan layar</>;
+    else if (hud.whirl) prompt = <>Pusaran! Tahan <KeyHint keyboard="Shift" touch="Mesin" /> untuk menyalakan mesin</>;
+    else if (hud.grounded) prompt = <>Kandas! Mundur & putar haluan · <KeyHint keyboard="S" touch="Joystick ke bawah" /> turunkan layar</>;
     else if (hud.tired) prompt = <>Mesin kepanasan… tunggu dingin</>;
     else if (hud.left > SEA_TIME - 12)
       prompt = (
         <>
-          <span className="sea-keys"><kbd>A/D</kbd>kemudi · <kbd>W/S</kbd>layar · <kbd>Shift</kbd>mesin · <kbd>Spasi</kbd>sonar</span>
-          <span className="sea-touch">Joystick: kemudi & layar</span>
+          <span className="hint-pointer"><kbd>A/D</kbd>kemudi · <kbd>W/S</kbd>layar · <kbd>Shift</kbd>mesin · <kbd>Spasi</kbd>sonar</span>
+          <span className="hint-touch">Joystick: kemudi & layar · Mesin · Sonar</span>
         </>
       );
   }

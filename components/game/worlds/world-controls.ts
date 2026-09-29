@@ -96,3 +96,13 @@ export function usePressReader(input: WorldInput) {
     return fresh > 0;
   };
 }
+
+/**
+ * Teks petunjuk sesuai perangkat: tombol keyboard di desktop, nama tombol
+ * sentuh di HP/tablet (untuk string seperti toast; teks JSX memakai kelas
+ * `hint-pointer` / `hint-touch`).
+ */
+export function controlHint(keyboard: string, touch: string) {
+  if (typeof window === "undefined") return keyboard;
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches ? keyboard : touch;
+}

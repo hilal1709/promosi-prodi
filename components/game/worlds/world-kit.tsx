@@ -14,6 +14,7 @@ import type { SoundName } from "@/components/game/use-game-audio";
 import { cn } from "@/lib/utils";
 import type { WorldLevelInfo } from "@/lib/data/worlds";
 import type { GameAvatarId, GameQuality } from "@/lib/types";
+import { useHudLayout } from "./hud-layout";
 import { readAxis, type WorldInput } from "./world-controls";
 
 export interface WorldLevelProps {
@@ -63,8 +64,10 @@ export function WorldStage({
   const dpr: [number, number] = quality === "hemat" ? [1, 1] : quality === "tinggi" ? [1.25, 1.75] : [1, 1.5];
   const [ready, setReady] = useState(false);
   const markReady = useCallback(() => setReady(true), []);
+  const stageRef = useRef<HTMLDivElement>(null);
+  useHudLayout(stageRef);
   return (
-    <div className="world-stage">
+    <div ref={stageRef} className="world-stage">
       <Canvas
         frameloop={paused ? "demand" : "always"}
         shadows={quality !== "hemat" ? "percentage" : false}
@@ -83,6 +86,16 @@ export function WorldStage({
       {overlay}
       <SceneLoader ready={ready} label="Menyiapkan arena misi…" />
     </div>
+  );
+}
+
+/** Tombol keyboard di desktop, nama tombol sentuh di HP/tablet (dalam prompt HUD). */
+export function KeyHint({ keyboard, touch }: { keyboard: string; touch: string }) {
+  return (
+    <>
+      <kbd className="hint-pointer">{keyboard}</kbd>
+      <kbd className="hint-touch">{touch}</kbd>
+    </>
   );
 }
 

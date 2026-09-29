@@ -474,21 +474,21 @@
     "semantic_hash": ""
   },
   "components/game/game-canvas.tsx": {
-    "mtime": 1790658696.4058836,
-    "seen": 1790659158.4334884,
-    "ast_hash": "27cf6c3b1811bc84f2d26b5695007652",
+    "mtime": 1790659324.7754507,
+    "seen": 1790659535.44424,
+    "ast_hash": "52a5969a396f42e3da091d56357b596b",
     "semantic_hash": ""
   },
   "components/game/game-entry.tsx": {
-    "mtime": 1790658788.848842,
-    "seen": 1790659158.4334939,
-    "ast_hash": "c4183435f423e8afec54aad2e097a305",
+    "mtime": 1790659324.7788935,
+    "seen": 1790659535.4442465,
+    "ast_hash": "04be19488cbf6e24eff904666278a017",
     "semantic_hash": ""
   },
   "components/game/legacy-redirect.tsx": {
-    "mtime": 1790089419.468682,
-    "seen": 1790580751.5050762,
-    "ast_hash": "2c39be2eea7bd99e1c74477a33932e89",
+    "mtime": 1790659324.781427,
+    "seen": 1790659535.4446435,
+    "ast_hash": "865f181ad4d98ce4f9a4a0e816525fa1",
     "semantic_hash": ""
   },
   "components/game/mission-panel.tsx": {
@@ -1122,9 +1122,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/mission-world.tsx": {
-    "mtime": 1790658608.4168973,
-    "seen": 1790659158.4496655,
-    "ast_hash": "d64f94b0fc4e8c4adb921b3d90af8fd3",
+    "mtime": 1790659324.779907,
+    "seen": 1790659535.456561,
+    "ast_hash": "71d9c22ef9790b6cfe60794dcc038a3c",
     "semantic_hash": ""
   },
   "components/game/worlds/touch-controls.tsx": {
@@ -1140,9 +1140,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/world-kit.tsx": {
-    "mtime": 1790658696.404878,
-    "seen": 1790659158.4511094,
-    "ast_hash": "8e98219aeee763bd4a6562e610869874",
+    "mtime": 1790659324.776455,
+    "seen": 1790659535.4571335,
+    "ast_hash": "6b5d264675e6bc1c7c2666a84132b775",
     "semantic_hash": ""
   },
   "lib/data/worlds.ts": {
@@ -1365,6 +1365,24 @@
     "mtime": 1790658683.8379235,
     "seen": 1790659158.4659212,
     "ast_hash": "d7eb7287215b43d2a91f308f8bd53332",
+    "semantic_hash": ""
+  },
+  "app/loading.tsx": {
+    "mtime": 1790659325.0510867,
+    "seen": 1790659535.4413424,
+    "ast_hash": "154807df0871992df21b2359a10533bb",
+    "semantic_hash": ""
+  },
+  "components/game/game-loader.tsx": {
+    "mtime": 1790659304.0069344,
+    "seen": 1790659535.444251,
+    "ast_hash": "57f938f2f1a3e6ec663508d4e0ba731a",
+    "semantic_hash": ""
+  },
+  "components/game/scene-loader.tsx": {
+    "mtime": 1790659304.1036515,
+    "seen": 1790659535.4469798,
+    "ast_hash": "ef42f091f3217145edb2e82c23fb95f9",
     "semantic_hash": ""
   }
 }

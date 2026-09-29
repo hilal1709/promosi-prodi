@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp, IconLock } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import type { BonusKind } from "@/lib/data/worlds";
+import { controlHint } from "../world-controls";
 
 /* ------------------------------------------------------------------ */
 /* Sorot pandang drone                                                */
@@ -220,7 +221,7 @@ export function SecureChallenge({ aksi, onDone }: { aksi: string; onDone: (succe
   return (
     <div className="mt-3">
       <p className="flex items-center gap-2 text-sm font-bold"><IconLock className="h-4 w-4 text-track-audit" /> {aksi}</p>
-      <p className="mt-1 text-xs text-muted-foreground">Tekan urutan arah (WASD / panah) sebelum waktu habis. Drone tetap patroli!</p>
+      <p className="mt-1 text-xs text-muted-foreground">{controlHint("Tekan urutan arah (WASD / panah)", "Ketuk tombol arah sesuai urutan")} sebelum waktu habis. Drone tetap patroli!</p>
       <div className="mt-3 flex justify-center gap-2">
         {sequence.map((dir, index) => {
           const Icon = DIR_ICON[dir];

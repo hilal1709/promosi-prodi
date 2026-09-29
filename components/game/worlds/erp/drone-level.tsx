@@ -8,8 +8,9 @@ import { clampPercent, type Feedback } from "@/components/game/missions/mission-
 import { DRONE_JOBS, DRONE_SITES, type DroneSiteId } from "@/lib/data/worlds";
 import { cn } from "@/lib/utils";
 import { TouchControls } from "../touch-controls";
-import { readAxis, usePressReader, type WorldInput } from "../world-controls";
-import { clampDelta, HudChip, HudMeter, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
+import { stackCompassLabels } from "../hud-layout";
+import { controlHint, readAxis, usePressReader, type WorldInput } from "../world-controls";
+import { clampDelta, HudChip, HudMeter, KeyHint, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
 import {
   BATTERY_SPOTS,
   BUG_PATROLS,
@@ -477,7 +478,7 @@ function DroneController({
           s.carrying = false;
           s.combo = 0;
           s.dropped = new THREE.Vector3(d.pos.x, surfaceAt(d.pos.x, d.pos.z), d.pos.z);
-          events.toast({ ok: false, judul: "Paket dicuri bug Data Silo!", teks: "Paket jatuh ke tanah. Ambil lagi, dan tabrak bug pakai turbo (Shift) untuk menghancurkannya.", konsep: "Data silo" });
+          events.toast({ ok: false, judul: "Paket dicuri bug Data Silo!", teks: `Paket jatuh ke tanah. Ambil lagi, dan tabrak bug pakai turbo (${controlHint("Shift", "tombol Turbo")}) untuk menghancurkannya.`, konsep: "Data silo" });
           events.stage(s);
         } else {
           events.toast({ ok: false, judul: "Ditabrak bug Data Silo!", teks: "Baterai berkurang. Tabrak bug sambil turbo untuk menghancurkannya." });
@@ -668,6 +669,7 @@ function Compass({ droneRef, simRef }: { droneRef: RefObject<DroneState>; simRef
           const label = node.querySelector("span");
           if (label) label.textContent = `${t.label} · ${Math.round(dist)} m`;
         });
+        stackCompassLabels(el);
         if (ticks.current) {
           const offset = ((d.heading / (Math.PI * 2)) * width * 2) % (width / 2);
           ticks.current.style.backgroundPosition = `${(-offset).toFixed(1)}px 0`;
@@ -779,7 +781,7 @@ function JobCard({ stage }: { stage: Stage }) {
       <div className="drone-job is-live">
         <small>SEMUA MODUL TERHUBUNG</small>
         <strong>{stage.phase === "finale" ? "GO-LIVE berjalan…" : "Kembali ke Pusat Operasi"}</strong>
-        <p>{stage.phase === "finale" ? "Data mengalir ke seluruh divisi." : "Mendarat di landasan menara ERP, lalu tekan E untuk Go-Live."}</p>
+        <p>{stage.phase === "finale" ? "Data mengalir ke seluruh divisi." : `Mendarat di landasan menara ERP, lalu ${controlHint("tekan E", "ketuk Aksi")} untuk Go-Live.`}</p>
       </div>
     );
   }
@@ -916,7 +918,7 @@ export function DroneLevel({ levelIndex, info, paused, quality, input, sound, on
               ) : hud.prompt ? (
                 hud.prompt.startsWith("E ") ? (
                   <>
-                    <kbd>E</kbd>
+                    <KeyHint keyboard="E" touch="Aksi" />
                     {hud.prompt.slice(2)}
                   </>
                 ) : (

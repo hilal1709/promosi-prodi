@@ -291,11 +291,25 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
   .game-help-grid { grid-template-columns: 1fr; }
 }
 
+/* HP sangat kecil (≤380px): HUD kampus dipadatkan agar teks tidak patah. */
+@media (max-width: 380px) {
+  .game-logo { padding: .5rem; }
+  .game-logo span { display: none; }
+  .game-objective-card { width: 12.5rem; padding: .7rem .8rem; }
+  .game-objective-card strong { font-size: .78rem; }
+  .game-progress-number { font-size: 1.05rem; }
+  .game-mission-dot { width: 1.35rem; height: 1.35rem; }
+  .game-hud-bottom button, .game-hud-bottom a { flex-direction: column; gap: .15rem; min-height: 3rem; padding: .3rem .25rem; }
+  .game-hud-bottom span { font-size: .62rem; white-space: nowrap; }
+}
+
 /* Petunjuk kontrol: keyboard/mouse di desktop, sentuh di HP & tablet. */
-.hint-touch { display: none !important; }
+.hint-touch, .hint-touch-inline { display: none !important; }
 @media not all and (hover: hover) and (pointer: fine) {
-  .hint-pointer { display: none !important; }
+  .hint-pointer, .hint-pointer-inline { display: none !important; }
   .hint-touch { display: flex !important; }
+  .hint-touch-inline, span.hint-touch { display: inline !important; }
+  kbd.hint-touch { display: inline-grid !important; }
   .game-viewport canvas { touch-action: none; }
   /* Tombol masuk gedung pindah ke kanan bawah, sejajar joystick, agar mudah diketuk jempol. */
   .game-interact-prompt { left: auto; right: 1rem; bottom: 6.2rem; transform: none; max-width: calc(100vw - 10.5rem); min-height: 4.2rem; padding: .6rem 1.1rem; border-radius: 1.4rem; color: var(--brand-navy); background: var(--brand-gold); text-align: left; animation: mission-pop .28s cubic-bezier(.2, .9, .3, 1.3) both; }
@@ -312,14 +326,9 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
   .game-objective-card { top: 3.8rem; left: .75rem; width: 13.5rem; padding: .6rem .75rem; }
   .game-objective-card .mt-3 { margin-top: .4rem; }
   .game-hud-bottom { bottom: .5rem; }
-  .world-touch { bottom: .75rem; }
-  .world-joystick { width: 6rem; height: 6rem; }
-  .world-joystick span { width: 2.6rem; height: 2.6rem; margin: -1.3rem 0 0 -1.3rem; }
-  .world-touch-btn { min-width: 3.6rem; height: 3.6rem; }
 }
 @media (max-height: 520px) and (pointer: coarse) {
   .game-interact-prompt { bottom: .75rem; min-height: 3.6rem; }
-  .world-prompt { bottom: 5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -346,7 +355,7 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .world-stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .world-backdrop { position: absolute; inset: 0; background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--mission) 45%, transparent), transparent 60%), linear-gradient(180deg, #161a24, #0b0d12); }
 .world-backdrop::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(255 255 255 / .05) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .05) 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(180deg, black, transparent 80%); }
-.world-panel-wrap { position: absolute; inset: 0; z-index: 40; display: grid; place-items: center; overflow-y: auto; padding: 1rem; background: rgb(8 10 14 / .55); backdrop-filter: blur(3px); }
+.world-panel-wrap { position: absolute; inset: 0; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; place-items: center; overflow-y: auto; padding: 1rem; background: rgb(8 10 14 / .55); backdrop-filter: blur(3px); }
 .world-panel { width: min(100%, 46rem); border-radius: 1.75rem; background: var(--background); color: var(--foreground); padding: 1.25rem; box-shadow: 0 30px 80px rgb(0 0 0 / .45); color-scheme: light; }
 .world-exit { position: absolute; top: .9rem; left: .9rem; z-index: 45; display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; background: rgb(255 255 255 / .12); padding: .5rem .9rem; font-size: .8rem; font-weight: 800; color: white; backdrop-filter: blur(8px); }
 .world-hud-top { position: absolute; top: .75rem; left: .75rem; right: .75rem; z-index: 30; display: flex; align-items: flex-start; gap: .6rem; pointer-events: none; }
@@ -366,7 +375,7 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .world-meter > span { height: .45rem; overflow: hidden; border-radius: 999px; background: rgb(255 255 255 / .15); }
 .world-meter i { display: block; height: 100%; border-radius: 999px; transition: width .25s ease; }
 .world-meter i.is-gold { background: var(--brand-gold); } .world-meter i.is-red { background: var(--track-audit); } .world-meter i.is-green { background: #2fae66; }
-.world-prompt { position: absolute; left: 50%; bottom: 7.5rem; z-index: 30; transform: translateX(-50%); border-radius: 999px; background: rgb(16 19 26 / .85); padding: .6rem 1rem; font-size: .85rem; font-weight: 800; white-space: nowrap; backdrop-filter: blur(8px); }
+.world-prompt { position: absolute; left: 50%; bottom: 7.5rem; z-index: 33; transform: translateX(-50%); border-radius: 999px; background: rgb(16 19 26 / .85); padding: .6rem 1rem; font-size: .85rem; font-weight: 800; white-space: normal; width: max-content; max-width: calc(100% - 1.5rem); text-align: center; line-height: 1.5; backdrop-filter: blur(8px); }
 .world-prompt kbd { margin-right: .4rem; border-radius: .4rem; background: var(--brand-gold); padding: .1rem .45rem; color: var(--brand-navy); font-weight: 900; }
 .world-toast { position: absolute; left: 50%; bottom: 1rem; z-index: 30; width: min(calc(100% - 1.5rem), 30rem); transform: translateX(-50%); color: var(--foreground); pointer-events: none; }
 .world-label { border-radius: .7rem; background: rgb(16 19 26 / .85); padding: .3rem .6rem; font-size: .8rem; font-weight: 800; line-height: 1.2; color: white; text-align: center; white-space: nowrap; font-family: var(--font-sans, system-ui); }
@@ -379,7 +388,7 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .firewall-packet small { display: block; font-size: .62rem; font-weight: 800; color: #9fdcff; white-space: nowrap; }
 .firewall-packet strong { display: block; margin-top: .1rem; font-size: .78rem; font-weight: 900; }
 @media (max-width: 640px) { .firewall-packet { max-width: 8.5rem; padding: .3rem .45rem; } .firewall-packet strong { font-size: .7rem; } }
-.world-overlay-card { position: absolute; left: 50%; top: 50%; z-index: 35; width: min(calc(100% - 1.5rem), 30rem); transform: translate(-50%, -50%); border-radius: 1.5rem; background: var(--background); color: var(--foreground); padding: 1.1rem; box-shadow: 0 24px 60px rgb(0 0 0 / .5); color-scheme: light; }
+.world-overlay-card { position: absolute; left: 50%; top: 50%; z-index: 35; width: min(calc(100% - 1.5rem), 30rem); max-height: calc(100% - 1.5rem); overflow-y: auto; transform: translate(-50%, -50%); border-radius: 1.5rem; background: var(--background); color: var(--foreground); padding: 1.1rem; box-shadow: 0 24px 60px rgb(0 0 0 / .5); color-scheme: light; }
 .world-touch { position: absolute; left: 0; right: 0; bottom: 5.8rem; z-index: 32; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 1rem; pointer-events: none; }
 .world-touch-left, .world-touch-right { display: flex; gap: .6rem; align-items: flex-end; pointer-events: auto; }
 .world-touch-right { flex-wrap: wrap-reverse; justify-content: flex-end; max-width: 10rem; }
@@ -389,15 +398,16 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .world-touch-btn.is-light { background: rgb(255 255 255 / .88); }
 .world-touch-btn:active { transform: scale(.94); }
 @media (hover: hover) and (pointer: fine) { .world-touch { display: none; } }
+
 @media (max-width: 640px) {
   /* Beri ruang untuk tombol "Kembali ke kampus" agar tidak menutupi judul panel. */
   .world-exit ~ .world-panel-wrap { padding-top: 3.6rem; }
-  .world-hud-title strong { font-size: .8rem; }
+  .world-hud-title { max-width: 10.5rem; }
+  .world-hud-title strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; }
   .world-chip { padding: .35rem .6rem; font-size: .7rem; }
   .world-meter { min-width: 5.5rem; }
-  .world-prompt { bottom: 13rem; }
 }
-.world-end { position: absolute; left: 50%; top: 50%; z-index: 36; width: min(calc(100% - 1.5rem), 26rem); transform: translate(-50%, -50%); }
+.world-end { position: absolute; left: 50%; top: 50%; z-index: 36; width: min(calc(100% - 1.5rem), 26rem); max-height: calc(100% - 1.5rem); overflow-y: auto; transform: translate(-50%, -50%); }
 .world-side { position: absolute; left: .75rem; top: 4.6rem; z-index: 30; width: 11.5rem; border-radius: 1rem; background: rgb(16 19 26 / .82); padding: .7rem .8rem; font-size: .75rem; backdrop-filter: blur(8px); }
 .world-side h4 { margin-bottom: .35rem; font-size: .62rem; font-weight: 900; letter-spacing: .14em; color: var(--brand-gold); }
 @media (max-width: 640px) { .world-side { width: 9.5rem; font-size: .68rem; } }
@@ -413,7 +423,7 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .arena-tag { font-size: .62rem; padding: .15rem .45rem; }
 .race-minimap { position: absolute; left: .75rem; top: 4.6rem; z-index: 30; width: 10.5rem; border-radius: 1rem; background: rgb(16 19 26 / .72); padding: .35rem; backdrop-filter: blur(8px); pointer-events: none; }
 .race-minimap svg { display: block; width: 100%; height: auto; }
-@media (max-width: 640px) { .race-minimap { width: 7.5rem; top: 4.2rem; } }
+@media (max-width: 640px) { .race-minimap { width: 7.5rem; } }
 @keyframes race-count { 0% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: .9; transform: translate(-50%, -50%) scale(.92); } }
 .race-countdown { position: absolute; left: 50%; top: 42%; z-index: 34; transform: translate(-50%, -50%); font-size: clamp(4rem, 16vw, 8rem); font-weight: 900; font-style: italic; color: white; text-shadow: 0 6px 0 rgb(0 0 0 / .3), 0 0 40px rgb(255 169 135 / .7); animation: race-count .8s cubic-bezier(.2, .9, .3, 1.2) both; pointer-events: none; }
 .race-countdown.is-go { color: var(--brand-gold); }
@@ -459,10 +469,9 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .drone-radar svg { display: block; width: 100%; height: 100%; }
 .drone-radar-pulse { animation: pulse 1.2s ease-in-out infinite; }
 @media (max-width: 640px) {
-  .drone-job { top: 7.4rem; width: 13.5rem; font-size: .7rem; padding: .45rem .6rem; }
+  .drone-job { width: 13.5rem; font-size: .7rem; padding: .45rem .6rem; }
   .drone-job strong { font-size: .82rem; }
-  .drone-compass { top: 4.4rem; width: 58vw; }
-  .drone-radar { width: 6.5rem; height: 6.5rem; top: 10rem; right: .6rem; bottom: auto; }
+  .drone-compass { width: 58vw; }
 }
 .drone-compass-marker[data-edge="left"] span { transform: translateX(45%); }
 .drone-compass-marker[data-edge="right"] span { transform: translateX(-45%); }
@@ -497,9 +506,9 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
   .hunt-classify-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hunt-bin { min-height: 3.4rem; }
   .hunt-bin:last-child { grid-column: span 2; }
-  .hunt-warn { top: 11rem; font-size: .7rem; }
-  .hunt-compass { top: 7.9rem; width: 64vw; }
-  .hunt-minimap { top: 11.4rem; left: .6rem; width: 6.2rem; }
+  .hunt-warn { font-size: .7rem; }
+  .hunt-compass { width: 64vw; }
+  .hunt-minimap { left: .6rem; width: 6.2rem; }
 }
 @media (hover: none) { .hunt-bin kbd { display: none; } }
 
@@ -535,9 +544,9 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .river-question span.is-ok { background: #2fae66; }
 .river-question span.is-bad { background: #e54b4b; }
 @media (max-width: 640px) {
-  .river-chart { top: 7.6rem; left: .5rem; width: 11.5rem; padding: .4rem .5rem; }
+  .river-chart { left: .5rem; width: 11.5rem; padding: .4rem .5rem; }
   .river-chart > p { display: none; }
-  .river-progress { top: 6.9rem; left: auto; right: .5rem; width: 38vw; transform: none; }
+  .river-progress { left: auto; right: .5rem; width: 38vw; transform: none; }
   .river-question { top: auto; bottom: 9.5rem; }
   .river-question strong { font-size: .78rem; }
 }
@@ -563,12 +572,43 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .sea-deliver-data em { display: block; margin-top: .3rem; font-style: normal; font-size: .7rem; font-weight: 700; line-height: 1.3; color: #b4532a; }
 .sea-deliver-data em.is-ok { color: #1f8a50; }
 .sea-trend { display: block; width: 100%; height: auto; margin-top: .2rem; color: var(--muted-foreground); }
-.sea-touch { display: none; }
-@media (hover: none) { .sea-keys { display: none; } .sea-touch { display: inline; } }
 @media (max-width: 640px) {
-  .sea-wind { top: 18.1rem; left: .6rem; width: 8rem; padding: .35rem .4rem; gap: .35rem; }
+  .sea-wind { left: .6rem; width: 8rem; padding: .35rem .4rem; gap: .35rem; }
   .sea-wind-dial { width: 2.2rem; height: 2.2rem; }
   .sea-wind-info p { display: none; }
   .sea-deliver-data { grid-template-columns: 1fr; }
   .sea-deliver-data strong { font-size: 1.2rem; }
+}
+
+/* Diletakkan paling akhir agar menimpa aturan dasar HUD level di atas. */
+/* Panel di bawah HUD level ditumpuk otomatis oleh useHudLayout (worlds/hud-layout.ts)
+   agar tidak menimpa HUD yang tingginya berubah-ubah; `top` di CSS jadi batas minimum. */
+.drone-compass, .river-progress, .world-boss-bar, .race-minimap, .world-side, .drone-job, .river-chart, .sea-wind, .race-hint, .river-question, .hunt-warn { --hud-flow: 1; }
+@media not all and (hover: hover) and (pointer: fine) {
+  /* Tombol sentuh menempati kanan bawah: radar pindah ke kanan atas di bawah HUD. */
+  .drone-radar { top: 4.6rem; bottom: auto; right: .6rem; width: 6.5rem; height: 6.5rem; --hud-flow: 1; }
+  /* Prompt selalu tepat di atas tombol sentuh tertinggi (diukur useHudLayout). */
+  .world-prompt { bottom: calc(var(--touch-clear, 6rem) + .5rem); }
+}
+@media (max-width: 640px) {
+  /* HP sentuh: sisakan ruang untuk radar di sisi kanan. */
+  @media not all and (hover: hover) and (pointer: fine) { .drone-job { width: min(13.5rem, calc(100% - 8.6rem)); } }
+}
+/* Di HP kartu pertanyaan sungai menempel di bawah, jadi tidak ikut ditumpuk. */
+@media (max-width: 640px) { .river-question { --hud-flow: 0; } }
+/* HP mendatar: layar pendek, tombol sentuh dibuat satu baris agar tidak memakan tinggi layar. */
+@media (max-height: 520px) {
+  .world-touch { bottom: .75rem; }
+  .world-touch-right { max-width: none; flex-wrap: nowrap; }
+  .world-joystick { width: 6rem; height: 6rem; }
+  .world-joystick span { width: 2.6rem; height: 2.6rem; margin: -1.3rem 0 0 -1.3rem; }
+  .world-touch-btn { min-width: 3.6rem; height: 3.6rem; }
+  .drone-job { width: min(15rem, calc(100% - 1.5rem)); font-size: .7rem; padding: .45rem .6rem; }
+  .drone-job strong { font-size: .82rem; }
+  /* Kolom kiri sudah penuh minimap: panel angin pindah ke kanan atas. */
+  .race-minimap { width: 7.5rem; }
+  .sea-wind { top: 4.6rem; left: auto; right: .75rem; width: 8.5rem; }
+  .sea-wind-info p { display: none; }
+  .river-chart { width: 12rem; padding: .4rem .5rem; }
+  .river-chart > p { display: none; }
 }
