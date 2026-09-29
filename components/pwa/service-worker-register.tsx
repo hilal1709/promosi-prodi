@@ -20,11 +20,19 @@ export default function ServiceWorkerRegister() {
       return;
     }
 
-    window.addEventListener("load", () => {
+    const register = () => {
       navigator.serviceWorker.register("/sw.js").catch(() => {
         // Pendaftaran gagal (mis. browser lama), aplikasi tetap jalan normal tanpa PWA offline.
       });
-    });
+    };
+    // Effect sering berjalan setelah event `load` lewat; kalau hanya menunggu
+    // `load`, service worker tidak pernah terdaftar dan tombol instal tak muncul.
+    if (document.readyState === "complete") {
+      register();
+      return;
+    }
+    window.addEventListener("load", register, { once: true });
+    return () => window.removeEventListener("load", register);
   }, []);
 
   return null;

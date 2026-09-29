@@ -4133,7 +4133,7 @@
       "file_type": "code",
       "norm_label": "usegamesound()",
       "source_file": "components/game/use-game-audio.ts",
-      "source_location": "L75"
+      "source_location": "L81"
     },
     {
       "id": "components_game_worlds_mission_world_lazylevels",
@@ -6149,7 +6149,7 @@
       "file_type": "code",
       "norm_label": "usegameaudio()",
       "source_file": "components/game/use-game-audio.ts",
-      "source_location": "L79"
+      "source_location": "L85"
     },
     {
       "id": "components_game_worlds_erp_race_scenery_factory",
@@ -16577,7 +16577,7 @@
       "file_type": "code",
       "norm_label": "gamesoundcontext",
       "source_file": "components/game/use-game-audio.ts",
-      "source_location": "L73"
+      "source_location": "L79"
     },
     {
       "id": "components_game_use_game_audio_sounds",
@@ -26526,6 +26526,18 @@
       "type": "external"
     },
     {
+      "id": "components_game_orientation_controls_useorientationmismatch",
+      "label": "components_game_orientation_controls_useorientationmismatch",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "components/game/game-entry.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "components_game_orientation_controls_useorientationmismatch",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "components_ui_icons_iconbook",
       "label": "components_ui_icons_iconbook",
       "_origin": "semantic",
@@ -26642,6 +26654,18 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "components_ui_icons_iconvolume",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "ref_react_dom",
+      "label": "ref_react_dom",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "components/game/game-entry.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_react_dom",
       "source_file": "",
       "type": "external"
     },
@@ -27242,28 +27266,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "sites_runtime_site_checkout_app_globals",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "components_game_orientation_controls_useorientationmismatch",
-      "label": "components_game_orientation_controls_useorientationmismatch",
-      "community": 4,
-      "community_name": "components/game/game-entry.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "components_game_orientation_controls_useorientationmismatch",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "ref_react_dom",
-      "label": "ref_react_dom",
-      "community": 4,
-      "community_name": "components/game/game-entry.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_react_dom",
       "source_file": "",
       "type": "external"
     }
@@ -28286,7 +28288,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "components/game/use-game-audio.ts",
-      "source_location": "L119",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -71666,7 +71668,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/game/use-game-audio.ts",
-      "source_location": "L73",
+      "source_location": "L79",
       "weight": 1.0
     },
     {
@@ -71677,7 +71679,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/game/use-game-audio.ts",
-      "source_location": "L75",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -71688,7 +71690,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/game/use-game-audio.ts",
-      "source_location": "L79",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -91143,5 +91145,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a49f8afd5c4915de92305781067242365795b5af"
+  "built_at_commit": "0660942458550c51309ce84b19262e491b0401c3"
 }

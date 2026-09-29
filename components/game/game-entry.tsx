@@ -15,6 +15,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { TrackIllustration } from "@/components/illustrations/track-illustration";
 import { GameLoader } from "@/components/game/game-loader";
+import { InstallAppButton } from "@/components/pwa/install-pwa-prompt";
 import { GameSoundContext, useGameAudio } from "@/components/game/use-game-audio";
 import {
   DEFAULT_GAME_PROGRESS,
@@ -199,6 +200,7 @@ function StartScreen({
           {hasProgress && (
             <Button size="lg" variant="outline" onClick={onReset}>Mulai baru</Button>
           )}
+          <InstallAppButton />
         </div>
         <OrientationPicker value={orientation} onChange={onOrientation} className="game-start-orientation" />
         <div className="game-control-strip">

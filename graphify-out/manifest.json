@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "app/layout.tsx": {
-    "mtime": 1790091636.1609907,
-    "seen": 1790580751.5050602,
-    "ast_hash": "22916299be07b28e112f45c594b31f6b",
+    "mtime": 1790680982.9983382,
+    "seen": 1790681248.0589087,
+    "ast_hash": "713ab2dc15d56565dab8befc111e29d3",
     "semantic_hash": ""
   },
   "app/page.tsx": {
@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "components/game/game-entry.tsx": {
-    "mtime": 1790673770.401133,
-    "seen": 1790674641.9759288,
-    "ast_hash": "5ef976badd5047d26c2122b6a6a66a0f",
+    "mtime": 1790680983.003337,
+    "seen": 1790681248.0633805,
+    "ast_hash": "23ecf086b87ab26b5436074824cf020f",
     "semantic_hash": ""
   },
   "components/game/legacy-redirect.tsx": {
@@ -558,15 +558,15 @@
     "semantic_hash": ""
   },
   "components/pwa/install-pwa-prompt.tsx": {
-    "mtime": 1790656273.2024271,
-    "seen": 1790656660.8109481,
-    "ast_hash": "a3a07879b68e108c4c81d3f6aee5731a",
+    "mtime": 1790680965.6979182,
+    "seen": 1790681248.094416,
+    "ast_hash": "ba3958ee855b4108379d8346605e9f65",
     "semantic_hash": ""
   },
   "components/pwa/service-worker-register.tsx": {
-    "mtime": 1790655423.939345,
-    "seen": 1790655562.688289,
-    "ast_hash": "5dde6ce401980fdd6643ed9f9d0580bc",
+    "mtime": 1790680983.0003402,
+    "seen": 1790681248.0944223,
+    "ast_hash": "be2d6d2840443dee3e1d9d8bc77d7b64",
     "semantic_hash": ""
   },
   "components/quiz/question-card.tsx": {
@@ -1062,9 +1062,9 @@
     "semantic_hash": ""
   },
   ".claude/launch.json": {
-    "mtime": 1790589403.210536,
-    "seen": 1790589493.8528848,
-    "ast_hash": "64f537f85d563f28b9c8624e78157f5c",
+    "mtime": 1790681178.9856932,
+    "seen": 1790681248.022718,
+    "ast_hash": "59fa265dbf32854098de1693afd6f15e",
     "semantic_hash": ""
   },
   "components/game/campus-building.tsx": {
@@ -1413,6 +1413,12 @@
     "mtime": 1790673713.4445603,
     "seen": 1790674642.0095816,
     "ast_hash": "8c672656db4520cd372750fc575eb4f6",
+    "semantic_hash": ""
+  },
+  "components/pwa/use-pwa-install.ts": {
+    "mtime": 1790680965.5425265,
+    "seen": 1790681248.0944262,
+    "ast_hash": "6e0b36575c1b0bf505770cdac7053985",
     "semantic_hash": ""
   }
 }

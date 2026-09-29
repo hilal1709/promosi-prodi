@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/pwa/service-worker-register";
+import InstallPwaPrompt from "@/components/pwa/install-pwa-prompt";
 
 export const metadata: Metadata = {
   title: {
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className="antialiased">
         {children}
         <ServiceWorkerRegister />
+        <InstallPwaPrompt />
       </body>
     </html>
   );
