@@ -14,7 +14,38 @@ export function isLowEndDevice() {
   return cores > 0 && cores <= 2;
 }
 
-/** Kualitas "auto" menjadi "hemat" pada perangkat lemah; pilihan manual tidak diubah. */
-export function resolveQuality(setting: GameQuality, lowEnd: boolean): GameQuality {
-  return setting === "auto" && lowEnd ? "hemat" : setting;
+/** HP/tablet: layar sentuh sebagai input utama. */
+export function isTouchDevice() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+
+/**
+ * Kualitas "auto" menjadi "hemat" pada perangkat lemah dan HP/tablet (GPU
+ * mobile cepat panas dan tersendat); pilihan manual tidak diubah.
+ */
+export function resolveQuality(setting: GameQuality, lowEnd: boolean, touch = false): GameQuality {
+  return setting === "auto" && (lowEnd || touch) ? "hemat" : setting;
+}
+
+export interface QualityProfile {
+  /** Rentang DPR: [minimum saat FPS turun, maksimum]. */
+  dpr: [number, number];
+  shadows: boolean;
+  antialias: boolean;
+  /** Mode ringan: material sederhana, tanpa bayangan, dibatasi `fps`. */
+  lite: boolean;
+  fps: number;
+  powerPreference: WebGLPowerPreference;
+}
+
+/** Pengaturan renderer untuk setiap tingkat kualitas, dipakai semua Canvas. */
+export function qualityProfile(quality: GameQuality): QualityProfile {
+  if (quality === "hemat") {
+    return { dpr: [0.6, 1], shadows: false, antialias: false, lite: true, fps: 30, powerPreference: "default" };
+  }
+  if (quality === "tinggi") {
+    return { dpr: [0.75, 1.75], shadows: true, antialias: true, lite: false, fps: 60, powerPreference: "high-performance" };
+  }
+  return { dpr: [0.75, 1.5], shadows: true, antialias: true, lite: false, fps: 60, powerPreference: "high-performance" };
 }

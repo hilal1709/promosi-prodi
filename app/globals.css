@@ -612,3 +612,64 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
   .river-chart { width: 12rem; padding: .4rem .5rem; }
   .river-chart > p { display: none; }
 }
+
+/* --- Pilihan orientasi layar (HP/tablet) --- */
+.orientation-picker { flex-direction: column; gap: .4rem; margin-top: 1rem; color: white; }
+.orientation-picker > span { font-size: .7rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
+.orientation-picker > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: .3rem; border: 1px solid rgba(255,255,255,.14); border-radius: 1rem; padding: .25rem; background: rgba(6,26,48,.6); }
+.orientation-picker button { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; min-height: 2.6rem; border-radius: .8rem; font-size: .8rem; font-weight: 850; color: inherit; opacity: .75; }
+.orientation-picker button.is-active { opacity: 1; color: var(--brand-navy); background: var(--brand-gold); }
+.orientation-picker.is-light { color: var(--foreground); text-align: left; }
+.orientation-picker.is-light > div { border-color: var(--border); background: var(--muted); }
+.orientation-picker.is-light button.is-active { color: white; background: var(--brand-navy); }
+.game-start-orientation { width: min(100%, 26rem); }
+.game-character-stage .game-start-orientation { margin-inline: auto; }
+@media (max-width: 900px) { .game-start-card .game-start-orientation { margin-inline: auto; } }
+
+.rotate-overlay { position: fixed; inset: 0; z-index: 100; pointer-events: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .75rem; padding: 1.5rem; text-align: center; color: white; background: #0b1a2c; }
+.rotate-overlay strong { font-size: 1.25rem; font-weight: 900; }
+.rotate-overlay p { max-width: 20rem; font-size: .88rem; line-height: 1.5; color: rgba(255,255,255,.65); }
+.rotate-overlay-phone { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border-radius: 1.4rem; color: var(--brand-navy); background: var(--brand-gold); font-size: 2.4rem; }
+.rotate-overlay-phone.to-landscape { animation: rotate-to-landscape 1.8s ease-in-out infinite; }
+.rotate-overlay-phone.to-portrait { animation: rotate-to-portrait 1.8s ease-in-out infinite; }
+@keyframes rotate-to-landscape { 0%, 25% { transform: rotate(0); } 60%, 100% { transform: rotate(90deg); } }
+@keyframes rotate-to-portrait { 0%, 25% { transform: rotate(90deg); } 60%, 100% { transform: rotate(0); } }
+.rotate-overlay-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin-top: .5rem; }
+.rotate-overlay-actions button { border: 1px solid rgba(255,255,255,.2); border-radius: 999px; padding: .6rem 1rem; font-size: .82rem; font-weight: 850; }
+.rotate-overlay-actions button:last-child { border-color: transparent; color: var(--brand-navy); background: var(--brand-gold); }
+
+/* --- Layar awal dalam posisi lanskap (HP mendatar) --- */
+@media (max-height: 520px) and (orientation: landscape) {
+  .game-start-screen { align-content: start; padding: 1rem 1.25rem; }
+  .game-start-card h1 { font-size: clamp(1.8rem, 6vw, 2.6rem); }
+  .game-start-copy { font-size: .85rem; margin-top: .5rem; }
+  .game-start-actions { flex-direction: row; flex-wrap: wrap; }
+  .game-start-actions > * { width: auto; }
+  .game-control-strip { display: none; }
+  .game-character-screen { padding: .75rem 1rem; }
+  .game-character-header h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+  .game-character-header > p:last-child { display: none; }
+  .game-character-grid { margin-top: .6rem; }
+  .game-character-card { min-height: 0; grid-template-columns: 7rem 1fr; align-items: center; text-align: left; }
+  .game-character-visual { height: 9rem; }
+  .game-character-copy small { display: none; }
+  .game-dialog { max-height: calc(100svh - 1rem); overflow-y: auto; }
+  .world-panel-wrap { place-items: start center; }
+  .world-panel { padding: 1rem; }
+}
+
+/*
+ * Mode ringan (HP & perangkat lemah, atau kualitas "hemat"): efek kaca buram
+ * dan animasi dekoratif di atas canvas WebGL membuat GPU mobile menggambar
+ * ulang layar penuh setiap frame, jadi dimatikan. Panel dibuat lebih pekat
+ * sebagai ganti blur.
+ */
+html[data-perf="lite"] *, html[data-perf="lite"] *::before, html[data-perf="lite"] *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+html[data-perf="lite"] .game-start-orb, html[data-perf="lite"] .race-speedlines { display: none; }
+html[data-perf="lite"] .game-start-mission, html[data-perf="lite"] .game-character-card { background: rgba(9,32,56,.92); box-shadow: none; transition: none; }
+html[data-perf="lite"] .game-character-actions, html[data-perf="lite"] .game-keyboard-hint { background: rgba(6,26,48,.95); }
+html[data-perf="lite"] .game-logo, html[data-perf="lite"] .game-avatar-pill, html[data-perf="lite"] .game-zone-pill, html[data-perf="lite"] .game-hud-actions, html[data-perf="lite"] .game-objective-card, html[data-perf="lite"] .game-hud-bottom { background: rgba(6,26,48,.95); box-shadow: none; }
+html[data-perf="lite"] .world-hud-title, html[data-perf="lite"] .world-hud-pause, html[data-perf="lite"] .world-meter, html[data-perf="lite"] .world-side, html[data-perf="lite"] .world-boss-bar, html[data-perf="lite"] .race-minimap, html[data-perf="lite"] .drone-job, html[data-perf="lite"] .drone-compass, html[data-perf="lite"] .river-chart, html[data-perf="lite"] .river-progress, html[data-perf="lite"] .world-prompt { background: rgb(16 19 26 / .92); }
+html[data-perf="lite"] .world-panel-wrap { background: rgb(8 10 14 / .78); }
+html[data-perf="lite"] .world-label, html[data-perf="lite"] .game-world-label { box-shadow: none; }
+html[data-perf="lite"] .mission-flow-dot, html[data-perf="lite"] .drone-radar-pulse, html[data-perf="lite"] .game-loader-mark img { animation: none; }

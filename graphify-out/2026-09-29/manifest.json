@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspektur-world.tsx": {
-    "mtime": 1790661576.8224096,
-    "seen": 1790670084.2198398,
-    "ast_hash": "482602d76b45af04120d45a25aeac0be",
+    "mtime": 1790672193.2379875,
+    "seen": 1790672742.5094805,
+    "ast_hash": "7c24672078e075c1311856de9704e126",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-world.tsx": {
@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "lib/data/worlds.ts": {
-    "mtime": 1790655424.1383622,
-    "seen": 1790655562.694799,
-    "ast_hash": "199acf4b0ee537de8bca37165b369b55",
+    "mtime": 1790672649.0202494,
+    "seen": 1790672742.5294812,
+    "ast_hash": "11361a52b0bd1b9b79546162b9ba0647",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspect-extras.tsx": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/audit/hacker-arena.tsx": {
-    "mtime": 1790661562.6607804,
-    "seen": 1790670084.2198317,
-    "ast_hash": "01775b0e4691dee4355048b4b92ed10f",
+    "mtime": 1790672193.2425165,
+    "seen": 1790672742.5091321,
+    "ast_hash": "6de909939f9ae12edfbbeef0e8c8ce14",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/arena-models.tsx": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/route-level.tsx": {
-    "mtime": 1790669132.6179655,
-    "seen": 1790670084.2270167,
-    "ast_hash": "8d256940427dcae50ea4e3bf0ce8087d",
+    "mtime": 1790671806.0142753,
+    "seen": 1790672742.5150042,
+    "ast_hash": "5fda713268f77650fb37c5d92db89760",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/ops-layout.ts": {
@@ -1212,9 +1212,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/ops-level.tsx": {
-    "mtime": 1790669132.6169643,
-    "seen": 1790670084.2251081,
-    "ast_hash": "5e5b0bd1d76b691a01656676acaee278",
+    "mtime": 1790671816.967011,
+    "seen": 1790672742.513242,
+    "ast_hash": "d7ff40ed444a25e3998cdd07a98bc5c9",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/ops-models.tsx": {
@@ -1242,9 +1242,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/drone-level.tsx": {
-    "mtime": 1790669330.0074027,
-    "seen": 1790670084.2239273,
-    "ast_hash": "1dd7fb3b3a7155be88765a8bc28bfc1b",
+    "mtime": 1790671952.602558,
+    "seen": 1790672742.5123286,
+    "ast_hash": "3099c816374709f571edd8a09f128ed7",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/drone-models.tsx": {
@@ -1260,15 +1260,15 @@
     "semantic_hash": ""
   },
   "components/game/worlds/data/hunt-layout.ts": {
-    "mtime": 1790655423.435109,
-    "seen": 1790655562.6812518,
-    "ast_hash": "605797a37236abc565358c97b39f426f",
+    "mtime": 1790671805.999403,
+    "seen": 1790672742.509485,
+    "ast_hash": "cbedbf45e7a1330ede220d8474e0d7a3",
     "semantic_hash": ""
   },
   "components/game/worlds/data/hunt-level.tsx": {
-    "mtime": 1790669330.0094185,
-    "seen": 1790670084.220133,
-    "ast_hash": "9c0fe2448a65e3facb66f40bb9d17485",
+    "mtime": 1790671806.0014093,
+    "seen": 1790672742.509488,
+    "ast_hash": "a53ae2ae3b6d6d1089cf63334c35d615",
     "semantic_hash": ""
   },
   "components/game/worlds/data/hunt-models.tsx": {
@@ -1284,15 +1284,15 @@
     "semantic_hash": ""
   },
   "components/game/worlds/data/river-layout.ts": {
-    "mtime": 1790655423.4471815,
-    "seen": 1790655562.6815813,
-    "ast_hash": "c08f2242847bb3e47c4146cd9687d094",
+    "mtime": 1790671806.002411,
+    "seen": 1790672742.5100565,
+    "ast_hash": "388fbf9ddd56e09c62649edad4f533d6",
     "semantic_hash": ""
   },
   "components/game/worlds/data/river-level.tsx": {
-    "mtime": 1790669132.6139631,
-    "seen": 1790670084.2213295,
-    "ast_hash": "523d95456acd3b3dd7e3128babd66001",
+    "mtime": 1790671806.0049355,
+    "seen": 1790672742.5100615,
+    "ast_hash": "2d18bb874b2ac26e3f1604e3b9e52d88",
     "semantic_hash": ""
   },
   "components/game/worlds/data/river-models.tsx": {
@@ -1308,21 +1308,21 @@
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-layout.ts": {
-    "mtime": 1790655423.5944047,
-    "seen": 1790655562.6815925,
-    "ast_hash": "57ee886a550194330a62668fdd63ec80",
+    "mtime": 1790671806.0069382,
+    "seen": 1790672742.5108085,
+    "ast_hash": "eb32d5062ec234891f8424575a83cc74",
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-level.tsx": {
-    "mtime": 1790669330.005892,
-    "seen": 1790670084.2224367,
-    "ast_hash": "2b958f56d0ff282d9633881c70fbc394",
+    "mtime": 1790671806.0089397,
+    "seen": 1790672742.5108125,
+    "ast_hash": "f68a0329103251de51d5816b3cfe5aba",
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-models.tsx": {
-    "mtime": 1790655423.648633,
-    "seen": 1790655562.6815977,
-    "ast_hash": "5ef103ef7bc81f48c23e528b569adad9",
+    "mtime": 1790671806.0109391,
+    "seen": 1790672742.5108154,
+    "ast_hash": "dc7bc8a0039593afa003edaaba5c04e9",
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-scenery.tsx": {
@@ -1389,6 +1389,12 @@
     "mtime": 1790669319.7343616,
     "seen": 1790670084.2274063,
     "ast_hash": "1ed502ebea6bb53e1c12def18d758a94",
+    "semantic_hash": ""
+  },
+  "components/game/worlds/quiz-bank.ts": {
+    "mtime": 1790670919.139626,
+    "seen": 1790672742.5158865,
+    "ast_hash": "25293b3fe04ec467a5b5d68cc54ae03c",
     "semantic_hash": ""
   }
 }

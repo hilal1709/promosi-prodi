@@ -13,8 +13,9 @@ import {
 } from "@/components/game/missions/mission-kit";
 import type { MusicThemeId, SoundName } from "@/components/game/use-game-audio";
 import { WORLD_BRIEFS, WORLD_LEVELS } from "@/lib/data/worlds";
-import type { GameAvatarId, GameQuality, MissionId } from "@/lib/types";
+import type { GameAvatarId, GameOrientation, GameQuality, MissionId } from "@/lib/types";
 import { GameLoader } from "@/components/game/game-loader";
+import { OrientationPicker } from "@/components/game/orientation-controls";
 import { useWorldInput } from "./world-controls";
 import type { WorldLevelProps } from "./world-kit";
 type LevelModule = () => Promise<ComponentType<WorldLevelProps>>;
@@ -57,6 +58,9 @@ export default function MissionWorld({
   setMusic,
   onComplete,
   onExit,
+  suspended = false,
+  orientation,
+  onOrientation,
 }: {
   missionId: MissionId;
   avatar: GameAvatarId;
@@ -65,6 +69,10 @@ export default function MissionWorld({
   setMusic: (theme: MusicThemeId | null, intensity?: number) => void;
   onComplete: OnMissionComplete;
   onExit: () => void;
+  /** Layar sedang tertutup (mis. HP perlu diputar): jeda permainan. */
+  suspended?: boolean;
+  orientation: GameOrientation;
+  onOrientation: (value: GameOrientation) => void;
 }) {
   const levels = LEVELS[missionId];
   const brief = WORLD_BRIEFS[missionId];
@@ -92,6 +100,13 @@ export default function MissionWorld({
   useEffect(() => {
     setMusic(missionId, active ? 1 : 0.4);
   }, [active, missionId, setMusic]);
+
+  // Saat layar tertutup, buka menu jeda (disesuaikan saat render, bukan lewat effect).
+  const [wasSuspended, setWasSuspended] = useState(suspended);
+  if (suspended !== wasSuspended) {
+    setWasSuspended(suspended);
+    if (suspended && playing && started) setPaused(true);
+  }
 
   const wasPaused = useRef(paused);
   useEffect(() => {
@@ -190,6 +205,7 @@ export default function MissionWorld({
               <Button variant="ghost" onClick={() => { sound("close"); onExit(); }}><IconArrowLeft className="h-4 w-4" /> Keluar ke kampus</Button>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">Keluar sekarang tidak menyimpan progres misi ini.</p>
+            <OrientationPicker value={orientation} onChange={onOrientation} className="is-light mt-4" />
           </div>
         </div>
       )}

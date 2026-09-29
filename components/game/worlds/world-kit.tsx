@@ -7,10 +7,11 @@ import * as THREE from "three";
 import { IconPause } from "@/components/ui/icons";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { FeedbackToast, LevelComplete, type Feedback } from "@/components/game/missions/mission-kit";
-import { AdaptiveResolution } from "@/components/game/adaptive-resolution";
+import { canvasSettings, QualityRig } from "@/components/game/lite-renderer";
 import { ResponsiveCamera } from "@/components/game/responsive-camera";
 import { SceneLoader, SceneReady } from "@/components/game/scene-loader";
 import type { SoundName } from "@/components/game/use-game-audio";
+import { qualityProfile } from "@/lib/device-quality";
 import { cn } from "@/lib/utils";
 import type { WorldLevelInfo } from "@/lib/data/worlds";
 import type { GameAvatarId, GameQuality } from "@/lib/types";
@@ -61,7 +62,7 @@ export function WorldStage({
   children: ReactNode;
   overlay: ReactNode;
 }) {
-  const dpr: [number, number] = quality === "hemat" ? [1, 1] : quality === "tinggi" ? [1.25, 1.75] : [1, 1.5];
+  const profile = qualityProfile(quality);
   const [ready, setReady] = useState(false);
   const markReady = useCallback(() => setReady(true), []);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -69,15 +70,12 @@ export function WorldStage({
   return (
     <div ref={stageRef} className="world-stage">
       <Canvas
-        frameloop={paused ? "demand" : "always"}
-        shadows={quality !== "hemat" ? "percentage" : false}
-        dpr={dpr}
+        {...canvasSettings(profile, paused)}
         camera={{ fov: camera?.fov ?? 55, near: camera?.near ?? 0.1, far: camera?.far ?? 260, position: camera?.position ?? [0, 8, 10] }}
-        gl={{ antialias: quality !== "hemat", powerPreference: "high-performance" }}
       >
         <color attach="background" args={[background]} />
         <ResponsiveCamera />
-        <AdaptiveResolution max={dpr[1]} />
+        <QualityRig profile={profile} paused={paused} />
         <Suspense fallback={null}>
           {children}
           <SceneReady onReady={markReady} />

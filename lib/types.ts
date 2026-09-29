@@ -4,6 +4,8 @@ export type MissionId = JalurId;
 export type GamePhase = "start" | "explore" | "mission" | "paused" | "complete";
 export type GameQuality = "auto" | "hemat" | "tinggi";
 export type GameAvatarId = "arga" | "nara";
+/** Orientasi layar pilihan pemain di HP/tablet. */
+export type GameOrientation = "auto" | "portrait" | "landscape";
 
 export interface MissionResult {
   missionId: MissionId;
@@ -32,6 +34,7 @@ export interface GameProgress {
   recommendation: JalurId | null;
   audio: AudioSettings;
   quality: GameQuality;
+  orientation: GameOrientation;
 }
 
 export interface TrackMeta {

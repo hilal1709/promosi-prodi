@@ -8,11 +8,12 @@ import * as THREE from "three";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { CampusBuilding, type BuildingStyle } from "@/components/game/campus-building";
 import { CampusSurroundings, Tree, type TreeKind } from "@/components/game/campus-scenery";
-import { AdaptiveResolution } from "@/components/game/adaptive-resolution";
+import { canvasSettings, QualityRig } from "@/components/game/lite-renderer";
 import { ResponsiveCamera } from "@/components/game/responsive-camera";
 import { SceneLoader, SceneReady } from "@/components/game/scene-loader";
 import { TouchControls } from "@/components/game/worlds/touch-controls";
 import { createInputState, type WorldInput } from "@/components/game/worlds/world-controls";
+import { qualityProfile } from "@/lib/device-quality";
 import type { GameAvatarId, GameQuality, MissionId } from "@/lib/types";
 
 export type CampusZone = MissionId | "info";
@@ -432,6 +433,10 @@ function CampusWorld({
   onNearZone: (zone: CampusZone | null) => void;
   onStep: () => void;
 }) {
+  // Mode hemat: separuh dekorasi saja (tabrakan tetap memakai daftar lengkap).
+  const lite = quality === "hemat";
+  const flowers = lite ? FLOWERS.filter((_, index) => index % 2 === 0) : FLOWERS;
+  const trees = lite ? TREES.filter((_, index) => index % 2 === 0) : TREES;
   return (
     <>
       <color attach="background" args={[SKY_HORIZON]} />
@@ -455,7 +460,7 @@ function CampusWorld({
         <ringGeometry args={[4.15, 4.65, 48]} />
         <meshStandardMaterial color="#d9573f" roughness={0.72} />
       </mesh>
-      {FLOWERS.map((position, index) => (
+      {flowers.map((position, index) => (
         <group key={index} position={position} rotation={[0, index * 1.3, 0]}>
           {[[0, 0.26, 0, 0.36], [0.28, 0.2, 0.1, 0.26], [-0.24, 0.2, -0.08, 0.27]].map(([x, y, z, r], i) => (
             <mesh key={i} castShadow position={[x, y, z]}>
@@ -490,7 +495,7 @@ function CampusWorld({
         </group>
       ))}
 
-      {TREES.map((tree, index) => (
+      {trees.map((tree, index) => (
         <Tree key={index} position={tree.position} kind={tree.kind} scale={tree.scale} rotation={index * 1.7} />
       ))}
       <CampusSurroundings />
@@ -509,6 +514,7 @@ function GameCanvas({
   quality,
   onNearZone,
   onStep,
+  onPerfFallback,
 }: {
   avatar: GameAvatarId;
   completed: MissionId[];
@@ -517,23 +523,23 @@ function GameCanvas({
   quality: GameQuality;
   onNearZone: (zone: CampusZone | null) => void;
   onStep: () => void;
+  /** FPS terus tersendat: sarankan pindah ke mode hemat. */
+  onPerfFallback?: () => void;
 }) {
   const input = useMovementKeys();
   const [ready, setReady] = useState(false);
   const markReady = useCallback(() => setReady(true), []);
-  const dpr: [number, number] = quality === "hemat" ? [1, 1] : quality === "tinggi" ? [1.25, 1.75] : [1, 1.5];
+  const profile = qualityProfile(quality);
   return (
     <div className="game-canvas-focus">
       <Canvas
         // Saat dialog/jeda terbuka kampus diam, jadi tidak perlu render terus (hemat baterai).
-        frameloop={paused ? "demand" : "always"}
-        shadows={quality !== "hemat" ? "percentage" : false}
-        dpr={dpr}
-        camera={{ position: [7, 7, 10], fov: 48, near: 0.1, far: 100 }}
-        gl={{ antialias: quality !== "hemat", powerPreference: "high-performance" }}
+        {...canvasSettings(profile, paused)}
+        // Mode hemat: kabut sudah menutup semuanya setelah 70 unit.
+        camera={{ position: [7, 7, 10], fov: 48, near: 0.1, far: profile.lite ? 75 : 100 }}
       >
         <ResponsiveCamera />
-        <AdaptiveResolution max={dpr[1]} />
+        <QualityRig profile={profile} paused={paused} onFallback={onPerfFallback} />
         <Suspense fallback={null}>
           <CampusWorld
             avatar={avatar}

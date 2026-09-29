@@ -1,6 +1,7 @@
 import type {
   AudioSettings,
   GameAvatarId,
+  GameOrientation,
   GameProgress,
   JalurId,
   MissionId,
@@ -27,6 +28,7 @@ export const DEFAULT_GAME_PROGRESS: GameProgress = {
   recommendation: null,
   audio: DEFAULT_AUDIO,
   quality: "auto",
+  orientation: "auto",
 };
 
 export function clampScore(value: number) {
@@ -94,6 +96,9 @@ export function readGameProgress(): GameProgress {
         : null,
       phase: parsed.phase === "mission" || parsed.phase === "paused" ? "explore" : parsed.phase ?? "start",
       missions,
+      orientation: (["auto", "portrait", "landscape"] as GameOrientation[]).includes(parsed.orientation as GameOrientation)
+        ? (parsed.orientation as GameOrientation)
+        : "auto",
       audio: {
         muted: Boolean(parsed.audio.muted),
         volume: Math.max(0, Math.min(1, Number(parsed.audio.volume) || DEFAULT_AUDIO.volume)),

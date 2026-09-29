@@ -25,11 +25,13 @@ import {
   readGameProgress,
   saveGameProgress,
 } from "@/lib/game";
-import { isLowEndDevice, resolveQuality } from "@/lib/device-quality";
+import { isLowEndDevice, isTouchDevice, resolveQuality } from "@/lib/device-quality";
+import { applyOrientation } from "@/lib/orientation";
+import { OrientationPicker, RotateOverlay, useOrientationMismatch } from "@/components/game/orientation-controls";
 import { TRACKS } from "@/lib/data/tracks";
 import { cn } from "@/lib/utils";
 import type { CampusZone } from "@/components/game/game-canvas";
-import type { GameAvatarId, GameProgress, GameQuality, JalurId, MissionId } from "@/lib/types";
+import type { GameAvatarId, GameOrientation, GameProgress, GameQuality, JalurId, MissionId } from "@/lib/types";
 
 const GameCanvas = dynamic(() => import("@/components/game/game-canvas"), {
   ssr: false,
@@ -95,12 +97,16 @@ function StartScreen({
   onSelectCharacter,
   onStart,
   onReset,
+  orientation,
+  onOrientation,
 }: {
   hasProgress: boolean;
   selectedCharacter: GameAvatarId | null;
   onSelectCharacter: (character: GameAvatarId) => void;
   onStart: () => void;
   onReset: () => void;
+  orientation: GameOrientation;
+  onOrientation: (value: GameOrientation) => void;
 }) {
   const [selecting, setSelecting] = useState(false);
   const selected = selectedCharacter ? CHARACTERS[selectedCharacter] : null;
@@ -155,6 +161,8 @@ function StartScreen({
             })}
           </div>
 
+          <OrientationPicker value={orientation} onChange={onOrientation} className="game-start-orientation" />
+
           <div className="game-character-actions">
             <div>
               <span>Karakter terpilih</span>
@@ -192,6 +200,7 @@ function StartScreen({
             <Button size="lg" variant="outline" onClick={onReset}>Mulai baru</Button>
           )}
         </div>
+        <OrientationPicker value={orientation} onChange={onOrientation} className="game-start-orientation" />
         <div className="game-control-strip">
           <div className="hint-pointer"><kbd>WASD</kbd><span>Bergerak</span></div>
           <div className="hint-pointer"><kbd>Mouse</kbd><span>Putar kamera</span></div>
@@ -268,6 +277,9 @@ export default function GameEntry() {
   // Dunia misi 3D juga dipakai di HP; hanya perangkat tanpa WebGL yang memakai misi pop-up.
   const [webglOk, setWebglOk] = useState(false);
   const [lowEnd, setLowEnd] = useState(false);
+  const [touch, setTouch] = useState(false);
+  // Diset bila FPS terus tersendat di mode auto; tidak mengubah pilihan tersimpan.
+  const [forcedLite, setForcedLite] = useState(false);
   const [worldOpen, setWorldOpen] = useState(false);
   const { startAudio, playSound, setMusic } = useGameAudio(progress.audio);
   const handleStep = useCallback(() => playSound("step"), [playSound]);
@@ -289,6 +301,7 @@ export default function GameEntry() {
       const webgl = supportsWebGL();
       setWebglOk(webgl);
       setLowEnd(isLowEndDevice());
+      setTouch(isTouchDevice());
       // Kampus 3D dipakai di semua ukuran layar (HP memakai joystick sentuh);
       // mode ringan hanya otomatis untuk perangkat tanpa WebGL.
       setLiteMode(!webgl);
@@ -310,9 +323,10 @@ export default function GameEntry() {
   const startGame = useCallback(() => {
     if (!progress.avatar) return;
     void startAudio().then(() => playSound("start"));
+    void applyOrientation(progress.orientation);
     setStarted(true);
     setProgress((current) => ({ ...current, phase: "explore" }));
-  }, [playSound, progress.avatar, startAudio]);
+  }, [playSound, progress.avatar, progress.orientation, startAudio]);
 
   const selectCharacter = useCallback((avatar: GameAvatarId) => {
     playSound("click");
@@ -393,9 +407,12 @@ export default function GameEntry() {
     setProgress((current) => ({ ...current, recommendation: id }));
   };
 
-  const quality = resolveQuality(progress.quality, lowEnd);
+  const quality = forcedLite && progress.quality === "auto" ? "hemat" : resolveQuality(progress.quality, lowEnd, touch);
   const setQuality = (quality: GameQuality) => setProgress((current) => ({ ...current, quality }));
-  const anyModal = missionOpen || infoOpen || assistantOpen || helpOpen || settingsOpen || resultOpen || paused;
+  const setOrientation = useCallback((orientation: GameOrientation) => setProgress((current) => ({ ...current, orientation })), []);
+  const handlePerfFallback = useCallback(() => setForcedLite(true), []);
+  const orientationMismatch = useOrientationMismatch(started ? progress.orientation : "auto");
+  const anyModal = orientationMismatch || missionOpen || infoOpen || assistantOpen || helpOpen || settingsOpen || resultOpen || paused;
   const openDialogs = [infoOpen, assistantOpen, helpOpen, settingsOpen, paused].filter(Boolean).length;
 
   // Dunia misi 3D mengatur temanya sendiri; misi pop-up memakai tema jalurnya,
@@ -416,6 +433,15 @@ export default function GameEntry() {
     if (nearZone) playSound("near");
   }, [nearZone, playSound]);
 
+  // Mode hemat juga meringankan UI: CSS mematikan blur kaca & animasi dekoratif.
+  const liteUi = quality === "hemat" || (!started && touch);
+  useEffect(() => {
+    if (!hydrated) return;
+    const root = document.documentElement;
+    if (liteUi) root.dataset.perf = "lite";
+    else delete root.dataset.perf;
+  }, [hydrated, liteUi]);
+
   if (!hydrated) return <GameLoader label="Memuat Kampus Digital…" className="min-h-svh" showTips={false} />;
   if (!started) {
     return (
@@ -425,6 +451,8 @@ export default function GameEntry() {
         onSelectCharacter={selectCharacter}
         onStart={startGame}
         onReset={resetGame}
+        orientation={progress.orientation}
+        onOrientation={setOrientation}
       />
     );
   }
@@ -440,7 +468,11 @@ export default function GameEntry() {
         setMusic={setMusic}
         onComplete={finishMission}
         onExit={exitWorld}
+        suspended={orientationMismatch}
+        orientation={progress.orientation}
+        onOrientation={setOrientation}
       />
+      <RotateOverlay preference={progress.orientation} onAuto={() => setOrientation("auto")} />
       </GameSoundContext>
     );
   }
@@ -465,6 +497,7 @@ export default function GameEntry() {
             quality={quality}
             onNearZone={setNearZone}
             onStep={handleStep}
+            onPerfFallback={progress.quality === "auto" ? handlePerfFallback : undefined}
           />
         )}
       </div>
@@ -547,7 +580,8 @@ export default function GameEntry() {
                 </label>
               ))}
             </div>
-            <div><strong className="text-sm">Kualitas visual</strong><div className="mt-2 grid grid-cols-3 gap-2">{(["hemat", "auto", "tinggi"] as GameQuality[]).map((quality) => <button key={quality} onClick={() => setQuality(quality)} className={cn("rounded-2xl border px-3 py-2 text-sm font-bold capitalize", progress.quality === quality ? "border-brand-navy bg-brand-navy text-white" : "border-border")}>{quality}</button>)}</div>{progress.quality === "auto" && <p className="mt-2 text-xs text-muted-foreground">{lowEnd ? "Perangkat ini terdeteksi terbatas, jadi Auto memakai mode hemat." : "Auto menurunkan resolusi otomatis bila permainan mulai tersendat."}</p>}</div>
+            <div><strong className="text-sm">Kualitas visual</strong><div className="mt-2 grid grid-cols-3 gap-2">{(["hemat", "auto", "tinggi"] as GameQuality[]).map((quality) => <button key={quality} onClick={() => setQuality(quality)} className={cn("rounded-2xl border px-3 py-2 text-sm font-bold capitalize", progress.quality === quality ? "border-brand-navy bg-brand-navy text-white" : "border-border")}>{quality}</button>)}</div>{progress.quality === "auto" && <p className="mt-2 text-xs text-muted-foreground">{touch ? "Di HP/tablet, Auto memakai mode hemat agar ringan dan tidak cepat panas." : lowEnd || forcedLite ? "Perangkat ini terdeteksi terbatas, jadi Auto memakai mode hemat." : "Auto menurunkan resolusi otomatis bila permainan mulai tersendat."}</p>}</div>
+            <OrientationPicker value={progress.orientation} onChange={setOrientation} className="is-light" />
             <button onClick={() => setLiteMode((current) => !current)} className="w-full rounded-2xl border border-border p-3 text-left text-sm font-bold">{liteMode ? "Gunakan mode 3D" : "Gunakan mode ringan"}<span className="mt-1 block text-xs font-normal text-muted-foreground">Mode ringan memakai lebih sedikit daya dan tetap memiliki misi lengkap.</span></button>
           </div>
         </DialogContent>
@@ -578,6 +612,7 @@ export default function GameEntry() {
           <div className="flex flex-col gap-2 sm:flex-row"><Button asChild variant="accent"><a href="https://pmb.uisi.ac.id" target="_blank" rel="noreferrer">Daftar di UISI <IconArrowRight className="h-4 w-4" /></a></Button><Button variant="outline" onClick={() => { setResultOpen(false); setInfoOpen(true); }}>Lihat kurikulum</Button><Button variant="ghost" onClick={() => setResultOpen(false)}>Kembali ke kampus</Button></div>
         </DialogContent>
       </Dialog>
+      <RotateOverlay preference={progress.orientation} onAuto={() => setOrientation("auto")} />
     </main>
     </GameSoundContext>
   );
