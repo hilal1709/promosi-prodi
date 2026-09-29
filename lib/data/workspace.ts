@@ -71,7 +71,7 @@ export const WORKSPACE_MENUS: WorkspaceMenu[] = [
     jalur: "data-science",
     namaMenu: "Bersihkan Data",
     deskripsi: "Rapikan data penjualan yang masih berantakan.",
-    iconSlug: "Sparkles",
+    iconSlug: "Broom",
     urutan: 1,
     tipeInteraksi: "data-clean",
   },
@@ -108,7 +108,7 @@ export const WORKSPACE_SCENARIOS: WorkspaceScenario[] = [
           id: "o1",
           label: "Langsung pesan stok tambahan besar-besaran ke pabrik",
           konsekuensi:
-            "Stok aman sementara, tapi biaya gudang membengkak karena tidak tahu penyebab selisih datanya — masalah aslinya belum selesai.",
+            "Stok aman sementara, tapi biaya gudang membengkak karena tidak tahu penyebab selisih datanya, masalah aslinya belum selesai.",
           dampak: { efisiensi: -10, biaya: -20, risiko: 10 },
         },
         {
@@ -373,7 +373,7 @@ export const WORKSPACE_SCENARIOS: WorkspaceScenario[] = [
           label: "Fokuskan promosi tambahan ke Toko Jaya karena sudah paling laris",
           benar: false,
           penjelasan:
-            "Toko yang sudah tinggi penjualannya bukan prioritas utama untuk tambahan promosi — potensi kenaikannya lebih kecil dibanding toko yang tertinggal.",
+            "Toko yang sudah tinggi penjualannya bukan prioritas utama untuk tambahan promosi, potensi kenaikannya lebih kecil dibanding toko yang tertinggal.",
         },
         {
           id: "o2",

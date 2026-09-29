@@ -4,7 +4,7 @@ import { CHART_QUESTIONS } from "@/lib/data/missions";
 import { fbm, seeded } from "../erp/race-track";
 
 /* ------------------------------------------------------------------ */
-/* Sungai Visualisasi — tata letak deterministik Level 2 Data Science   */
+/* Sungai Visualisasi, tata letak deterministik Level 2 Data Science   */
 /* Semua objek permainan memakai koordinat sungai: s (meter sepanjang   */
 /* aliran) & lat (meter ke kanan dari garis tengah, menghadap hilir).  */
 /* ------------------------------------------------------------------ */
@@ -179,7 +179,7 @@ export function waterY(s: number) {
   return y;
 }
 
-/** Arus dasar (m/s) — deras di ngarai, tenang di laguna. */
+/** Arus dasar (m/s), deras di ngarai, tenang di laguna. */
 export function currentAt(s: number) {
   const z = zoneWeights(s);
   let c = z.bambu * 5.2 + z.pasar * 5.4 + z.sawah * 5.8 + z.ngarai * 7.6 + z.bakau * 5.4;
@@ -260,7 +260,7 @@ export function heightFromFrame(x: number, z: number, f: ReturnType<typeof frame
   const t = d - w;
   const n = fbm(x * 0.02 + 5, z * 0.02 - 2, 3);
 
-  // Bukit & pegunungan jauh (sama untuk semua zona) — menutup cakrawala.
+  // Bukit & pegunungan jauh (sama untuk semua zona), menutup cakrawala.
   const far = smooth(t, 60, 260) * (24 + fbm(x * 0.006 + 11, z * 0.006 - 7, 4) * 70) + smooth(t, 220, 620) * (70 + fbm(x * 0.004 - 3, z * 0.004 + 5, 4) * 190);
 
   const bank = wy + 0.5 + smooth(t, 0, 7) * 1.4;
@@ -312,7 +312,7 @@ export const PAR_TIME = 270;
 
 export const CHECKPOINTS = [RAFT_START, at(0.13), at(0.435), at(0.69), at(0.8)];
 
-/** Babak 1 — grafik batang: 7 toko di tepi sungai. */
+/** Babak 1, grafik batang: 7 toko di tepi sungai. */
 export interface ShopStop {
   index: number;
   s: number;
@@ -328,7 +328,7 @@ export interface ShopStop {
 const DIRTY: { text: string; value: number; alasan: string }[] = [
   { text: "1200", value: 240, alasan: "Salah ketik: satu nol berlebih membuat penjualan tampak 10× lipat." },
   { text: "95 + 95", value: 190, alasan: "Baris ganda (duplikat) membuat penjualan terhitung dua kali." },
-  { text: "−5", value: -5, alasan: "Penjualan tidak mungkin negatif — setelah dibersihkan nilainya 0." },
+  { text: "−5", value: -5, alasan: "Penjualan tidak mungkin negatif, setelah dibersihkan nilainya 0." },
   { text: "(kosong)", value: 0, alasan: "Sel kosong tidak bisa digambar. Pakai nilai yang sudah dilengkapi: 210." },
   { text: "150 sak", value: 150, alasan: "Angka bercampur teks tidak bisa dihitung grafik. Simpan sebagai angka murni." },
   { text: "8,8", value: 9, alasan: "Format desimal salah: tertulis 8,8 padahal penjualannya 88 unit." },
@@ -350,7 +350,7 @@ export const SHOPS: ShopStop[] = (() => {
   }));
 })();
 
-/** Babak 2 — grafik garis: gerbang bulan dengan 3 celah. */
+/** Babak 2, grafik garis: gerbang bulan dengan 3 celah. */
 export interface MonthGate {
   index: number;
   s: number;
@@ -380,7 +380,7 @@ export const MONTH_GATES: MonthGate[] = (() => {
 })();
 export const GATE_LAT = 6.4;
 
-/** Babak 3 — grafik lingkaran: pasangan pelampung porsi produk. */
+/** Babak 3, grafik lingkaran: pasangan pelampung porsi produk. */
 export interface SliceStop {
   index: number;
   s: number;
@@ -470,7 +470,7 @@ export const HAZARDS: Hazard[] = (() => {
   return out;
 })();
 
-/** Tetes data (orb combo) — barisan berkelok di celah antar rintangan. */
+/** Tetes data (orb combo), barisan berkelok di celah antar rintangan. */
 export const ORBS: { id: number; s: number; lat: number }[] = (() => {
   const rand = seeded(606);
   const out: { id: number; s: number; lat: number }[] = [];
@@ -696,7 +696,7 @@ export function scatterFlora(quality: GameQuality): Flora {
     }
   }
 
-  // Hutan jauh di lereng bukit — latar yang menutup cakrawala.
+  // Hutan jauh di lereng bukit, latar yang menutup cakrawala.
   const farTries = Math.round(4200 * scale);
   for (let i = 0; i < farTries; i++) {
     const s = rand() * L;

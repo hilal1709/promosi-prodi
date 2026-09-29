@@ -6,9 +6,10 @@
  * Strategi:
  * - App shell (/, offline.html, manifest, ikon) di-precache saat install.
  * - Navigasi halaman: network-first, fallback ke cache lalu ke offline.html.
- * - Aset statis (_next/static, ikon, gambar): cache-first (stale tapi cepat).
+ * - Aset statis (_next/static, ikon, model karakter): cache-first (stale tapi cepat).
+ *   Naikkan CACHE_VERSION setiap kali file di /characters diganti.
  */
-const CACHE_VERSION = "sisfor-game-v2";
+const CACHE_VERSION = "sisfor-game-v3";
 const APP_SHELL = ["/", "/offline.html", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -51,14 +52,17 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Aset statis -> cache-first
-  if (url.pathname.startsWith("/_next/static") || url.pathname.startsWith("/icons")) {
+  if (url.pathname.startsWith("/_next/static") || url.pathname.startsWith("/icons") || url.pathname.startsWith("/characters")) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>
           cached ||
           fetch(request).then((response) => {
-            const clone = response.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
+            // Jangan simpan respons gagal (mis. 404) sebagai cache permanen.
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
+            }
             return response;
           })
       )

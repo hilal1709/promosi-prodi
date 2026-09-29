@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { AlarmClock, Check, Coffee, Factory, Package, Smile, Timer, Warehouse, X, Zap } from "lucide-react";
+import { IconAlarm, IconBolt, IconCheck, IconCoffee, IconFactory, IconPackage, IconSmile, IconTimer, IconWarehouse, IconX } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { ERP_EVENTS } from "@/lib/data/missions";
@@ -220,7 +220,7 @@ function snapshot(s: Sim): View {
   };
 }
 
-/** Kurangi stok rak (yang paling banyak dulu) — dipakai efek kejadian. */
+/** Kurangi stok rak (yang paling banyak dulu), dipakai efek kejadian. */
 function removeStock(s: Sim, pallets: number) {
   for (let i = 0; i < pallets; i++) {
     const id = [...OPS_PRODUCT_IDS].sort((a, b) => s.stock[b] - s.stock[a])[0];
@@ -270,8 +270,8 @@ function promptFor(s: Sim, station: Station | null): string | null {
       const info = OPS_PRODUCTS[station.product];
       const demand = openDemand(s)[station.product];
       if (s.carry.includes(station.product) && s.carry.filter((p) => p === station.product).length > demand) return `Kembalikan palet ${info.singkat} ke rak`;
-      if (s.carry.length >= MAX_CARRY) return s.carry.includes(station.product) ? `Kembalikan palet ${info.singkat} ke rak` : "Tangan penuh — muat dulu ke truk";
-      return s.stock[station.product] > 0 ? `Ambil palet ${info.nama} (stok ${s.stock[station.product]})` : `Stok ${info.singkat} habis — produksi dulu!`;
+      if (s.carry.length >= MAX_CARRY) return s.carry.includes(station.product) ? `Kembalikan palet ${info.singkat} ke rak` : "Tangan penuh, muat dulu ke truk";
+      return s.stock[station.product] > 0 ? `Ambil palet ${info.nama} (stok ${s.stock[station.product]})` : `Stok ${info.singkat} habis, produksi dulu!`;
     }
     case "bay": {
       const truck = s.trucks.find((t) => t.bay === station.bay && t.phase === "dock");
@@ -300,7 +300,7 @@ function interact(s: Sim, station: Station, ev: SceneEvents) {
         s.carry.splice(s.carry.lastIndexOf(p), 1);
         s.stock[p] = Math.min(RACK_CAPACITY, s.stock[p] + 1);
         ev.sound("interact");
-        ev.toast({ ok: true, judul: `Palet ${info.singkat} kembali ke rak`, teks: "Stok di ERP langsung bertambah lagi — tidak ada selisih pencatatan.", konsep: "Real-time inventory" });
+        ev.toast({ ok: true, judul: `Palet ${info.singkat} kembali ke rak`, teks: "Stok di ERP langsung bertambah lagi, tidak ada selisih pencatatan.", konsep: "Real-time inventory" });
         return;
       }
       if (s.carry.length >= MAX_CARRY) {
@@ -310,7 +310,7 @@ function interact(s: Sim, station: Station, ev: SceneEvents) {
       }
       if (s.stock[p] <= 0) {
         ev.sound("error");
-        ev.toast({ ok: false, judul: `Stok ${info.singkat} kosong`, teks: `Jalankan produksi ${info.singkat} di konsol utara — ERP akan menambah stok otomatis.`, konsep: "Perencanaan produksi (MRP)" });
+        ev.toast({ ok: false, judul: `Stok ${info.singkat} kosong`, teks: `Jalankan produksi ${info.singkat} di konsol utara, ERP akan menambah stok otomatis.`, konsep: "Perencanaan produksi (MRP)" });
         return;
       }
       s.stock[p]--;
@@ -670,7 +670,7 @@ function OpsScene({
       s.eventIdx++;
       dirty = true;
       events.sound("error");
-      events.toast({ ok: false, judul: "Alarm tidak ditangani", teks: `"${event.judul}" dibiarkan — masalah merembet ke pelanggan.`, konsep: event.konsep });
+      events.toast({ ok: false, judul: "Alarm tidak ditangani", teks: `"${event.judul}" dibiarkan, masalah merembet ke pelanggan.`, konsep: event.konsep });
     }
 
     // Forklift & tabrakan.
@@ -698,7 +698,7 @@ function OpsScene({
       s.carry = [];
       dirty = true;
       events.sound("boom");
-      events.toast({ ok: false, judul: "Tertabrak forklift!", teks: dropped ? "Paletmu jatuh — pungut lagi. Selalu lihat kiri-kanan di jalur kuning." : "Selalu lihat kiri-kanan saat melintasi jalur kuning.", konsep: "K3 gudang" });
+      events.toast({ ok: false, judul: "Tertabrak forklift!", teks: dropped ? "Paletmu jatuh, pungut lagi. Selalu lihat kiri-kanan di jalur kuning." : "Selalu lihat kiri-kanan saat melintasi jalur kuning.", konsep: "K3 gudang" });
     });
 
     // Kopi = lari cepat sementara.
@@ -714,7 +714,7 @@ function OpsScene({
       s.nextCoffee = s.time + 24;
       dirty = true;
       events.sound("pickup");
-      events.toast({ ok: true, judul: "Kopi! Lari lebih cepat 9 detik", teks: "Energi penuh — antar palet lebih cepat." });
+      events.toast({ ok: true, judul: "Kopi! Lari lebih cepat 9 detik", teks: "Energi penuh, antar palet lebih cepat." });
     }
 
     // Interaksi stasiun.
@@ -920,11 +920,11 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
             prompt={phase === "play" && prompt ? <><kbd>E</kbd>{prompt}</> : undefined}
             stats={
               <>
-                <HudChip tone={timeLeft <= 20 ? "red" : "dark"}><Timer />{timeLeft}s</HudChip>
-                <HudChip tone="gold"><Package />{view.completed}/{OPS_ORDERS.length}</HudChip>
-                <HudChip tone={view.satisfaction < 60 ? "red" : "green"}><Smile />{view.satisfaction}%</HudChip>
+                <HudChip tone={timeLeft <= 20 ? "red" : "dark"}><IconTimer />{timeLeft}s</HudChip>
+                <HudChip tone="gold"><IconPackage />{view.completed}/{OPS_ORDERS.length}</HudChip>
+                <HudChip tone={view.satisfaction < 60 ? "red" : "green"}><IconSmile />{view.satisfaction}%</HudChip>
                 <HudChip tone="dark">
-                  <Warehouse />
+                  <IconWarehouse />
                   {OPS_PRODUCT_IDS.map((id) => (
                     <span key={id} className={cn("inline-flex items-center gap-1", view.stock[id] === 0 && "text-red-300")}>
                       <ProductDot id={id} />
@@ -932,10 +932,10 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
                     </span>
                   ))}
                 </HudChip>
-                {view.production && <HudChip tone="gold"><Factory />{OPS_PRODUCTS[view.production.product].singkat} {Math.round(view.production.progress * 100)}%</HudChip>}
-                {view.alarm !== null && <HudChip tone="red" pulse><AlarmClock />Alarm {Math.ceil(view.alarmLeft)}s</HudChip>}
-                {view.sprint > 0 && <HudChip tone="green"><Coffee />{Math.ceil(view.sprint)}s</HudChip>}
-                {view.combo >= 2 && <HudChip tone="gold"><Zap />x{view.combo}</HudChip>}
+                {view.production && <HudChip tone="gold"><IconFactory />{OPS_PRODUCTS[view.production.product].singkat} {Math.round(view.production.progress * 100)}%</HudChip>}
+                {view.alarm !== null && <HudChip tone="red" pulse><IconAlarm />Alarm {Math.ceil(view.alarmLeft)}s</HudChip>}
+                {view.sprint > 0 && <HudChip tone="green"><IconCoffee />{Math.ceil(view.sprint)}s</HudChip>}
+                {view.combo >= 2 && <HudChip tone="gold"><IconBolt />x{view.combo}</HudChip>}
               </>
             }
           />
@@ -982,7 +982,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
           />
           {phase === "intro" && (
             <div className="world-overlay-card mission-pop">
-              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground"><Warehouse className="h-4 w-4" /> CARA MAIN</p>
+              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground">CARA MAIN</p>
               <p className="mt-1 text-lg font-black">Jaga gudang tetap mengalir!</p>
               <div className="mt-3 grid gap-2 text-sm">
                 <p className="flex items-start gap-2 rounded-2xl bg-card p-2.5 ring-1 ring-border">
@@ -1016,7 +1016,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
           )}
           {phase === "event" && event && (
             <div className="world-overlay-card mission-pop">
-              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-track-audit"><AlarmClock className="h-4 w-4" /> ALARM ERP · {event.konsep.toUpperCase()}</p>
+              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-track-audit"><IconAlarm className="h-4 w-4" /> ALARM ERP · {event.konsep.toUpperCase()}</p>
               <p className="mt-1 text-lg font-black">{event.judul}</p>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{event.deskripsi}</p>
               <div className="mt-3 grid gap-1.5">
@@ -1032,7 +1032,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
                       pick === index && !option.benar && "border-track-audit bg-track-audit-soft"
                     )}
                   >
-                    {pick !== null && option.benar ? <Check className="h-4 w-4 shrink-0 text-emerald-600" /> : pick === index ? <X className="h-4 w-4 shrink-0 text-track-audit" /> : null}
+                    {pick !== null && option.benar ? <IconCheck className="h-4 w-4 shrink-0 text-emerald-600" /> : pick === index ? <IconX className="h-4 w-4 shrink-0 text-track-audit" /> : null}
                     {option.label}
                   </button>
                 ))}

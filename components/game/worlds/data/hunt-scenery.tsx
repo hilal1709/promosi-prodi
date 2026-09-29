@@ -684,7 +684,7 @@ function Pier() {
   );
 }
 
-/** Rak server tua berlumut — sisa pusat data lama, LED masih berkedip. */
+/** Rak server tua berlumut, sisa pusat data lama, LED masih berkedip. */
 const ServerRuins = memo(function ServerRuins() {
   const leds = useRef<THREE.InstancedMesh>(null);
   const ledSpots = useMemo(() => {
@@ -827,7 +827,7 @@ function Butterflies({ count }: { count: number }) {
   );
 }
 
-/** Partikel data yang melayang di sekitar pemain — debu cahaya kecil. */
+/** Partikel data yang melayang di sekitar pemain, debu cahaya kecil. */
 function DataMotes({ focus, count }: { focus: Focus; count: number }) {
   const points = useRef<THREE.Points>(null);
   const RANGE = 36;

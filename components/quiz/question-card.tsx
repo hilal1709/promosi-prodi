@@ -2,6 +2,7 @@
 
 import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
+import { IconCheck } from "@/components/ui/icons";
 import type { QuizQuestion } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,7 +57,7 @@ export default function QuestionCard({
                     active ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"
                   )}
                 >
-                  {active ? "✓" : ""}
+                  {active && <IconCheck className="h-3.5 w-3.5" strokeWidth={3} />}
                 </span>
                 {opsi.teks}
               </button>

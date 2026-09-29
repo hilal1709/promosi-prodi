@@ -13,7 +13,7 @@ export const WORLD_LEVELS: Record<MissionId, WorldLevelInfo[]> = {
   "it-audit": [
     {
       judul: "Inspeksi Malam",
-      misi: "Jelajahi kantor, pindai, tandai 6 pelanggaran, lalu amankan temuanmu. Ambil baterai, kopi, dan dokumen log — dan jangan masuk sorotan drone patroli!",
+      misi: "Jelajahi kantor, pindai, tandai 6 pelanggaran, lalu amankan temuanmu. Ambil baterai, kopi, dan dokumen log, dan jangan masuk sorotan drone patroli!",
       kontrol: "WASD jalan · Shift lari · C jongkok · Spasi pindai · E periksa · hindari sorotan drone",
       kontrolSentuh: "Joystick jalan · tahan Lari/Jongkok · tombol Pindai & Periksa",
     },
@@ -53,7 +53,7 @@ export const WORLD_LEVELS: Record<MissionId, WorldLevelInfo[]> = {
   "data-science": [
     {
       judul: "Pemburu Data Liar",
-      misi: "12 sprite data kabur ke Lembah Data! Jelajahi padang, hutan, danau & reruntuhan server, tangkap tiap sprite dengan scanner, lalu tentukan masalah datanya — format, tidak masuk akal, duplikat, kosong, atau bersih. Isi Menara Data Lake sebelum waktu habis.",
+      misi: "12 sprite data kabur ke Lembah Data! Jelajahi padang, hutan, danau & reruntuhan server, tangkap tiap sprite dengan scanner, lalu tentukan masalah datanya, format, tidak masuk akal, duplikat, kosong, atau bersih. Isi Menara Data Lake sebelum waktu habis.",
       kontrol: "WASD jalan · Shift lari · tahan E/Spasi scan · 1–5 pilih jenis · seret mouse putar kamera",
       kontrolSentuh: "Joystick jalan · tahan Lari/Scan · ketuk jenis data · geser layar putar kamera",
     },
@@ -80,7 +80,7 @@ export const WORLD_BRIEFS: Record<MissionId, MissionBrief> = {
       ...MISSION_BRIEFS["it-audit"].npc,
       dialog: [
         "Inspektur, ada laporan kebocoran data pelanggan di kantor pusat. Malam ini kamu turun langsung.",
-        "Periksa kantor: cari kontrol yang bolong. Setelah itu jaga firewall server database — blokir lalu lintas data yang mencurigakan.",
+        "Periksa kantor: cari kontrol yang bolong. Setelah itu jaga firewall server database, blokir lalu lintas data yang mencurigakan.",
         "Terakhir, peretas akan menyerbu server langsung. Lindungi datanya dan jebol perisai bos mereka dengan kontrol yang tepat. Siap bertugas?",
       ],
     },
@@ -95,7 +95,7 @@ export const WORLD_BRIEFS: Record<MissionId, MissionBrief> = {
         "Selamat datang, sopir andalan! Truk semen ini terhubung ke sistem ERP pabrik kita.",
         "Setiap gerbang yang kamu lewati adalah modul ERP: penjualan, gudang, produksi, logistik, keuangan. Urutannya penting!",
         "Setelah itu kamu pegang shift gudang: muat palet ke truk pelanggan, jalankan produksi, dan pantau dasbor ERP.",
-        "Terakhir, hari Go-Live! Terbangkan drone dari Pusat Operasi dan alirkan data antar divisi — tunjukkan kalau sistem terintegrasi menghapus data silo!",
+        "Terakhir, hari Go-Live! Terbangkan drone dari Pusat Operasi dan alirkan data antar divisi, tunjukkan kalau sistem terintegrasi menghapus data silo!",
       ],
     },
     level: WORLD_LEVELS["enterprise-system"],
@@ -142,7 +142,7 @@ function cellCube(row: string, column: string): DataCube {
     kolom: column,
     nilai: value === "" ? "(kosong)" : String(value),
     jenis: issue?.jenis ?? "bersih",
-    penjelasan: issue?.penjelasan ?? "Nilai ini wajar dan formatnya konsisten — biarkan masuk gudang data.",
+    penjelasan: issue?.penjelasan ?? "Nilai ini wajar dan formatnya konsisten, biarkan masuk gudang data.",
   };
 }
 
@@ -224,10 +224,10 @@ export const FIREWALL_PACKETS: FirewallPacket[] = [
   { id: "f4", pengguna: "rudi.hr (resign)", aksi: "Login berhasil dari rumah", jam: "10.05", bahaya: true, konsep: "Offboarding", alasan: "Akun karyawan yang sudah keluar harusnya sudah dinonaktifkan." },
   { id: "f5", pengguna: "andre.dev", aksi: "Deploy ke server produksi tanpa tiket", jam: "14.20", bahaya: true, konsep: "Segregation of duties", alasan: "Developer menguji di server development, bukan langsung di produksi." },
   { id: "f6", pengguna: "bayu.gdg", aksi: "Buka data gaji karyawan", jam: "10.30", bahaya: true, konsep: "Least privilege", alasan: "Staf gudang tidak butuh data gaji untuk pekerjaannya." },
-  { id: "f7", pengguna: "admin.tmp", aksi: "Hapus log audit bulan Juli", jam: "23.40", bahaya: true, konsep: "Audit trail", alasan: "Menghapus log sama dengan menghapus jejak — tanda bahaya besar." },
+  { id: "f7", pengguna: "admin.tmp", aksi: "Hapus log audit bulan Juli", jam: "23.40", bahaya: true, konsep: "Audit trail", alasan: "Menghapus log sama dengan menghapus jejak, tanda bahaya besar." },
   { id: "f8", pengguna: "sinta.cs", aksi: "Upload file pelanggan ke drive pribadi", jam: "19.05", bahaya: true, konsep: "Kebocoran data", alasan: "Data perusahaan tidak boleh disimpan di akun pribadi." },
   { id: "f9", pengguna: "perangkat tamu", aksi: "Scan port server database", jam: "03.02", bahaya: true, konsep: "Serangan jaringan", alasan: "Perangkat tamu tidak punya urusan dengan server database." },
-  { id: "f10", pengguna: "dewi.hr", aksi: "Login dari 2 negara dalam 5 menit", jam: "09.00", bahaya: true, konsep: "Akun dibajak", alasan: "Mustahil pindah negara dalam 5 menit — password kemungkinan dicuri." },
+  { id: "f10", pengguna: "dewi.hr", aksi: "Login dari 2 negara dalam 5 menit", jam: "09.00", bahaya: true, konsep: "Akun dibajak", alasan: "Mustahil pindah negara dalam 5 menit, password kemungkinan dicuri." },
   { id: "f11", pengguna: "hendra.gdg", aksi: "Ubah harga semen di modul keuangan", jam: "11.20", bahaya: true, konsep: "Least privilege", alasan: "Staf gudang tidak berwenang mengubah data keuangan." },
   { id: "n1", pengguna: "rani.cs", aksi: "Buka 1 profil pelanggan yang komplain", jam: "09.15", bahaya: false, konsep: "Need-to-know", alasan: "Sesuai peran CS dan jam kerja." },
   { id: "n2", pengguna: "hendra.gdg", aksi: "Cek stok semen sebelum truk berangkat", jam: "08.40", bahaya: false, konsep: "Need-to-know", alasan: "Data stok memang bagian dari tugas gudang." },
@@ -237,7 +237,7 @@ export const FIREWALL_PACKETS: FirewallPacket[] = [
   { id: "n6", pengguna: "rani.cs", aksi: "Ubah alamat 1 pelanggan", jam: "13.15", bahaya: false, konsep: "Need-to-know", alasan: "Perubahan kecil sesuai permintaan pelanggan." },
   { id: "n7", pengguna: "lala.intern", aksi: "Buka data contoh (dummy)", jam: "10.20", bahaya: false, konsep: "Minimisasi data", alasan: "Magang memang diberi akses data contoh." },
   { id: "n8", pengguna: "budi.fin", aksi: "Cetak laporan keuangan terjadwal", jam: "15.00", bahaya: false, konsep: "Role-based access", alasan: "Laporan rutin bagian keuangan." },
-  { id: "n9", pengguna: "backup.sys", aksi: "Backup harian database", jam: "01.00", bahaya: false, konsep: "Proses terjadwal", alasan: "Proses otomatis terjadwal — aktivitas malam ini memang wajar." },
+  { id: "n9", pengguna: "backup.sys", aksi: "Backup harian database", jam: "01.00", bahaya: false, konsep: "Proses terjadwal", alasan: "Proses otomatis terjadwal, aktivitas malam ini memang wajar." },
   { id: "n10", pengguna: "hendra.gdg", aksi: "Catat stok keluar 40 ton", jam: "14.05", bahaya: false, konsep: "Need-to-know", alasan: "Pencatatan stok adalah tugas gudang." },
   { id: "n11", pengguna: "dewi.hr", aksi: "Cetak slip gaji divisi HR", jam: "15.20", bahaya: false, konsep: "Role-based access", alasan: "Sesuai peran HR dan jam kerja." },
   { id: "n12", pengguna: "fajar.dba", aksi: "Ganti password admin (jadwal 90 hari)", jam: "08.30", bahaya: false, konsep: "Kebijakan password", alasan: "Mengganti password berkala justru kontrol yang baik." },
@@ -259,13 +259,13 @@ export interface ArenaEnemyInfo {
 
 /** Ancaman di level Serbuan Peretas. */
 export const ARENA_ENEMIES: Record<ArenaEnemyKind, ArenaEnemyInfo> = {
-  virus: { nama: "Virus USB", konsep: "Malware", alasan: "Flashdisk tak dikenal bisa membawa malware — port USB perlu dibatasi.", hp: 1, speed: 3.3, damage: 5, color: "#e54b4b" },
-  bot: { nama: "Bot brute force", konsep: "Brute force", alasan: "Bot menebak password berulang kali — kunci akun & MFA menghentikannya.", hp: 2, speed: 2.3, damage: 7, color: "#9b5de5" },
-  phish: { nama: "Email phishing", konsep: "Phishing", alasan: "Phishing menyasar manusia, bukan server — pelatihan kesadaran keamanan itu penting.", hp: 2, speed: 3, damage: 0, color: "#f2a93b" },
+  virus: { nama: "Virus USB", konsep: "Malware", alasan: "Flashdisk tak dikenal bisa membawa malware, port USB perlu dibatasi.", hp: 1, speed: 3.3, damage: 5, color: "#e54b4b" },
+  bot: { nama: "Bot brute force", konsep: "Brute force", alasan: "Bot menebak password berulang kali, kunci akun & MFA menghentikannya.", hp: 2, speed: 2.3, damage: 7, color: "#9b5de5" },
+  phish: { nama: "Email phishing", konsep: "Phishing", alasan: "Phishing menyasar manusia, bukan server, pelatihan kesadaran keamanan itu penting.", hp: 2, speed: 3, damage: 0, color: "#f2a93b" },
   yatim: { nama: "Akun resign", konsep: "Offboarding", alasan: "Akun karyawan yang sudah keluar harus dinonaktifkan di hari terakhirnya.", hp: 3, speed: 1.8, damage: 10, color: "#8a94a6" },
 };
 
-/** Staf yang mengakses server secara sah — jangan ditembak. */
+/** Staf yang mengakses server secara sah, jangan ditembak. */
 export const ARENA_STAFF: string[] = [
   "dewi.hr · proses gaji",
   "hendra.gdg · cek stok",
@@ -385,7 +385,7 @@ export const DRONE_JOBS: DroneJob[] = [
     ke: "penjualan",
     pengecoh: ["gudang", "keuangan"],
     konsep: "Order entry",
-    benar: "Pesanan dicatat sekali di modul Penjualan — langsung terlihat oleh gudang, produksi, dan keuangan.",
+    benar: "Pesanan dicatat sekali di modul Penjualan, langsung terlihat oleh gudang, produksi, dan keuangan.",
     petunjuk: "Pesanan harus dicatat dulu sebagai Sales Order sebelum divisi lain bisa bergerak.",
   },
   {
@@ -421,7 +421,7 @@ export const DRONE_JOBS: DroneJob[] = [
     ke: "pelabuhan",
     pengecoh: ["gudang", "perumahan"],
     konsep: "Pengadaan (procure-to-pay)",
-    benar: "Modul Pengadaan mengirim PO ke pemasok — bahan baku datang lewat pelabuhan.",
+    benar: "Modul Pengadaan mengirim PO ke pemasok, bahan baku datang lewat pelabuhan.",
     petunjuk: "Bahan baku dibeli dari pemasok melalui modul Pengadaan.",
   },
   {
@@ -445,14 +445,14 @@ export const DRONE_JOBS: DroneJob[] = [
     ke: "proyek",
     pengecoh: ["perumahan", "pelabuhan"],
     konsep: "Pengiriman terlacak",
-    benar: "Surat jalan mengikuti truk ke pelanggan yang memesan — statusnya bisa dilacak di ERP.",
+    benar: "Surat jalan mengikuti truk ke pelanggan yang memesan, statusnya bisa dilacak di ERP.",
     petunjuk: "Barang dikirim ke pelanggan yang memesan: Proyek Tol Gresik.",
   },
   {
     id: "j7",
     paket: "Faktur Penjualan",
     kode: "FKT-9001",
-    deskripsi: "Barang terkirim. Faktur otomatis terbit — kirim ke siapa?",
+    deskripsi: "Barang terkirim. Faktur otomatis terbit, kirim ke siapa?",
     dari: "keuangan",
     ke: "proyek",
     pengecoh: ["penjualan", "perumahan"],

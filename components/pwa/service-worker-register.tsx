@@ -22,7 +22,7 @@ export default function ServiceWorkerRegister() {
 
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("/sw.js").catch(() => {
-        // Pendaftaran gagal (mis. browser lama) — aplikasi tetap jalan normal tanpa PWA offline.
+        // Pendaftaran gagal (mis. browser lama), aplikasi tetap jalan normal tanpa PWA offline.
       });
     });
   }, []);

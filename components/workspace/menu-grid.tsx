@@ -1,33 +1,36 @@
 "use client";
 
 import {
-  Warehouse,
-  Wallet,
-  Users,
-  ClipboardCheck,
-  AlertTriangle,
-  FileSearch,
-  Sparkles,
-  BarChart3,
-  Lightbulb,
-  ChevronRight,
-} from "lucide-react";
+  IconBroom,
+  IconChartBar,
+  IconChevronRight,
+  IconClipboard,
+  IconFileSearch,
+  IconIdea,
+  IconUsers,
+  IconWallet,
+  IconWarehouse,
+  IconWarning,
+  type IconType,
+} from "@/components/ui/icons";
 import { Card, CardContent } from "@/components/ui/card";
 import StaggerChildren from "@/components/gsap/stagger-children";
 import type { JalurId, WorkspaceMenu } from "@/lib/types";
 import { getTrack } from "@/lib/data/tracks";
 
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  Warehouse,
-  Wallet,
-  Users,
-  ClipboardCheck,
-  AlertTriangle,
-  FileSearch,
-  Sparkles,
-  BarChart3,
-  Lightbulb,
-};
+// Kunci = iconSlug dari data menu (lib/data/workspace.ts dan Supabase).
+const ICONS: Record<string, IconType> = {
+  Warehouse: IconWarehouse,
+  Wallet: IconWallet,
+  Users: IconUsers,
+  ClipboardCheck: IconClipboard,
+  AlertTriangle: IconWarning,
+  FileSearch: IconFileSearch,
+  Broom: IconBroom,
+  Sparkles: IconBroom, // slug lama yang mungkin masih ada di Supabase
+  BarChart3: IconChartBar,
+  Lightbulb: IconIdea,
+}
 
 export default function MenuGrid({
   jalur,
@@ -43,7 +46,7 @@ export default function MenuGrid({
   return (
     <StaggerChildren className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" deps={[jalur]}>
       {menus.map((menu) => {
-        const Icon = ICONS[menu.iconSlug] ?? ClipboardCheck;
+        const Icon = ICONS[menu.iconSlug] ?? IconClipboard;
         return (
           <Card
             key={menu.id}
@@ -71,7 +74,7 @@ export default function MenuGrid({
                 className="mt-3 inline-flex items-center gap-1 text-sm font-bold"
                 style={{ color: `var(--color-${track.warna})` }}
               >
-                Buka simulasi <ChevronRight className="h-3.5 w-3.5" />
+                Buka simulasi <IconChevronRight className="h-3.5 w-3.5" />
               </span>
             </CardContent>
           </Card>

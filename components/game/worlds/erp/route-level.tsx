@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Flag, Flame, Gauge, Package, Sparkles, Timer } from "lucide-react";
+import { IconCoins, IconFire, IconFlag, IconGauge, IconPackage, IconTimer } from "@/components/ui/icons";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { ERP_MODULES } from "@/lib/data/missions";
 import { TouchControls } from "../touch-controls";
@@ -569,7 +569,7 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
       }
       setToast({
         ok,
-        judul: ok ? `${target.label} ✓` : `Harusnya: ${target.label}`,
+        judul: ok ? `${target.label}` : `Harusnya: ${target.label}`,
         teks: target.aliranData,
         konsep: `Modul ${target.divisi}`,
       });
@@ -606,16 +606,16 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
             toast={toast}
             stats={
               <>
-                <HudChip tone={hud.time <= 10 ? "red" : "dark"} pulse={hud.time <= 10 && running}><Timer />{Math.ceil(hud.time)}s</HudChip>
-                <HudChip tone="gold"><Sparkles />{hud.points}</HudChip>
-                {hud.combo > 1 && <HudChip tone="green"><Flame />×{hud.combo}</HudChip>}
-                <HudChip><Flag />{next}/{ROUTE.length}</HudChip>
-                <HudChip><Package />{hud.packets}</HudChip>
+                <HudChip tone={hud.time <= 10 ? "red" : "dark"} pulse={hud.time <= 10 && running}><IconTimer />{Math.ceil(hud.time)}s</HudChip>
+                <HudChip tone="gold"><IconCoins />{hud.points}</HudChip>
+                {hud.combo > 1 && <HudChip tone="green"><IconFire />×{hud.combo}</HudChip>}
+                <HudChip><IconFlag />{next}/{ROUTE.length}</HudChip>
+                <HudChip><IconPackage />{hud.packets}</HudChip>
                 <HudMeter label={hud.nitro ? "NITRO AKTIF!" : "NITRO · SPASI"} value={hud.fuel} tone={hud.fuel > 30 ? "green" : "red"} />
-                <HudChip><Gauge />{Math.round(Math.abs(hud.speed) * 5)} km/j</HudChip>
+                <HudChip><IconGauge />{Math.round(Math.abs(hud.speed) * 5)} km/j</HudChip>
               </>
             }
-            prompt={next >= ROUTE.length && !ending ? <>Semua modul terlewati — ngebut ke garis finis!</> : undefined}
+            prompt={next >= ROUTE.length && !ending ? <>Semua modul terlewati, ngebut ke garis finis!</> : undefined}
           />
           {showHint && (
             <HintCard>

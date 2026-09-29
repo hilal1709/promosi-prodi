@@ -1,22 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ComponentType, type CSSProperties, type ReactNode } from "react";
-import {
-  ArrowRight,
-  BarChart3,
-  Briefcase,
-  Check,
-  Database,
-  Flame,
-  GraduationCap,
-  Heart,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  Timer,
-  X,
-} from "lucide-react";
+import { IconArrowRight, IconCheck, IconFire, IconHeart, IconStar, IconTimer, IconX } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
+import { TrackIllustration } from "@/components/illustrations/track-illustration";
+import { useGameSound } from "@/components/game/use-game-audio";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { CURRICULUM } from "@/lib/data/curriculum";
@@ -29,9 +17,9 @@ export type OnMissionComplete = (performance: number, affinity: Affinity) => voi
 export type LevelProps = { onFinish: (score: number) => void };
 
 export const MISSION_THEME = {
-  "it-audit": { color: "#e54b4b", soft: "#fce0dc", ink: "#ffffff", Icon: ShieldCheck },
-  "enterprise-system": { color: "#ffa987", soft: "#fff0ea", ink: "#1e1e24", Icon: Database },
-  "data-science": { color: "#444140", soft: "#eee9e7", ink: "#ffffff", Icon: BarChart3 },
+  "it-audit": { color: "#e54b4b", soft: "#fce0dc", ink: "#ffffff" },
+  "enterprise-system": { color: "#ffa987", soft: "#fff0ea", ink: "#1e1e24" },
+  "data-science": { color: "#444140", soft: "#eee9e7", ink: "#ffffff" },
 } as const;
 
 export function clampPercent(value: number) {
@@ -62,7 +50,7 @@ function Stars({ count, size = "h-6 w-6" }: { count: number; size?: string }) {
   return (
     <span className="inline-flex gap-1" aria-label={`${count} dari 3 bintang`}>
       {[0, 1, 2].map((index) => (
-        <Star
+        <IconStar
           key={index}
           className={cn(size, index < count ? "fill-brand-gold text-brand-gold" : "text-border")}
         />
@@ -128,7 +116,7 @@ export function MissionIntro({
                 onClick={() => (lastLine ? onStart() : setLine((value) => value + 1))}
                 className="inline-flex items-center gap-1.5 rounded-full bg-brand-gold px-4 py-1.5 text-sm font-black text-brand-navy transition hover:brightness-105"
               >
-                {lastLine ? "Mulai misi" : "Lanjut"} <ArrowRight className="h-4 w-4" />
+                {lastLine ? "Mulai misi" : "Lanjut"} <IconArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -170,20 +158,20 @@ export function MissionHud({
           )}
           aria-label={`Sisa waktu ${timeLeft} detik`}
         >
-          <Timer className="h-3.5 w-3.5" /> {timeLeft}s
+          <IconTimer className="h-3.5 w-3.5" /> {timeLeft}s
         </span>
       )}
       {lives !== undefined && (
         <span className="inline-flex items-center gap-0.5 rounded-full bg-card px-2.5 py-1.5 ring-1 ring-border" aria-label={`Nyawa ${lives} dari ${maxLives}`}>
           {Array.from({ length: maxLives }, (_, index) => (
-            <Heart key={index} className={cn("h-3.5 w-3.5", index < lives ? "fill-track-audit text-track-audit" : "text-border")} />
+            <IconHeart key={index} className={cn("h-3.5 w-3.5", index < lives ? "fill-track-audit text-track-audit" : "text-border")} />
           ))}
         </span>
       )}
       {progress && <span className="rounded-full bg-card px-3 py-1.5 ring-1 ring-border">{progress}</span>}
       {combo !== undefined && combo >= 2 && (
         <span key={combo} className="mission-pop inline-flex items-center gap-1 rounded-full bg-brand-gold px-3 py-1.5 text-brand-navy">
-          <Flame className="h-3.5 w-3.5" /> Combo ×{combo}
+          <IconFire className="h-3.5 w-3.5" /> Combo ×{combo}
         </span>
       )}
     </div>
@@ -220,7 +208,14 @@ export function LevelShell({
 
 export type Feedback = { ok: boolean; judul: string; teks: string; konsep?: string } | null;
 
-export function FeedbackToast({ feedback }: { feedback: Feedback }) {
+/** `silent` dipakai dunia 3D, yang sudah membunyikan benar/salah sendiri dari logika levelnya. */
+export function FeedbackToast({ feedback, silent = false }: { feedback: Feedback; silent?: boolean }) {
+  const sound = useGameSound();
+  const cue = feedback ? `${feedback.ok}|${feedback.judul}|${feedback.teks}` : "";
+  useEffect(() => {
+    if (!silent && cue) sound(cue.startsWith("true") ? "success" : "error");
+  }, [cue, silent, sound]);
+
   return (
     <div aria-live="polite" className="min-h-[1px]">
       {feedback && (
@@ -232,7 +227,7 @@ export function FeedbackToast({ feedback }: { feedback: Feedback }) {
           )}
         >
           <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white", feedback.ok ? "bg-emerald-600" : "bg-track-audit")}>
-            {feedback.ok ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+            {feedback.ok ? <IconCheck className="h-3.5 w-3.5" /> : <IconX className="h-3.5 w-3.5" />}
           </span>
           <div className="min-w-0">
             <p className="font-black">
@@ -264,14 +259,19 @@ export function LevelComplete({
   isLast?: boolean;
   onNext: () => void;
 }) {
+  const sound = useGameSound();
+  useEffect(() => {
+    sound("levelComplete");
+  }, [sound]);
+
   return (
     <div className="mission-pop mt-4 rounded-3xl bg-brand-navy p-5 text-center text-white">
       {reason && <p className="text-xs font-black tracking-[0.15em] text-brand-gold">{reason.toUpperCase()}</p>}
       <div className="mt-2 flex justify-center"><Stars count={starsFor(score)} size="h-8 w-8" /></div>
       <p className="mt-2 text-3xl font-black tabular-nums">{score}<span className="text-base text-white/60">/100</span></p>
       {detail && <p className="mx-auto mt-1 max-w-md text-sm text-white/70">{detail}</p>}
-      <Button onClick={onNext} className="mt-4 bg-brand-gold text-brand-navy hover:bg-brand-gold/90">
-        {isLast ? "Lihat hasil misi" : "Level berikutnya"} <ArrowRight className="h-4 w-4" />
+      <Button onClick={() => { sound("click"); onNext(); }} className="mt-4 bg-brand-gold text-brand-navy hover:bg-brand-gold/90">
+        {isLast ? "Lihat hasil misi" : "Level berikutnya"} <IconArrowRight className="h-4 w-4" />
       </Button>
     </div>
   );
@@ -281,7 +281,6 @@ export function AffinityStep({ performance, onComplete }: { performance: number;
   return (
     <div className="mt-5 rounded-3xl bg-brand-navy p-5 text-white">
       <div className="flex items-start gap-3">
-        <Sparkles className="mt-0.5 h-5 w-5 text-brand-gold" />
         <div>
           <p className="font-black">Misi selesai · skor {performance}</p>
           <p className="mt-1 text-sm leading-relaxed text-white/70">Seberapa cocok aktivitas ini dengan hal yang ingin kamu pelajari?</p>
@@ -331,22 +330,22 @@ export function LearningCard({
         </div>
       </div>
       <div className="rounded-3xl border border-border bg-card p-5">
-        <p className="flex items-center gap-2 font-black"><Sparkles className="h-4 w-4 text-brand-gold" /> Yang barusan kamu pelajari</p>
+        <p className="font-black">Yang barusan kamu pelajari</p>
         <ul className="mt-3 grid gap-2 text-sm leading-relaxed">
           {brief.pelajaran.map((item) => (
-            <li key={item} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />{item}</li>
+            <li key={item} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" />{item}</li>
           ))}
         </ul>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-3xl border border-border bg-card p-4">
-          <p className="flex items-center gap-2 text-sm font-black"><GraduationCap className="h-4 w-4" /> Mata kuliah terkait</p>
+          <p className="text-sm font-black">Mata kuliah terkait</p>
           <ul className="mt-2 grid gap-1 text-sm text-muted-foreground">
             {CURRICULUM[missionId].mataKuliahInti.slice(0, 3).map((item) => <li key={item}>• {item}</li>)}
           </ul>
         </div>
         <div className="rounded-3xl border border-border bg-card p-4">
-          <p className="flex items-center gap-2 text-sm font-black"><Briefcase className="h-4 w-4" /> Contoh profesi</p>
+          <p className="text-sm font-black">Contoh profesi</p>
           <ul className="mt-2 grid gap-1 text-sm text-muted-foreground">
             {TRACKS[missionId].prospekKarier.slice(0, 3).map((item) => <li key={item}>• {item}</li>)}
           </ul>
@@ -374,6 +373,8 @@ export function MissionRunner({
   const performance = clampPercent(scores.reduce((sum, value) => sum + value, 0) / levels.length);
   const Level = !done && stage >= 0 ? levels[stage] : null;
 
+  const sound = useGameSound();
+
   const finishLevel = (score: number) => {
     setScores((current) => [...current, clampPercent(score)]);
     setStage((current) => current + 1);
@@ -382,9 +383,7 @@ export function MissionRunner({
   return (
     <div className="min-w-0" style={{ "--mission": theme.color, "--mission-soft": theme.soft, "--mission-ink": theme.ink } as CSSProperties}>
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl" style={{ background: theme.color, color: theme.ink }}>
-          <theme.Icon className="h-5 w-5" />
-        </span>
+        <TrackIllustration id={missionId} className="h-12 w-12" />
         <div>
           <p className="text-xs font-black tracking-[0.15em] text-muted-foreground">{brief.kicker}</p>
           <h2 className="text-xl font-black text-foreground sm:text-2xl">{brief.judul}</h2>
@@ -392,7 +391,7 @@ export function MissionRunner({
       </div>
       <Progress value={done ? 100 : (Math.max(0, stage) / levels.length) * 100} className="mt-4 h-2.5" indicatorClassName="bg-brand-gold" />
 
-      {stage === -1 && <MissionIntro missionId={missionId} onStart={() => setStage(0)} />}
+      {stage === -1 && <MissionIntro missionId={missionId} onStart={() => { sound("start"); setStage(0); }} />}
       {Level && <Level key={stage} onFinish={finishLevel} />}
       {done && (
         <>

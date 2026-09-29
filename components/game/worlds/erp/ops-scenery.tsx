@@ -441,7 +441,7 @@ const ErpOffice = memo(function ErpOffice({ dashRef }: { dashRef: RefObject<Dash
     g.fillRect(18, 214, 300, 50);
     g.fillStyle = "#ffffff";
     g.font = "900 20px system-ui, sans-serif";
-    g.fillText(d.alarm ? "⚠ ALARM · CEK TERMINAL" : "✓ SEMUA MODUL SINKRON", 30, 246);
+    g.fillText(d.alarm ? "ALARM · CEK TERMINAL" : "SEMUA MODUL SINKRON", 30, 246);
     const map = screenMat.current?.map;
     if (map) map.needsUpdate = true;
   });

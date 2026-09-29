@@ -1,4 +1,4 @@
-import { Quote } from "lucide-react";
+import { IconQuote } from "@/components/ui/icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getTrack } from "@/lib/data/tracks";
@@ -18,7 +18,7 @@ export default function TestimonialCard({ testimonial }: { testimonial: Testimon
   return (
     <Card className="h-full">
       <CardContent className="flex h-full flex-col p-6">
-        <Quote className="h-6 w-6 text-muted-foreground/40" />
+        <IconQuote className="h-6 w-6 text-muted-foreground/40" />
         <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground">&quot;{testimonial.kutipan}&quot;</p>
         <div className="mt-5 flex items-center gap-3">
           <Avatar>

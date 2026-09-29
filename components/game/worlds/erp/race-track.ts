@@ -71,7 +71,7 @@ export function nearestIndex(position: THREE.Vector3, hint: number) {
 
 /**
  * Apakah perjalanan MAJU dari indeks `from` ke `to` melewati indeks `mark`.
- * Gerak mundur tidak pernah dihitung — sebelumnya setiap kali truk mundur
+ * Gerak mundur tidak pernah dihitung, sebelumnya setiap kali truk mundur
  * (rem/tabrak), gerbang di depan langsung dianggap terlewati.
  */
 export function crossed(from: number, to: number, mark: number) {
@@ -176,7 +176,7 @@ export const PADDIES: Paddy[] = (() => {
   return list;
 })();
 
-/** 0..1 — seberapa dalam titik berada di petak sawah (dengan tepi halus). */
+/** 0..1, seberapa dalam titik berada di petak sawah (dengan tepi halus). */
 export function paddyMask(x: number, z: number) {
   let mask = 0;
   for (const p of PADDIES) {

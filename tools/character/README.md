@@ -22,6 +22,19 @@ blender -b -P tools/character/build_characters.py -- --avatar arga --preview /tm
 blender -b -P tools/character/build_characters.py -- --avatar nara --preview /tmp/preview
 ```
 
+Then compress each export for the web (textures capped at 1024 px, meshopt
+geometry/animation). The game loads meshopt through drei's `useGLTF`, and this
+roughly halves the download and cuts GPU texture memory by ~4x on the skin:
+
+```bash
+npx @gltf-transform/cli resize public/characters/arga.glb /tmp/a1.glb --width 1024 --height 1024
+npx @gltf-transform/cli webp /tmp/a1.glb /tmp/a2.glb
+npx @gltf-transform/cli meshopt /tmp/a2.glb public/characters/arga.glb
+```
+
+Avoid `gltf-transform optimize`: its join/simplify steps restructure the
+skinned meshes.
+
 `--preview DIR` renders front/side/back/walk/face PNGs for checking against
 the portraits; `--hair <asset>` swaps the hairstyle while auditioning.
 

@@ -2,23 +2,21 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, Share2, Check, ShieldCheck, Boxes, ChartSpline } from "lucide-react";
+import { IconArrowRight, IconCheck, IconShare } from "@/components/ui/icons";
+import { TrackIllustration } from "@/components/illustrations/track-illustration";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import RevealCard from "@/components/gsap/reveal-card";
 import { getTrack } from "@/lib/data/tracks";
 import type { JalurId } from "@/lib/types";
 
-const TRACK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { ShieldCheck, Boxes, ChartSpline };
-
 export default function ResultCard({ jalur }: { jalur: JalurId }) {
   const track = getTrack(jalur);
-  const Icon = TRACK_ICONS[track.icon] ?? Boxes;
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
     const shareData = {
-      title: "Hasil Kuis Pilih Jalurmu — SISFOR UISI",
+      title: "Hasil Kuis Pilih Jalurmu · SISFOR UISI",
       text: `Hasil kuisku: ${track.nama}! Cari tahu jalur SI yang cocok buatmu juga di SISFOR UISI.`,
       url: typeof window !== "undefined" ? window.location.origin + "/kuis" : "",
     };
@@ -47,15 +45,7 @@ export default function ResultCard({ jalur }: { jalur: JalurId }) {
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
             Hasil Kuis Pilih Jalurmu
           </p>
-          <div
-            className="mx-auto mt-5 flex h-20 w-20 items-center justify-center rounded-2xl"
-            style={{
-              backgroundColor: `var(--color-${track.warna}-soft)`,
-              color: `var(--color-${track.warna}-foreground)`,
-            }}
-          >
-            <Icon className="h-10 w-10" />
-          </div>
+          <TrackIllustration id={track.id} className="mx-auto mt-5 h-28 w-28" />
           <h2 className="mt-5 text-2xl font-extrabold sm:text-3xl">{track.nama}</h2>
           <p className="mt-2 font-semibold text-muted-foreground">{track.tagline}</p>
           <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground sm:text-base">
@@ -65,11 +55,11 @@ export default function ResultCard({ jalur }: { jalur: JalurId }) {
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
               <Link href={`/ruang-kerja/${track.id}`}>
-                Masuk ke Ruang Kerja Digital <ArrowRight className="h-4 w-4" />
+                Masuk ke Ruang Kerja Digital <IconArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" onClick={handleShare}>
-              {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+              {copied ? <IconCheck className="h-4 w-4" /> : <IconShare className="h-4 w-4" />}
               {copied ? "Tersalin!" : "Bagikan Hasil"}
             </Button>
           </div>

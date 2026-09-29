@@ -55,6 +55,6 @@ export const FAQ_ITEMS: FaqItem[] = [
     kategori: "PMB",
     pertanyaan: "Apakah lulusan SMK boleh mendaftar ke Sistem Informasi?",
     jawaban:
-      "Boleh. Program Studi Sistem Informasi terbuka untuk lulusan SMA/MA semua jurusan maupun SMK, khususnya yang berlatar belakang RPL, TKJ, atau jurusan bisnis/manajemen — karena pola pikir logis dan pemahaman proses bisnis sama-sama dibutuhkan di sini.",
+      "Boleh. Program Studi Sistem Informasi terbuka untuk lulusan SMA/MA semua jurusan maupun SMK, khususnya yang berlatar belakang RPL, TKJ, atau jurusan bisnis/manajemen, karena pola pikir logis dan pemahaman proses bisnis sama-sama dibutuhkan di sini.",
   },
 ];

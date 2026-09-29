@@ -117,7 +117,7 @@ button, a, input { font: inherit; }
 .game-start-orb-a { width: 28rem; height: 28rem; right: -8rem; top: -10rem; background: radial-gradient(circle at 35% 35%, #ffd4c3, var(--brand-gold) 36%, transparent 69%); }
 .game-start-orb-b { width: 22rem; height: 22rem; left: -11rem; bottom: -10rem; background: radial-gradient(circle at 60% 40%, #f58a8a, var(--brand-red) 48%, transparent 70%); }
 .game-start-card { position: relative; z-index: 2; max-width: 48rem; }
-.game-brand-mark { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 1.1rem; color: var(--brand-navy); background: var(--brand-gold); box-shadow: 0 20px 50px rgba(242,177,52,.24); }
+.game-brand-mark { display: block; width: 3.5rem; height: 3.5rem; border-radius: 1.1rem; box-shadow: 0 20px 50px rgba(242,177,52,.24); }
 .game-eyebrow { margin: 1.15rem 0 0; font-size: .72rem; font-weight: 900; letter-spacing: .19em; color: var(--brand-gold); }
 .game-start-card h1 { margin: 1rem 0 0; font-size: clamp(2.75rem, 6vw, 5.7rem); line-height: .96; letter-spacing: -.055em; font-weight: 950; text-wrap: balance; }
 .game-start-card h1 span { color: var(--brand-gold); }
@@ -171,9 +171,25 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .game-viewport canvas { display: block; width: 100%; height: 100%; outline: none; }
 .game-keyboard-hint { position: absolute; z-index: 8; left: 1rem; bottom: 1rem; display: flex; align-items: center; gap: .55rem; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; padding: .45rem .75rem .45rem .5rem; color: white; background: rgba(6,26,48,.84); box-shadow: 0 12px 30px rgba(6,26,48,.18); backdrop-filter: blur(12px); font-size: .72rem; font-weight: 800; }
 .game-keyboard-hint kbd { color: var(--brand-navy); background: var(--brand-gold); border-color: #dc8b6b; }
-.game-loading { display: grid; height: 100%; place-items: center; align-content: center; gap: 1rem; color: white; background: radial-gradient(circle at 50% 20%, #444140, var(--brand-navy)); }
-.game-loader { width: 2.5rem; height: 2.5rem; border: 4px solid rgba(255,255,255,.25); border-top-color: var(--brand-gold); border-radius: 999px; animation: game-spin .8s linear infinite; }
+/* Layar muat bermerek (components/game/game-loader.tsx). */
+.game-loading { display: grid; height: 100%; place-items: center; align-content: center; gap: .9rem; padding: 1.5rem; text-align: center; color: white; background: radial-gradient(circle at 50% 30%, #444140, var(--brand-navy) 62%); }
+.game-loading.is-overlay { position: absolute; inset: 0; z-index: 38; transition: opacity .45s ease; }
+.game-loading.is-done { opacity: 0; pointer-events: none; }
+.game-loading.world-loading { position: fixed; inset: 0; z-index: 60; }
+.game-loading > strong { font-size: .95rem; font-weight: 900; letter-spacing: .01em; }
+.game-loader-mark { position: relative; display: grid; width: 5.5rem; height: 5.5rem; place-items: center; margin-bottom: .35rem; }
+.game-loader-mark img { width: 3.3rem; height: 3.3rem; border-radius: 1rem; box-shadow: 0 14px 34px rgb(255 169 135 / .28); animation: loader-bob 1.8s ease-in-out infinite; }
+.game-loader-orbit { position: absolute; inset: 0; border-radius: 999px; border: 3px solid rgb(255 255 255 / .1); border-top-color: var(--brand-gold); border-right-color: var(--brand-red); animation: game-spin 1.1s cubic-bezier(.55, .15, .45, .85) infinite; }
+.game-loader-orbit::after { content: ""; position: absolute; top: .3rem; right: .55rem; width: .6rem; height: .6rem; border-radius: 999px; background: var(--brand-gold); box-shadow: 0 0 12px 2px rgb(255 169 135 / .7); }
+.game-loader-bar { position: relative; width: min(15rem, 64vw); height: .45rem; overflow: hidden; border-radius: 999px; background: rgb(255 255 255 / .13); }
+.game-loader-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--brand-gold), var(--brand-red)); transition: width .35s ease; }
+.game-loader-bar i.is-indeterminate { width: 38%; animation: loader-slide 1.25s ease-in-out infinite; }
+.game-loader-percent { margin-top: -.35rem; color: var(--brand-gold); font-size: .75rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.game-loader-tip { max-width: 19rem; min-height: 2.4em; color: rgb(255 255 255 / .62); font-size: .78rem; line-height: 1.45; animation: loader-tip .5s ease both; }
 @keyframes game-spin { to { transform: rotate(360deg); } }
+@keyframes loader-bob { 50% { transform: translateY(-4px) scale(1.04); } }
+@keyframes loader-slide { from { transform: translateX(-110%); } to { transform: translateX(275%); } }
+@keyframes loader-tip { from { opacity: 0; transform: translateY(4px); } }
 .game-world-label { min-width: 9.5rem; border: 2px solid; border-radius: 1rem; padding: .55rem .8rem; text-align: center; color: white; background: rgba(6,26,48,.88); box-shadow: 0 12px 30px rgba(6,26,48,.25); backdrop-filter: blur(8px); }
 .game-world-label span, .game-world-label strong { display: block; white-space: nowrap; }
 .game-world-label span { font-size: .56rem; font-weight: 950; letter-spacing: .13em; color: var(--brand-gold); }
@@ -183,7 +199,7 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .game-hud-identity { justify-self: start; display: flex; gap: .5rem; }
 .game-logo, .game-avatar-pill, .game-zone-pill, .game-hud-actions, .game-objective-card, .game-hud-bottom { color: white; background: rgba(6,26,48,.89); border: 1px solid rgba(255,255,255,.13); box-shadow: 0 16px 42px rgba(6,26,48,.2); backdrop-filter: blur(15px); }
 .game-logo { justify-self: start; display: flex; align-items: center; gap: .65rem; min-height: 3.1rem; padding: .5rem .9rem; border-radius: 1rem; pointer-events: auto; }
-.game-logo > svg { color: var(--brand-gold); }
+.game-logo-mark { width: 1.9rem; height: 1.9rem; border-radius: .55rem; }
 .game-logo span { font-size: .82rem; font-weight: 950; line-height: 1.05; }
 .game-logo small { display: block; margin-top: .22rem; color: rgba(255,255,255,.52); font-size: .52rem; letter-spacing: .15em; }
 .game-avatar-pill { display: flex; align-items: center; gap: .55rem; min-height: 3.1rem; border-radius: 1rem; padding: .3rem .75rem .3rem .3rem; pointer-events: auto; }
@@ -223,7 +239,9 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .lite-zone-card { display: flex; min-height: 13rem; flex-direction: column; align-items: flex-start; border: 1px solid rgba(255,255,255,.13); border-radius: 1.5rem; padding: 1.1rem; text-align: left; color: white; background: rgba(255,255,255,.07); }
 .lite-zone-card strong { margin-top: 1rem; font-size: 1rem; }
 .lite-zone-card small { margin-top: .35rem; color: rgba(255,255,255,.58); line-height: 1.45; }
-.lite-zone-icon { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; border-radius: .9rem; color: white; }
+.lite-zone-art { position: relative; display: inline-block; }
+.lite-zone-done { position: absolute; right: -.35rem; bottom: -.35rem; display: grid; width: 1.4rem; height: 1.4rem; place-items: center; border-radius: 999px; background: #16a34a; color: white; box-shadow: 0 0 0 2px var(--brand-navy); }
+.lite-zone-done svg { width: .8rem; height: .8rem; }
 .zone-it-audit { background: var(--track-audit); }
 .zone-enterprise-system { background: var(--track-erp); }
 .zone-data-science { background: var(--track-data); }
@@ -271,6 +289,37 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
   .game-hud-bottom button, .game-hud-bottom a { flex: 1; justify-content: center; padding: 0 .55rem; }
   .game-hud-bottom span { font-size: .68rem; }
   .game-help-grid { grid-template-columns: 1fr; }
+}
+
+/* Petunjuk kontrol: keyboard/mouse di desktop, sentuh di HP & tablet. */
+.hint-touch { display: none !important; }
+@media not all and (hover: hover) and (pointer: fine) {
+  .hint-pointer { display: none !important; }
+  .hint-touch { display: flex !important; }
+  .game-viewport canvas { touch-action: none; }
+  /* Tombol masuk gedung pindah ke kanan bawah, sejajar joystick, agar mudah diketuk jempol. */
+  .game-interact-prompt { left: auto; right: 1rem; bottom: 6.2rem; transform: none; max-width: calc(100vw - 10.5rem); min-height: 4.2rem; padding: .6rem 1.1rem; border-radius: 1.4rem; color: var(--brand-navy); background: var(--brand-gold); text-align: left; animation: mission-pop .28s cubic-bezier(.2, .9, .3, 1.3) both; }
+}
+
+/* Petunjuk WASD bertabrakan dengan bar bawah di jendela sempit; kontrol tetap ada di dialog Bantuan. */
+@media (max-width: 900px), (max-height: 520px) { .game-keyboard-hint { display: none; } }
+
+/* HP dalam posisi mendatar: layar pendek, jadi HUD dan kontrol dipadatkan. */
+@media (max-height: 520px) {
+  .game-hud-top { top: .5rem; left: .75rem; right: .75rem; }
+  .game-logo, .game-avatar-pill { min-height: 2.6rem; }
+  .game-zone-pill { padding: .5rem .85rem; }
+  .game-objective-card { top: 3.8rem; left: .75rem; width: 13.5rem; padding: .6rem .75rem; }
+  .game-objective-card .mt-3 { margin-top: .4rem; }
+  .game-hud-bottom { bottom: .5rem; }
+  .world-touch { bottom: .75rem; }
+  .world-joystick { width: 6rem; height: 6rem; }
+  .world-joystick span { width: 2.6rem; height: 2.6rem; margin: -1.3rem 0 0 -1.3rem; }
+  .world-touch-btn { min-width: 3.6rem; height: 3.6rem; }
+}
+@media (max-height: 520px) and (pointer: coarse) {
+  .game-interact-prompt { bottom: .75rem; min-height: 3.6rem; }
+  .world-prompt { bottom: 5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -341,6 +390,8 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .world-touch-btn:active { transform: scale(.94); }
 @media (hover: hover) and (pointer: fine) { .world-touch { display: none; } }
 @media (max-width: 640px) {
+  /* Beri ruang untuk tombol "Kembali ke kampus" agar tidak menutupi judul panel. */
+  .world-exit ~ .world-panel-wrap { padding-top: 3.6rem; }
   .world-hud-title strong { font-size: .8rem; }
   .world-chip { padding: .35rem .6rem; font-size: .7rem; }
   .world-meter { min-width: 5.5rem; }
@@ -379,7 +430,8 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
 .race-hint em { font-style: normal; color: #9fe8ff; }
 @keyframes race-float { from { opacity: 0; transform: translateY(10px) scale(.8); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } to { opacity: 0; transform: translateY(-40px) scale(1); } }
 .world-label.race-float { font-size: 1rem; font-weight: 900; animation: race-float 1.1s ease-out both; }
-@media (max-width: 640px) { .race-hint { top: 8.5rem; } .race-hint strong { font-size: .78rem; } }
+/* Posisi vertikal kartu di layar sempit diatur HintCard agar tidak menutupi HUD. */
+@media (max-width: 640px) { .race-hint strong { font-size: .78rem; } }
 
 /* Level Drone Integrasi */
 .drone-job { position: absolute; left: .75rem; top: 4.6rem; z-index: 30; width: min(17.5rem, calc(100% - 1.5rem)); border-radius: 1rem; background: rgb(16 19 26 / .8); padding: .6rem .8rem; backdrop-filter: blur(8px); pointer-events: none; font-size: .78rem; line-height: 1.35; }

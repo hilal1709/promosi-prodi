@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Clock, Search, ShieldCheck, ShieldX, X } from "lucide-react";
+import { IconCheck, IconClock, IconSearch, IconX } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -79,7 +79,7 @@ function GateLevel({ onFinish }: LevelProps) {
                   <p className="font-black">{request.nama}</p>
                   <p className="text-xs font-bold text-muted-foreground">{request.peran}</p>
                 </div>
-                <span className="ml-auto rounded-full bg-muted px-3 py-1 text-xs font-black tabular-nums"><Clock className="mr-1 inline h-3.5 w-3.5" />{request.jam}</span>
+                <span className="ml-auto rounded-full bg-muted px-3 py-1 text-xs font-black tabular-nums"><IconClock className="mr-1 inline h-3.5 w-3.5" />{request.jam}</span>
               </div>
               <dl className="mt-4 grid gap-2 text-sm">
                 <div className="rounded-2xl bg-track-audit-soft/60 p-3">
@@ -93,10 +93,10 @@ function GateLevel({ onFinish }: LevelProps) {
               </dl>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <Button onClick={() => decide(false)} className="h-12 bg-track-audit text-white hover:bg-track-audit/90">
-                  <ShieldX className="h-4 w-4" /> Tolak
+                  Tolak
                 </Button>
                 <Button onClick={() => decide(true)} className="h-12 bg-emerald-600 text-white hover:bg-emerald-700">
-                  <ShieldCheck className="h-4 w-4" /> Izinkan
+                  Izinkan
                 </Button>
               </div>
             </div>
@@ -186,7 +186,7 @@ function LogLevel({ onFinish }: LevelProps) {
                   <span className="truncate font-semibold">{log.pengguna}</span>
                   <span className="col-start-2 sm:col-start-auto">{log.aksi}</span>
                   <span className="col-start-2 flex items-center gap-1.5 text-muted-foreground sm:col-start-auto">
-                    {isFound && <Search className="h-3.5 w-3.5 shrink-0 text-track-audit" />}{log.detail}
+                    {isFound && <IconSearch className="h-3.5 w-3.5 shrink-0 text-track-audit" />}{log.detail}
                   </span>
                 </button>
               </li>
@@ -267,14 +267,14 @@ function ReportLevel({ onFinish }: LevelProps) {
                       submitted && recIndex === item.rekomendasiBenar && "border-emerald-500 bg-emerald-50"
                     )}
                   >
-                    {submitted && recIndex === item.rekomendasiBenar && <Check className="h-4 w-4 shrink-0 text-emerald-600" />}
+                    {submitted && recIndex === item.rekomendasiBenar && <IconCheck className="h-4 w-4 shrink-0 text-emerald-600" />}
                     {rec}
                   </button>
                 ))}
               </div>
               {submitted && (
                 <p className={cn("mt-3 flex gap-2 rounded-2xl p-3 text-sm", riskOk && recOk ? "bg-emerald-50 text-emerald-900" : "bg-muted")}>
-                  {riskOk && recOk ? <Check className="mt-0.5 h-4 w-4 shrink-0" /> : <X className="mt-0.5 h-4 w-4 shrink-0" />}
+                  {riskOk && recOk ? <IconCheck className="mt-0.5 h-4 w-4 shrink-0" /> : <IconX className="mt-0.5 h-4 w-4 shrink-0" />}
                   {item.penjelasan}
                 </p>
               )}

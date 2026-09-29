@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
-import { MessageCircle, X, Search, ChevronRight, ArrowLeft } from "lucide-react";
+import { IconArrowLeft, IconChat, IconChevronRight, IconSearch, IconX } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { fetchFaqItems } from "@/lib/data";
 import type { FaqItem } from "@/lib/types";
@@ -59,7 +59,7 @@ export default function ChatbotWidget() {
               <p className="text-[11px] opacity-80">FAQ PMB, Kurikulum & Beasiswa</p>
             </div>
             <button onClick={() => setOpen(false)} className="rounded-full p-1 hover:bg-white/10" aria-label="Tutup chatbot">
-              <X className="h-4.5 w-4.5" />
+              <IconX className="h-4.5 w-4.5" />
             </button>
           </div>
 
@@ -69,7 +69,7 @@ export default function ChatbotWidget() {
                 onClick={() => setSelected(null)}
                 className="mb-3 inline-flex items-center gap-1 text-xs font-semibold text-primary"
               >
-                <ArrowLeft className="h-3.5 w-3.5" /> Kembali
+                <IconArrowLeft className="h-3.5 w-3.5" /> Kembali
               </button>
               <p className="rounded-2xl rounded-tl-sm bg-secondary px-3 py-2 text-sm font-semibold text-secondary-foreground">
                 {selected.pertanyaan}
@@ -82,7 +82,7 @@ export default function ChatbotWidget() {
             <>
               <div className="border-b border-border p-3">
                 <div className="flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-2">
-                  <Search className="h-4 w-4 text-muted-foreground" />
+                  <IconSearch className="h-4 w-4 text-muted-foreground" />
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -127,7 +127,7 @@ export default function ChatbotWidget() {
                     className="flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left text-sm hover:bg-muted"
                   >
                     <span>{item.pertanyaan}</span>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <IconChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                   </button>
                 ))}
               </div>
@@ -144,7 +144,7 @@ export default function ChatbotWidget() {
         aria-label="Buka chatbot FAQ"
         className="ml-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-xl transition-transform hover:scale-105 active:scale-95"
       >
-        {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {open ? <IconX className="h-6 w-6" /> : <IconChat className="h-6 w-6" />}
       </button>
     </div>
   );

@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useRef, useState, type ReactNode, type RefObj
 import { useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { Check, Heart, Lock, Radar, Search, ShieldAlert, Timer, Zap } from "lucide-react";
+import { IconBolt, IconCheck, IconHeart, IconLock, IconScan, IconThreat, IconTimer, IconX } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
@@ -24,7 +24,6 @@ import {
   type DroneState,
 } from "./inspect-extras";
 import { DataCenterHall, DataCenterLights, Technician } from "./data-center";
-import { ArenaLevel } from "./hacker-arena";
 import { usePressReader, type WorldInput } from "../world-controls";
 import {
   clampDelta,
@@ -222,7 +221,7 @@ function OfficeProp({ item, revealed, status, secured }: { item: OfficeObject; r
       {body}
       {(revealed || status) && (
         <Label position={[0, 2.6, 0]} className={status === "ok" ? "is-green" : status === "bad" ? "is-red" : "is-gold"} distanceFactor={10}>
-          {secured ? "🔒 " : status === "ok" ? "✓ " : status === "bad" ? "✗ " : "? "}
+          {secured ? <IconLock className="mr-1 inline h-3 w-3 align-[-2px]" /> : status === "ok" ? <IconCheck className="mr-1 inline h-3 w-3 align-[-2px]" /> : status === "bad" ? <IconX className="mr-1 inline h-3 w-3 align-[-2px]" /> : "? "}
           {item.nama}
           {secured && " · diamankan"}
         </Label>
@@ -700,7 +699,7 @@ function InspectScene({
   );
 }
 
-function InspectLevel({ levelIndex, info, paused, quality, avatar, input, sound, onPause, onFinish }: WorldLevelProps) {
+export function InspectLevel({ levelIndex, info, paused, quality, avatar, input, sound, onPause, onFinish }: WorldLevelProps) {
   const player = useRef<THREE.Group>(null);
   const droneRef = useRef<DroneState>({ x: DRONE_PATH[0][0], z: DRONE_PATH[0][1], leg: 1, heading: Math.PI / 2, baseHeading: 0, wait: 0, pause: 0 });
   const bodyRef = useRef<Body>({ stamina: 100, moving: false, sprint: false, crouch: false, alert: 0 });
@@ -838,9 +837,9 @@ function InspectLevel({ levelIndex, info, paused, quality, avatar, input, sound,
             toast={stage ? null : toast}
             stats={
               <>
-                <HudChip tone={hud.left <= 20 ? "red" : "dark"} pulse={hud.left <= 20}><Timer />{Math.ceil(hud.left)}s</HudChip>
-                <HudChip tone="gold"><ShieldAlert />{found}/{VIOLATIONS} pelanggaran</HudChip>
-                {securedCount > 0 && <HudChip tone="green"><Lock />{securedCount} aman</HudChip>}
+                <HudChip tone={hud.left <= 20 ? "red" : "dark"} pulse={hud.left <= 20}><IconTimer />{Math.ceil(hud.left)}s</HudChip>
+                <HudChip tone="gold"><IconThreat />{found}/{VIOLATIONS} pelanggaran</HudChip>
+                {securedCount > 0 && <HudChip tone="green"><IconLock />{securedCount} aman</HudChip>}
                 <HudMeter label="PEMINDAI" value={hud.energy} tone={hud.energy < 35 ? "red" : "gold"} />
                 <HudMeter label="STAMINA" value={hud.stamina} tone={hud.stamina < 25 ? "red" : "green"} />
                 {hud.alert > 1 && <HudMeter label="KETAHUAN!" value={hud.alert} tone="red" />}
@@ -854,21 +853,21 @@ function InspectLevel({ levelIndex, info, paused, quality, avatar, input, sound,
             buttons={[
               { holdKey: "c", label: "Jongkok", tone: "light" },
               { holdKey: "shift", label: "Lari", tone: "light" },
-              { press: "action", label: <Radar className="h-6 w-6" /> },
+              { press: "action", label: <IconScan className="h-6 w-6" /> },
               { press: "interact", label: "Periksa" },
             ]}
           />
           {item && stage && !ended && (
             <div className="world-overlay-card mission-pop">
-              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground"><Search className="h-4 w-4" /> HASIL PEMERIKSAAN</p>
+              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground">HASIL PEMERIKSAAN</p>
               <p className="mt-1 text-lg font-black">{item.nama}</p>
               <p className="mt-2 rounded-2xl bg-card p-3 text-sm leading-relaxed ring-1 ring-border">{item.detail}</p>
               {stage.step === "decide" && (
                 <>
                   <p className="mt-3 text-sm font-bold">Apakah ini pelanggaran kontrol?</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    <Button onClick={() => decide(true)} className="bg-track-audit text-white hover:bg-track-audit/90"><ShieldAlert className="h-4 w-4" /> Pelanggaran</Button>
-                    <Button onClick={() => decide(false)} className="bg-emerald-600 text-white hover:bg-emerald-700"><Check className="h-4 w-4" /> Aman</Button>
+                    <Button onClick={() => decide(true)} className="bg-track-audit text-white hover:bg-track-audit/90">Pelanggaran</Button>
+                    <Button onClick={() => decide(false)} className="bg-emerald-600 text-white hover:bg-emerald-700">Aman</Button>
                   </div>
                 </>
               )}
@@ -882,7 +881,7 @@ function InspectLevel({ levelIndex, info, paused, quality, avatar, input, sound,
                   )}
                   <p className="mt-3 text-sm font-bold">Tindak lanjut sekarang? (+6 detik & skor bila berhasil)</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    <Button onClick={() => setStage({ id: item.id, step: "secure" })} className="bg-brand-gold text-brand-navy hover:bg-brand-gold/90"><Lock className="h-4 w-4" /> {item.aksi ?? "Amankan"}</Button>
+                    <Button onClick={() => setStage({ id: item.id, step: "secure" })} className="bg-brand-gold text-brand-navy hover:bg-brand-gold/90">{item.aksi ?? "Amankan"}</Button>
                     <Button variant="outline" onClick={() => setStage(null)}>Lewati</Button>
                   </div>
                 </>
@@ -1152,7 +1151,7 @@ function FirewallScene({
   );
 }
 
-function FirewallLevel({ levelIndex, info, paused, quality, avatar, sound, onPause, onFinish }: WorldLevelProps) {
+export function FirewallLevel({ levelIndex, info, paused, quality, avatar, sound, onPause, onFinish }: WorldLevelProps) {
   const live = useRef({ left: FIREWALL_TIME, elapsed: 0, spawnIn: 0.8, uid: 0, lastLane: -1, lives: FIREWALL_LIVES, ended: false, deck: [] as FirewallPacket[] });
   const speedRef = useRef(firewallPace(0).speed);
   const flashRef = useRef(0);
@@ -1264,28 +1263,26 @@ function FirewallLevel({ levelIndex, info, paused, quality, avatar, sound, onPau
             toast={phase === "play" ? toast : null}
             stats={
               <>
-                <HudChip tone={left <= 10 ? "red" : "dark"} pulse={left <= 10}><Timer />{Math.ceil(left)}s</HudChip>
-                <HudChip>{Array.from({ length: FIREWALL_LIVES }, (_, i) => <Heart key={i} className={i < lives ? "fill-current text-track-audit" : "opacity-30"} />)}</HudChip>
-                <HudChip tone="gold"><ShieldAlert />{stats.blocked} diblokir</HudChip>
-                {combo > 1 && <HudChip tone="green"><Zap />Combo x{combo}</HudChip>}
+                <HudChip tone={left <= 10 ? "red" : "dark"} pulse={left <= 10}><IconTimer />{Math.ceil(left)}s</HudChip>
+                <HudChip>{Array.from({ length: FIREWALL_LIVES }, (_, i) => <IconHeart key={i} className={i < lives ? "fill-current text-track-audit" : "opacity-30"} />)}</HudChip>
+                <HudChip tone="gold"><IconThreat />{stats.blocked} diblokir</HudChip>
+                {combo > 1 && <HudChip tone="green"><IconBolt />Combo x{combo}</HudChip>}
               </>
             }
           />
           {phase === "intro" && (
             <div className="world-overlay-card mission-pop">
-              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground"><ShieldAlert className="h-4 w-4" /> CARA MAIN</p>
+              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground">CARA MAIN</p>
               <p className="mt-1 text-lg font-black">Kamu penjaga firewall server database</p>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 Paket data meluncur menuju server. Baca labelnya, lalu <b className="text-foreground">klik/ketuk paket yang mencurigakan</b> untuk memblokirnya. Aktivitas normal biarkan lewat.
               </p>
               <div className="mt-3 grid gap-2 text-sm">
                 <div className="flex items-center gap-2 rounded-2xl bg-track-audit-soft p-2.5">
-                  <ShieldAlert className="h-4 w-4 shrink-0 text-track-audit" />
                   <span className="flex-1"><b>lala.intern</b> · Ekspor 12.000 data → USB</span>
                   <span className="rounded-full bg-track-audit px-2 py-0.5 text-xs font-black text-white">BLOKIR</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 p-2.5">
-                  <Check className="h-4 w-4 shrink-0 text-emerald-600" />
                   <span className="flex-1"><b>hendra.gdg</b> · Cek stok semen 08.40</span>
                   <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-black text-white">BIARKAN</span>
                 </div>
@@ -1328,5 +1325,3 @@ function FirewallLevel({ levelIndex, info, paused, quality, avatar, sound, onPau
     </WorldStage>
   );
 }
-
-export const AUDIT_LEVELS = [InspectLevel, FirewallLevel, ArenaLevel];

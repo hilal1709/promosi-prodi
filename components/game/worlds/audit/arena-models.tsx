@@ -126,7 +126,7 @@ function makeAlertScreen(seed: number) {
     ctx.strokeRect(6, 6, 500, 244);
     ctx.font = "bold 34px monospace";
     ctx.fillStyle = seed % 2 ? "#ff4f8b" : "#ffd166";
-    ctx.fillText(seed % 2 ? "⚠ INTRUSION DETECTED" : "FIREWALL · ONLINE", 26, 58);
+    ctx.fillText(seed % 2 ? "! INTRUSION DETECTED !" : "FIREWALL · ONLINE", 26, 58);
     ctx.font = "18px monospace";
     let s = seed * 97 + 13;
     for (let i = 0; i < 8; i++) {
@@ -192,7 +192,7 @@ function Portal({ angle }: { angle: number }) {
   );
 }
 
-/** Aula data center melingkar tertutup: dinding tinggi, dua lapis rak, layar peringatan — tidak ada tepi dunia. */
+/** Aula data center melingkar tertutup: dinding tinggi, dua lapis rak, layar peringatan, tidak ada tepi dunia. */
 export const ArenaHall = memo(function ArenaHall() {
   const floor = useMemo(() => makeArenaFloor(), []);
   const grating = useMemo(() => makeGrating(), []);

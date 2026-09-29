@@ -17,6 +17,10 @@ export type TrackScore = Record<JalurId, number>;
 export interface AudioSettings {
   muted: boolean;
   volume: number;
+  /** Volume musik latar relatif terhadap master (0–1). */
+  music: number;
+  /** Volume efek suara relatif terhadap master (0–1). */
+  sfx: number;
 }
 
 export interface GameProgress {
@@ -36,7 +40,7 @@ export interface TrackMeta {
   singkatan: string;
   tagline: string;
   deskripsi: string;
-  icon: string; // nama lucide-react icon
+  icon: string; // tidak dipakai lagi untuk tampilan; identitas jalur memakai TrackIllustration
   warna: string; // css var color token, mis. "track-audit"
   prospekKarier: string[];
 }

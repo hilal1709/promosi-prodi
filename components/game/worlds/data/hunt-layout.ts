@@ -4,7 +4,7 @@ import { DATA_CUBES } from "@/lib/data/worlds";
 import { fbm, seeded } from "../erp/race-track";
 
 /* ------------------------------------------------------------------ */
-/* Lembah Data — tata letak deterministik untuk Level 1 Data Science    */
+/* Lembah Data, tata letak deterministik untuk Level 1 Data Science    */
 /* ------------------------------------------------------------------ */
 
 export type XZ = { x: number; z: number };
@@ -84,7 +84,7 @@ export function streamDistance(x: number, z: number) {
   return polyDistance(x, z, STREAM);
 }
 
-/** Ketinggian tanah — cekungan landai di tengah, bukit & pegunungan melingkar di tepi. */
+/** Ketinggian tanah, cekungan landai di tengah, bukit & pegunungan melingkar di tepi. */
 export function terrainHeight(x: number, z: number) {
   const r = Math.hypot(x, z);
   let h = 2.6 + (fbm(x * 0.018 + 7, z * 0.018 - 3, 3) - 0.5) * 4.6;

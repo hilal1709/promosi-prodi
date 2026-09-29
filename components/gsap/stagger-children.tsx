@@ -15,7 +15,7 @@ interface StaggerChildrenProps {
 
 /**
  * Membungkus grid/list (mis. menu Ruang Kerja Digital) dan menganimasikannya
- * muncul satu per satu (stagger) setiap kali `deps` berubah — dipakai saat
+ * muncul satu per satu (stagger) setiap kali `deps` berubah, dipakai saat
  * pengguna berpindah jalur supaya menu terasa "reload" secara halus.
  */
 export default function StaggerChildren({

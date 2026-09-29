@@ -53,7 +53,7 @@ const clamp = THREE.MathUtils.clamp;
 const pick = <T,>(list: T[], r: number) => list[Math.floor(r * list.length) % list.length];
 
 /* ------------------------------------------------------------------ */
-/* Langit tropis pagi — warna cakrawala = warna kabut (batas tak terlihat) */
+/* Langit tropis pagi, warna cakrawala = warna kabut (batas tak terlihat) */
 /* ------------------------------------------------------------------ */
 
 export const RIVER_HORIZON = "#e3ead6";

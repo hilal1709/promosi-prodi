@@ -3,7 +3,7 @@ import type { Achievement } from "@/lib/types";
 export const ACHIEVEMENTS: Achievement[] = [
   {
     id: "a1",
-    judul: "Finalis GEMASTIK — Divisi Penambangan Data",
+    judul: "Finalis GEMASTIK · Divisi Penambangan Data",
     deskripsi:
       "Tim mahasiswa Sistem Informasi UISI lolos ke babak final kompetisi teknologi mahasiswa tingkat nasional GEMASTIK.",
     tahun: 2025,
@@ -17,7 +17,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: "a3",
-    judul: "Best Paper — Seminar Nasional Sistem Informasi",
+    judul: "Best Paper · Seminar Nasional Sistem Informasi",
     deskripsi:
       "Riset mahasiswa tentang tata kelola keamanan data terpilih sebagai salah satu makalah terbaik di seminar nasional.",
     tahun: 2024,

@@ -4,7 +4,7 @@ import { CHART_QUESTIONS, INSIGHT_QUESTIONS } from "@/lib/data/missions";
 import { fbm, seeded } from "../erp/race-track";
 
 /* ------------------------------------------------------------------ */
-/* Kepulauan Insight — tata letak deterministik Level 3 Data Science     */
+/* Kepulauan Insight, tata letak deterministik Level 3 Data Science     */
 /* ------------------------------------------------------------------ */
 
 export type XZ = { x: number; z: number };
@@ -252,23 +252,23 @@ function forecastFor(k: number): Forecast {
   let opsi: ForecastOption[];
   if (label === "Barokah") {
     opsi = [
-      { jumlah: 0, label: "0 sak — datanya nol, berarti tidak laku", benar: false, penjelasan: "Hati-hati! Angka nol bukan berarti tidak ada permintaan. Kiriman ke Barokah terputus karena kapal suplai kandas — stoknya yang kosong." },
-      { jumlah: 125, label: "125 sak — stok normal, permintaan tetap ada", benar: true, penjelasan: "Tepat! Penjualan nol karena stok kosong (kapal suplai kandas), bukan tidak laku. Pulihkan pasokan setara toko sejenis." },
-      { jumlah: 15, label: "15 sak — coba sedikit dulu", benar: false, penjelasan: "Terlalu sedikit. Pelanggan Barokah sudah menunggu 3 minggu — toko akan kehabisan lagi dalam sehari." },
+      { jumlah: 0, label: "0 sak: datanya nol, berarti tidak laku", benar: false, penjelasan: "Hati-hati! Angka nol bukan berarti tidak ada permintaan. Kiriman ke Barokah terputus karena kapal suplai kandas, stoknya yang kosong." },
+      { jumlah: 125, label: "125 sak: stok normal, permintaan tetap ada", benar: true, penjelasan: "Tepat! Penjualan nol karena stok kosong (kapal suplai kandas), bukan tidak laku. Pulihkan pasokan setara toko sejenis." },
+      { jumlah: 15, label: "15 sak: coba sedikit dulu", benar: false, penjelasan: "Terlalu sedikit. Pelanggan Barokah sudah menunggu 3 minggu, toko akan kehabisan lagi dalam sehari." },
     ];
   } else if (label === "Berkah") {
     opsi = [
-      { jumlah: up5(nilai), label: `${up5(nilai)} sak — ikuti tren +5%`, benar: true, penjelasan: `Benar. ${nilai} sak bulan lalu × 1,05 ≈ ${up5(nilai)} sak. Harga Rp650.000 di data lama adalah salah ketik, bukan lonjakan permintaan.` },
-      { jumlah: nilai * 10, label: `${nilai * 10} sak — nilai transaksinya 10× lipat!`, benar: false, penjelasan: "Itu terkecoh anomali harga (Rp650.000, kelebihan satu nol). Jumlah unitnya tetap normal." },
-      { jumlah: Math.round(nilai * 0.7), label: `${Math.round(nilai * 0.7)} sak — kurangi, harganya terlalu mahal`, benar: false, penjelasan: "Harga mahal itu salah ketik. Permintaan riil Berkah justru naik mengikuti tren." },
+      { jumlah: up5(nilai), label: `${up5(nilai)} sak: ikuti tren +5%`, benar: true, penjelasan: `Benar. ${nilai} sak bulan lalu × 1,05 ≈ ${up5(nilai)} sak. Harga Rp650.000 di data lama adalah salah ketik, bukan lonjakan permintaan.` },
+      { jumlah: nilai * 10, label: `${nilai * 10} sak: nilai transaksinya 10× lipat!`, benar: false, penjelasan: "Itu terkecoh anomali harga (Rp650.000, kelebihan satu nol). Jumlah unitnya tetap normal." },
+      { jumlah: Math.round(nilai * 0.7), label: `${Math.round(nilai * 0.7)} sak: kurangi, harganya terlalu mahal`, benar: false, penjelasan: "Harga mahal itu salah ketik. Permintaan riil Berkah justru naik mengikuti tren." },
     ];
   } else {
     const low = Math.round(nilai * 0.75);
     const high = nilai * 2;
     opsi = [
-      { jumlah: low, label: `${low} sak — kurangi, jaga-jaga`, benar: false, penjelasan: `Stok akan kurang. Tren total penjualan naik ±5% per bulan, jadi ${label} butuh lebih, bukan kurang.` },
-      { jumlah: up5(nilai), label: `${up5(nilai)} sak — ikuti tren +5%`, benar: true, penjelasan: `Tepat! ${nilai} sak bulan lalu × 1,05 ≈ ${up5(nilai)} sak. Prediksi berbasis tren menjaga stok cukup tanpa menumpuk.` },
-      { jumlah: high, label: `${high} sak — gandakan saja`, benar: false, penjelasan: "Berlebihan. Tidak ada data yang menunjukkan permintaan melonjak 2×; semen menumpuk & modal tertahan." },
+      { jumlah: low, label: `${low} sak: kurangi, jaga-jaga`, benar: false, penjelasan: `Stok akan kurang. Tren total penjualan naik ±5% per bulan, jadi ${label} butuh lebih, bukan kurang.` },
+      { jumlah: up5(nilai), label: `${up5(nilai)} sak: ikuti tren +5%`, benar: true, penjelasan: `Tepat! ${nilai} sak bulan lalu × 1,05 ≈ ${up5(nilai)} sak. Prediksi berbasis tren menjaga stok cukup tanpa menumpuk.` },
+      { jumlah: high, label: `${high} sak: gandakan saja`, benar: false, penjelasan: "Berlebihan. Tidak ada data yang menunjukkan permintaan melonjak 2×; semen menumpuk & modal tertahan." },
     ];
   }
   // Urutan opsi diacak deterministik supaya jawaban benar tidak selalu di tengah.
@@ -298,16 +298,16 @@ export interface Jelly {
 }
 
 const ANOMALIES: Omit<Jelly, "id" | "x" | "z" | "color" | "anomali">[] = [
-  { toko: "Barokah", teks: "−5 unit", judul: "Nilai negatif", penjelasan: "Penjualan tidak mungkin negatif — ini salah input.", konsep: "Deteksi anomali" },
-  { toko: "Berkah", teks: "Rp650.000", judul: "Harga 10× lipat", penjelasan: "Toko lain Rp65.000/sak. Kelebihan satu angka nol — outlier.", konsep: "Outlier" },
+  { toko: "Barokah", teks: "−5 unit", judul: "Nilai negatif", penjelasan: "Penjualan tidak mungkin negatif, ini salah input.", konsep: "Deteksi anomali" },
+  { toko: "Berkah", teks: "Rp650.000", judul: "Harga 10× lipat", penjelasan: "Toko lain Rp65.000/sak. Kelebihan satu angka nol, outlier.", konsep: "Outlier" },
   { toko: "Sentosa", teks: "8.800 unit", judul: "Lonjakan mustahil", penjelasan: "Rata-rata Sentosa 88 unit; 8.800 itu 100× lipat, jauh di luar klaster.", konsep: "Outlier" },
   { toko: "Amanah", teks: "1.500 unit", judul: "Jauh dari klaster", penjelasan: "Amanah biasanya ±150 unit. Titik ini 10× lebih tinggi dari kelompoknya.", konsep: "Clustering" },
-  { toko: "Jaya", teks: "−210 unit", judul: "Tanda terbalik", penjelasan: "Angka Jaya tercatat minus — kemungkinan retur yang salah kolom.", konsep: "Deteksi anomali" },
+  { toko: "Jaya", teks: "−210 unit", judul: "Tanda terbalik", penjelasan: "Angka Jaya tercatat minus, kemungkinan retur yang salah kolom.", konsep: "Deteksi anomali" },
   { toko: "Makmur", teks: "120 · salinan", judul: "Baris duplikat", penjelasan: "Transaksi Makmur tercatat dua kali. Kalau dibiarkan, penjualannya terhitung ganda.", konsep: "Duplikat" },
   { toko: "Sejahtera", teks: "950 unit", judul: "Salah ketik angka", penjelasan: "Sejahtera biasanya ±95 unit. 950 = kelebihan satu digit.", konsep: "Outlier" },
   { toko: "Sentosa", teks: "0,88 unit", judul: "Desimal janggal", penjelasan: "Sak semen dijual utuh. 0,88 unit berarti salah format angka.", konsep: "Deteksi anomali" },
   { toko: "Jaya", teks: "99.999 unit", judul: "Angka pengganti", penjelasan: "99.999 adalah nilai 'placeholder' sistem lama, bukan penjualan asli.", konsep: "Deteksi anomali" },
-  { toko: "Makmur", teks: "Rp6.500", judul: "Harga terlalu rendah", penjelasan: "Harga 10× lebih murah dari seharusnya — kurang satu angka nol.", konsep: "Outlier" },
+  { toko: "Makmur", teks: "Rp6.500", judul: "Harga terlalu rendah", penjelasan: "Harga 10× lebih murah dari seharusnya, kurang satu angka nol.", konsep: "Outlier" },
 ];
 
 export const JELLIES: Jelly[] = (() => {
@@ -411,7 +411,7 @@ export const BOTTLES: XZ[] = (() => {
 
 /* ------------------------------ angin ------------------------------ */
 
-/** Arah angin bertiup (sudut heading ke mana angin pergi) — berubah pelan. */
+/** Arah angin bertiup (sudut heading ke mana angin pergi), berubah pelan. */
 export function windDir(time: number) {
   return 0.7 + Math.sin(time * 0.021) * 1.3 + Math.sin(time * 0.057 + 1.3) * 0.35;
 }
@@ -447,8 +447,8 @@ export const SEA_QUIZ: SeaQuestion[] = [
     pertanyaan: "Sebelum membuat grafik laporan, apa yang sebaiknya dilakukan pada data Rp650.000 milik Toko Berkah?",
     opsi: [
       { id: "a", label: "Biarkan, semua data harus dipakai apa adanya", benar: false, penjelasan: "Outlier salah ketik akan membuat rata-rata harga melonjak dan menyesatkan kesimpulan." },
-      { id: "b", label: "Cek ke sumbernya lalu perbaiki menjadi Rp65.000", benar: true, penjelasan: "Tepat! Anomali diverifikasi dulu, lalu dikoreksi — bukan asal dihapus atau dibiarkan." },
-      { id: "c", label: "Hapus semua data Toko Berkah", benar: false, penjelasan: "Terlalu berlebihan — data penjualan Berkah yang lain valid dan penting." },
+      { id: "b", label: "Cek ke sumbernya lalu perbaiki menjadi Rp65.000", benar: true, penjelasan: "Tepat! Anomali diverifikasi dulu, lalu dikoreksi, bukan asal dihapus atau dibiarkan." },
+      { id: "c", label: "Hapus semua data Toko Berkah", benar: false, penjelasan: "Terlalu berlebihan, data penjualan Berkah yang lain valid dan penting." },
     ],
   },
 ];

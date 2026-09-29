@@ -11,7 +11,12 @@ import type {
 export const GAME_STORAGE_KEY = "sisfor-game-progress:v1";
 export const MISSION_IDS: MissionId[] = ["it-audit", "enterprise-system", "data-science"];
 
-export const DEFAULT_AUDIO: AudioSettings = { muted: false, volume: 0.45 };
+export const DEFAULT_AUDIO: AudioSettings = { muted: false, volume: 0.45, music: 0.6, sfx: 0.9 };
+
+function readLevel(value: unknown, fallback: number) {
+  const number = Number(value);
+  return value === undefined || !Number.isFinite(number) ? fallback : Math.max(0, Math.min(1, number));
+}
 
 export const DEFAULT_GAME_PROGRESS: GameProgress = {
   version: 1,
@@ -92,6 +97,8 @@ export function readGameProgress(): GameProgress {
       audio: {
         muted: Boolean(parsed.audio.muted),
         volume: Math.max(0, Math.min(1, Number(parsed.audio.volume) || DEFAULT_AUDIO.volume)),
+        music: readLevel(parsed.audio.music, DEFAULT_AUDIO.music),
+        sfx: readLevel(parsed.audio.sfx, DEFAULT_AUDIO.sfx),
       },
     };
   } catch {

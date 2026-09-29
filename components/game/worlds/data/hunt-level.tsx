@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { Flame, Radar as RadarIcon, Timer } from "lucide-react";
+import { IconFire, IconScan, IconTimer } from "@/components/ui/icons";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import type { SoundName } from "@/components/game/use-game-audio";
@@ -434,7 +434,7 @@ function HuntController({
               ai.energy -= delta;
               if (ai.energy <= 0) {
                 ai.rest = 3.2;
-                ev.toast({ ok: true, judul: "Sprite pemalu kelelahan!", teks: "Sekarang kesempatanmu — tahan scan sebelum ia pulih." });
+                ev.toast({ ok: true, judul: "Sprite pemalu kelelahan!", teks: "Sekarang kesempatanmu, tahan scan sebelum ia pulih." });
               }
               const ax = (sp.x - p.pos.x) / (d || 1);
               const az = (sp.z - p.pos.z) / (d || 1);
@@ -847,7 +847,7 @@ function ClassifyPanel({ index, onPick }: { index: number; onPick: (bin: number)
     <div className="hunt-classify" role="dialog" aria-label="Klasifikasi data">
       <div className="hunt-classify-head">
         <small>
-          <RadarIcon className="inline h-3.5 w-3.5" /> DATA TERTANGKAP · {PERSONA_LABEL[spawn.personality]}
+          <IconScan className="inline h-3.5 w-3.5" /> DATA TERTANGKAP · {PERSONA_LABEL[spawn.personality]}
         </small>
         <span className="hunt-classify-cell">
           <em>{cube.id.endsWith(":*") ? `Seluruh ${cube.kolom}` : `Baris ${rowNumber} · kolom ${cube.kolom}`}</em>
@@ -989,7 +989,7 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
     else if (near && near.dist < SCAN_RANGE) prompt = <><kbd>E</kbd>Tahan untuk scan sprite data</>;
     else if (near?.fleeing) prompt = <><kbd>Shift</kbd>Dia kabur! Lari untuk mengejar</>;
     else if (hud.tired) prompt = <>Napasmu habis… tunggu stamina pulih</>;
-    else if (!caughtOnce && hud.time > HUNT_TIME - 20) prompt = <>Ikuti <b className="text-[#7ee8fa]">pilar cahaya biru</b> — itu data liar!</>;
+    else if (!caughtOnce && hud.time > HUNT_TIME - 20) prompt = <>Ikuti <b className="text-[#7ee8fa]">pilar cahaya biru</b>, itu data liar!</>;
   }
 
   return (
@@ -1009,13 +1009,13 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
             stats={
               <>
                 <HudChip tone={hud.time <= 30 ? "red" : "dark"} pulse={hud.time <= 30}>
-                  <Timer />
+                  <IconTimer />
                   {clock(hud.time)}
                 </HudChip>
                 <HudChip tone="green">{done}/{TOTAL} bersih</HudChip>
                 {combo >= 2 && (
                   <HudChip tone="gold">
-                    <Flame />×{combo}
+                    <IconFire />×{combo}
                   </HudChip>
                 )}
                 <HudMeter label="STAMINA" value={hud.stamina * 100} tone={hud.tired ? "red" : hud.stamina < 0.3 ? "gold" : "green"} />
@@ -1024,7 +1024,7 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
           />
           {!ended && !hud.finale && <Compass playerRef={playerRef} simRef={simRef} />}
           {!ended && !hud.finale && <MiniMap playerRef={playerRef} simRef={simRef} />}
-          {!ended && hud.warn && <div className="hunt-warn">Sinyal scanner melemah — kembali ke lembah!</div>}
+          {!ended && hud.warn && <div className="hunt-warn">Sinyal scanner melemah, kembali ke lembah!</div>}
           {!ended && zone && classify === null && (
             <div key={zone.n} className="hunt-zone">
               <small>MEMASUKI</small>

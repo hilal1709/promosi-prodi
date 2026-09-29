@@ -450,7 +450,7 @@ function JellyOne({ simRef, index }: { simRef: SeaSimRef; index: number }) {
     if (bell.current) {
       bell.current.scale.set(1 + pulse * 0.12, 1 - pulse * 0.1, 1 + pulse * 0.12);
       const m = bell.current.material as THREE.MeshStandardMaterial;
-      // Anomali sesekali "glitch" — warna berkedip & bentuk tersentak.
+      // Anomali sesekali "glitch", warna berkedip & bentuk tersentak.
       const glitch = def.anomali && Math.sin(t * 1.9) > 0.93;
       m.emissive.copy(glitch ? tmpColor.set("#ff3b3b") : base);
       m.emissiveIntensity = glitch ? 1.4 : 0.55;

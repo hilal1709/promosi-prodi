@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, CheckCircle2 } from "lucide-react";
+import { IconBroom, IconCheckCircle } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { DataCleanContent, DataRow } from "@/lib/types";
@@ -37,7 +37,7 @@ export default function DataCleanScenario({ konten }: { konten: DataCleanContent
         <p className="text-sm font-bold">{konten.judul}</p>
         {!semuaBersih && (
           <Button size="sm" onClick={bersihkanSemua}>
-            <Sparkles className="h-3.5 w-3.5" /> Bersihkan Semua
+            <IconBroom className="h-3.5 w-3.5" /> Bersihkan Semua
           </Button>
         )}
       </div>
@@ -79,7 +79,7 @@ export default function DataCleanScenario({ konten }: { konten: DataCleanContent
                         Perbaiki
                       </button>
                     ) : (
-                      <CheckCircle2 className="h-4 w-4 text-track-erp" />
+                      <IconCheckCircle className="h-4 w-4 text-track-erp" />
                     )}
                   </td>
                 </tr>
@@ -91,7 +91,7 @@ export default function DataCleanScenario({ konten }: { konten: DataCleanContent
 
       {semuaBersih && (
         <p className="mt-4 flex items-center gap-2 rounded-xl bg-track-erp-soft px-4 py-3 text-sm font-semibold text-track-erp-foreground">
-          <CheckCircle2 className="h-4 w-4" /> Semua data sudah bersih & siap divisualisasikan!
+          <IconCheckCircle className="h-4 w-4" /> Semua data sudah bersih & siap divisualisasikan!
         </p>
       )}
     </div>

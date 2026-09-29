@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShieldCheck, Boxes, ChartSpline } from "lucide-react";
+import { TrackIllustration } from "@/components/illustrations/track-illustration";
 import TrackSwitcher from "./track-switcher";
 import MenuGrid from "./menu-grid";
 import ScenarioDialog from "./scenario-dialog";
@@ -9,11 +9,8 @@ import { getTrack } from "@/lib/data/tracks";
 import { fetchWorkspaceMenus, fetchScenarioByMenuId } from "@/lib/data";
 import type { JalurId, WorkspaceMenu, WorkspaceScenario } from "@/lib/types";
 
-const TRACK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { ShieldCheck, Boxes, ChartSpline };
-
 export default function WorkspaceShell({ jalur }: { jalur: JalurId }) {
   const track = getTrack(jalur);
-  const Icon = TRACK_ICONS[track.icon] ?? Boxes;
 
   const [menus, setMenus] = useState<WorkspaceMenu[]>([]);
   const [activeMenu, setActiveMenu] = useState<WorkspaceMenu | null>(null);
@@ -46,9 +43,7 @@ export default function WorkspaceShell({ jalur }: { jalur: JalurId }) {
         }}
       >
         <div className="flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
-            <Icon className="h-6 w-6" />
-          </span>
+          <TrackIllustration id={track.id} className="h-14 w-14" />
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-white/70">Ruang Kerja Digital</p>
             <h1 className="text-xl font-extrabold sm:text-2xl">{track.nama}</h1>

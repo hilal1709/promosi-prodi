@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Award, BookOpen, BriefcaseBusiness, ChevronRight, GraduationCap, MessageCircle, Search } from "lucide-react";
+import { IconChat, IconChevronRight, IconSearch } from "@/components/ui/icons";
+import { TrackIllustration } from "@/components/illustrations/track-illustration";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CURRICULUM } from "@/lib/data/curriculum";
@@ -24,10 +25,10 @@ export function InfoCenter({ open, onOpenChange }: { open: boolean; onOpenChange
 
         <Tabs defaultValue="kurikulum" className="mt-2">
           <TabsList className="h-auto w-full justify-start overflow-x-auto rounded-2xl p-1.5">
-            <TabsTrigger value="kurikulum"><BookOpen className="mr-1.5 h-4 w-4" />Kurikulum</TabsTrigger>
-            <TabsTrigger value="karier"><BriefcaseBusiness className="mr-1.5 h-4 w-4" />Karier</TabsTrigger>
-            <TabsTrigger value="alumni"><GraduationCap className="mr-1.5 h-4 w-4" />Alumni</TabsTrigger>
-            <TabsTrigger value="prestasi"><Award className="mr-1.5 h-4 w-4" />Prestasi</TabsTrigger>
+            <TabsTrigger value="kurikulum">Kurikulum</TabsTrigger>
+            <TabsTrigger value="karier">Karier</TabsTrigger>
+            <TabsTrigger value="alumni">Alumni</TabsTrigger>
+            <TabsTrigger value="prestasi">Prestasi</TabsTrigger>
           </TabsList>
 
           <TabsContent value="kurikulum" className="grid gap-3 md:grid-cols-3">
@@ -47,7 +48,7 @@ export function InfoCenter({ open, onOpenChange }: { open: boolean; onOpenChange
           <TabsContent value="karier" className="grid gap-3 md:grid-cols-3">
             {TRACK_LIST.map((track) => (
               <article key={track.id} className="rounded-3xl border border-border bg-white p-4">
-                <h3 className="font-black">{track.singkatan}</h3>
+                <div className="flex items-center gap-3"><TrackIllustration id={track.id} className="h-12 w-12" /><h3 className="font-black">{track.singkatan}</h3></div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {track.prospekKarier.map((career) => <span key={career} className="rounded-full bg-muted px-3 py-1.5 text-sm font-semibold">{career}</span>)}
                 </div>
@@ -98,7 +99,7 @@ export function CampusAssistant({ open, onOpenChange }: { open: boolean; onOpenC
       <DialogContent className="game-dialog max-w-xl">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-red text-white"><MessageCircle className="h-5 w-5" /></span>
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-red text-white"><IconChat className="h-5 w-5" /></span>
             <div>
               <DialogTitle>Asisten Kampus</DialogTitle>
               <DialogDescription>Jawaban cepat tentang PMB, kurikulum, dan beasiswa.</DialogDescription>
@@ -117,7 +118,7 @@ export function CampusAssistant({ open, onOpenChange }: { open: boolean; onOpenC
         ) : (
           <>
             <label className="flex items-center gap-2 rounded-2xl border border-border bg-white px-3 py-2.5">
-              <Search className="h-4 w-4 text-muted-foreground" />
+              <IconSearch className="h-4 w-4 text-muted-foreground" />
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari pertanyaan…" className="w-full bg-transparent text-sm outline-none" />
             </label>
             <div className="flex flex-wrap gap-2">
@@ -128,7 +129,7 @@ export function CampusAssistant({ open, onOpenChange }: { open: boolean; onOpenC
             <div className="max-h-[20rem] space-y-1 overflow-y-auto">
               {filtered.map((item) => (
                 <button key={item.id} onClick={() => setSelected(item)} className="flex w-full items-center justify-between gap-3 rounded-2xl p-3 text-left text-sm font-semibold hover:bg-muted">
-                  {item.pertanyaan}<ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  {item.pertanyaan}<IconChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                 </button>
               ))}
             </div>

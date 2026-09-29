@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, ArrowRight, Factory, PackageCheck, Smile, Truck, Warehouse } from "lucide-react";
+import { IconFactory, IconPackage, IconSmile, IconTruck, IconWarehouse, IconWarning } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -117,7 +117,7 @@ function FlowLevel({ onFinish }: LevelProps) {
         </>
       ) : (
         <p className="mt-3 rounded-2xl bg-track-erp-soft p-3 text-center text-sm font-semibold text-track-erp-foreground">
-          Alur tersambung! Data pesanan kini mengalir otomatis antar divisi — dicatat sekali, dipakai semua.
+          Alur tersambung! Data pesanan kini mengalir otomatis antar divisi, dicatat sekali, dipakai semua.
         </p>
       )}
       <FeedbackToast feedback={feedback} />
@@ -126,7 +126,7 @@ function FlowLevel({ onFinish }: LevelProps) {
   );
 }
 
-function Meter({ Icon, label, value, max, tone }: { Icon: typeof Warehouse; label: string; value: number; max: number; tone: string }) {
+function Meter({ Icon, label, value, max, tone }: { Icon: typeof IconWarehouse; label: string; value: number; max: number; tone: string }) {
   return (
     <div className="rounded-2xl bg-card p-3 ring-1 ring-border">
       <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
@@ -221,20 +221,20 @@ function SimLevel({ onFinish }: LevelProps) {
       hud={<MissionHud timeLeft={left} progress={`${shipped.length}/${ERP_ORDERS.length} terkirim`} />}
     >
       <div className="grid gap-2 sm:grid-cols-3">
-        <Meter Icon={Warehouse} label="Stok gudang (ton)" value={stock} max={200} tone={stock < 40 ? "bg-track-audit" : "bg-track-erp"} />
-        <Meter Icon={Smile} label="Kepuasan pelanggan" value={satisfaction} max={100} tone={satisfaction < 60 ? "bg-track-audit" : "bg-emerald-500"} />
-        <Meter Icon={PackageCheck} label="Pesanan terkirim" value={shipped.length} max={ERP_ORDERS.length} tone="bg-brand-navy" />
+        <Meter Icon={IconWarehouse} label="Stok gudang (ton)" value={stock} max={200} tone={stock < 40 ? "bg-track-audit" : "bg-track-erp"} />
+        <Meter Icon={IconSmile} label="Kepuasan pelanggan" value={satisfaction} max={100} tone={satisfaction < 60 ? "bg-track-audit" : "bg-emerald-500"} />
+        <Meter Icon={IconPackage} label="Pesanan terkirim" value={shipped.length} max={ERP_ORDERS.length} tone="bg-brand-navy" />
       </div>
 
       {lateSurprise && (
         <p className="mission-shake mt-3 flex items-center gap-2 rounded-2xl bg-track-audit-soft p-3 text-sm font-bold text-track-audit-foreground">
-          <AlertTriangle className="h-4 w-4 shrink-0" /> Selisih yang diabaikan membesar — stok fisik ternyata kurang 40 ton!
+          <IconWarning className="h-4 w-4 shrink-0" /> Selisih yang diabaikan membesar, stok fisik ternyata kurang 40 ton!
         </p>
       )}
 
       {activeEvent && !ended ? (
         <div key={activeEvent.id} className="mission-pop mt-3 rounded-3xl border-2 border-track-audit bg-card p-4">
-          <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-track-audit"><AlertTriangle className="h-4 w-4" /> KEJADIAN MENDADAK · WAKTU DIJEDA</p>
+          <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-track-audit"><IconWarning className="h-4 w-4" /> KEJADIAN MENDADAK · WAKTU DIJEDA</p>
           <p className="mt-1 text-lg font-black">{activeEvent.judul}</p>
           <p className="text-sm text-muted-foreground">{activeEvent.deskripsi}</p>
           <div className="mt-3 grid gap-2">
@@ -263,7 +263,7 @@ function SimLevel({ onFinish }: LevelProps) {
                     </div>
                   </div>
                   <Button size="sm" onClick={() => ship(order.id)} disabled={!enough} className="shrink-0">
-                    <Truck className="h-4 w-4" /> {enough ? "Kirim" : "Stok kurang"}
+                    <IconTruck className="h-4 w-4" /> {enough ? "Kirim" : "Stok kurang"}
                   </Button>
                 </div>
               );
@@ -273,7 +273,7 @@ function SimLevel({ onFinish }: LevelProps) {
             <p className="text-xs font-black tracking-[0.15em] text-brand-gold">PABRIK</p>
             <p className="mt-1 text-sm text-white/70">Stok menipis? Jadwalkan produksi sebelum pesanan besar datang.</p>
             <Button onClick={produce} disabled={producing} className="mt-3 w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90">
-              <Factory className="h-4 w-4" /> {producing ? `Produksi… ${productionLeft}s` : `Produksi +${ERP_SIM.produksi.tambah} ton`}
+              <IconFactory className="h-4 w-4" /> {producing ? `Produksi… ${productionLeft}s` : `Produksi +${ERP_SIM.produksi.tambah} ton`}
             </Button>
           </div>
         </div>
@@ -362,7 +362,7 @@ function BoardLevel({ onFinish }: LevelProps) {
       )}
       {!picked && (
         <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <ArrowRight className="h-3.5 w-3.5" /> Pilih satu strategi untuk melihat dampaknya.
+          Pilih satu strategi untuk melihat dampaknya.
         </p>
       )}
     </LevelShell>

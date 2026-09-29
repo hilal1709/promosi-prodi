@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { Crosshair, Flame, Package, Timer } from "lucide-react";
+import { IconCrosshair, IconFire, IconPackage, IconTimer } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import type { SoundName } from "@/components/game/use-game-audio";
@@ -666,7 +666,7 @@ function WindGauge({ simRef }: { simRef: RefObject<SeaSim> }) {
       </div>
       <div className="sea-wind-info">
         <small>ANGIN</small>
-        <span ref={label}>—</span>
+        <span ref={label}>-</span>
         <div className="sea-wind-bar"><i ref={sail} /></div>
         <p>Layar · tenaga <b ref={eff}>0%</b></p>
       </div>
@@ -726,7 +726,7 @@ function DeliveryPanel({ shop, evidence, picked, onPick, onClose }: { shop: numb
         <div>
           <small>Penjualan bulan lalu</small>
           <strong>{f.nilai} sak</strong>
-          {f.toko === "Barokah" && <em className={evidence ? "is-ok" : undefined}>{evidence ? "📌 Bukti: kapal suplai kandas di karang — kiriman terputus 3 minggu." : "Kabar warga: kapal suplai Barokah hilang di dekat karang…"}</em>}
+          {f.toko === "Barokah" && <em className={evidence ? "is-ok" : undefined}>{evidence ? "Bukti: kapal suplai kandas di karang, kiriman terputus 3 minggu." : "Kabar warga: kapal suplai Barokah hilang di dekat karang…"}</em>}
           {f.toko === "Berkah" && <em>Catatan: ada transaksi Rp650.000/sak di data lama.</em>}
         </div>
         <div>
@@ -818,7 +818,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
           sound("success");
           flashOf("good");
           setAnomHit((n) => n + 1);
-          setToast({ ok: true, judul: `Anomali dibersihkan: ${def.judul}`, teks: `Toko ${def.toko} · ${def.teks} — ${def.penjelasan}`, konsep: def.konsep });
+          setToast({ ok: true, judul: `Anomali dibersihkan: ${def.judul}`, teks: `Toko ${def.toko} · ${def.teks}: ${def.penjelasan}`, konsep: def.konsep });
         } else {
           sound("error");
           flashOf("bad");
@@ -846,7 +846,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
         sound("success");
         flashOf("good");
         setEvidence(true);
-        setToast({ ok: true, judul: "Bukti ditemukan: kapal suplai kandas!", teks: "KM Suplai Semen tersangkut di karang sejak 3 minggu lalu. Penjualan Barokah nol karena stoknya kosong — bukan karena tidak laku!", konsep: "Investigasi akar masalah" });
+        setToast({ ok: true, judul: "Bukti ditemukan: kapal suplai kandas!", teks: "KM Suplai Semen tersangkut di karang sejak 3 minggu lalu. Penjualan Barokah nol karena stoknya kosong, bukan karena tidak laku!", konsep: "Investigasi akar masalah" });
       },
       dock: (index) => {
         sound("interact");
@@ -870,7 +870,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
       },
       timeout: () => {
         sound("error");
-        setToast({ ok: false, judul: "Waktu habis!", teks: "Mercusuar mengirim sinyal — saatnya menarik kesimpulan dari data yang sudah terkumpul." });
+        setToast({ ok: false, judul: "Waktu habis!", teks: "Mercusuar mengirim sinyal, saatnya menarik kesimpulan dari data yang sudah terkumpul." });
         setPanel(null);
         setAsking(true);
       },
@@ -925,8 +925,8 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
 
   let prompt: ReactNode;
   if (running) {
-    if (hud.near >= 0) prompt = <><kbd>E</kbd>{hud.near === LIGHTHOUSE_INDEX ? "Labuh di Mercusuar — tarik kesimpulan" : `Labuh & kirim ke Toko ${FORECASTS[SHOP_DOCKS[hud.near].island.shop!].toko}`}</>;
-    else if (hud.boundary) prompt = <>Arus balik terlalu kuat — kembali ke kepulauan</>;
+    if (hud.near >= 0) prompt = <><kbd>E</kbd>{hud.near === LIGHTHOUSE_INDEX ? "Labuh di Mercusuar, tarik kesimpulan" : `Labuh & kirim ke Toko ${FORECASTS[SHOP_DOCKS[hud.near].island.shop!].toko}`}</>;
+    else if (hud.boundary) prompt = <>Arus balik terlalu kuat, kembali ke kepulauan</>;
     else if (hud.whirl) prompt = <>Pusaran! Tahan <kbd>Shift</kbd> untuk menyalakan mesin</>;
     else if (hud.grounded) prompt = <>Kandas! Mundur & putar haluan · <kbd>S</kbd> turunkan layar</>;
     else if (hud.tired) prompt = <>Mesin kepanasan… tunggu dingin</>;
@@ -956,20 +956,20 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
             stats={
               <>
                 <HudChip tone={hud.left < 60 ? "red" : "dark"} pulse={hud.left < 30}>
-                  <Timer />
+                  <IconTimer />
                   {clock(hud.left)}
                 </HudChip>
                 <HudChip tone="gold">
-                  <Crosshair />
+                  <IconCrosshair />
                   {anomHit}/{ANOMALY_TOTAL}
                 </HudChip>
                 <HudChip tone="green">
-                  <Package />
+                  <IconPackage />
                   {delivered}/{FORECASTS.length}
                 </HudChip>
                 {bottles.combo >= 3 && (
                   <HudChip tone="gold">
-                    <Flame />×{bottles.combo}
+                    <IconFire />×{bottles.combo}
                   </HudChip>
                 )}
                 <HudMeter label="LAMBUNG" value={hud.hull} tone={hud.hull < 35 ? "red" : hud.hull < 65 ? "gold" : "green"} />
@@ -1041,7 +1041,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
             <LevelEnd
               score={score}
               reason="Armada kembali ke pelabuhan"
-              detail={`Anomali ${anomHit}/${ANOMALY_TOTAL}${wrongShots ? ` (${wrongShots} salah tembak)` : ""} · prediksi tepat ${deliveredOk}/${FORECASTS.length} · bukti Barokah ${evidence ? "✓" : "✗"} · kesimpulan ${quizCorrect}/${SEA_QUIZ.length}${repairs ? ` · ${repairs}× perbaikan` : ""}.`}
+              detail={`Anomali ${anomHit}/${ANOMALY_TOTAL}${wrongShots ? ` (${wrongShots} salah tembak)` : ""} · prediksi tepat ${deliveredOk}/${FORECASTS.length} · bukti Barokah ${evidence ? "ditemukan" : "belum ditemukan"} · kesimpulan ${quizCorrect}/${SEA_QUIZ.length}${repairs ? ` · ${repairs}× perbaikan` : ""}.`}
               isLast
               onNext={() => onFinish(score)}
             />

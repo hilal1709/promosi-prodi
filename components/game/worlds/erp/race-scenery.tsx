@@ -919,7 +919,7 @@ function useVegetation(quality: GameQuality) {
       if (blocked(p.x, p.z, d, 7)) continue;
       (rand() < 0.4 ? addPalm : addRound)(p.x, p.z, terrainHeight(p.x, p.z, d));
     }
-    // Semak — separuh di dekat jalan.
+    // Semak, separuh di dekat jalan.
     for (let k = 0; k < budget.bushes; k++) {
       let x: number, z: number;
       if (k % 2 === 0) {

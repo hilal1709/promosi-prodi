@@ -1,12 +1,15 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, type ComponentProps, type ReactNode, type RefObject } from "react";
+import { Suspense, useCallback, useState, useEffect, useRef, type ComponentProps, type ReactNode, type RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { Pause } from "lucide-react";
+import { IconPause } from "@/components/ui/icons";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { FeedbackToast, LevelComplete, type Feedback } from "@/components/game/missions/mission-kit";
+import { AdaptiveResolution } from "@/components/game/adaptive-resolution";
+import { ResponsiveCamera } from "@/components/game/responsive-camera";
+import { SceneLoader, SceneReady } from "@/components/game/scene-loader";
 import type { SoundName } from "@/components/game/use-game-audio";
 import { cn } from "@/lib/utils";
 import type { WorldLevelInfo } from "@/lib/data/worlds";
@@ -58,6 +61,8 @@ export function WorldStage({
   overlay: ReactNode;
 }) {
   const dpr: [number, number] = quality === "hemat" ? [1, 1] : quality === "tinggi" ? [1.25, 1.75] : [1, 1.5];
+  const [ready, setReady] = useState(false);
+  const markReady = useCallback(() => setReady(true), []);
   return (
     <div className="world-stage">
       <Canvas
@@ -68,9 +73,15 @@ export function WorldStage({
         gl={{ antialias: quality !== "hemat", powerPreference: "high-performance" }}
       >
         <color attach="background" args={[background]} />
-        <Suspense fallback={null}>{children}</Suspense>
+        <ResponsiveCamera />
+        <AdaptiveResolution max={dpr[1]} />
+        <Suspense fallback={null}>
+          {children}
+          <SceneReady onReady={markReady} />
+        </Suspense>
       </Canvas>
       {overlay}
+      <SceneLoader ready={ready} label="Menyiapkan arena misi…" />
     </div>
   );
 }
@@ -214,11 +225,11 @@ export function WorldHud({
         </div>
         <div className="world-hud-stats">{stats}</div>
         <button className="world-hud-pause" onClick={onPause} aria-label="Jeda">
-          <Pause className="h-5 w-5" />
+          <IconPause className="h-5 w-5" />
         </button>
       </div>
       {prompt && <div className="world-prompt">{prompt}</div>}
-      <div className="world-toast"><FeedbackToast feedback={toast ?? null} /></div>
+      <div className="world-toast"><FeedbackToast feedback={toast ?? null} silent /></div>
     </>
   );
 }

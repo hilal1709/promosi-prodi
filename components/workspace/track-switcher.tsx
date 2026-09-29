@@ -1,18 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ShieldCheck, Boxes, ChartSpline } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TRACK_LIST } from "@/lib/data/tracks";
 import type { JalurId } from "@/lib/types";
-
-const TRACK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { ShieldCheck, Boxes, ChartSpline };
 
 export default function TrackSwitcher({ active }: { active: JalurId }) {
   return (
     <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
       {TRACK_LIST.map((track) => {
-        const Icon = TRACK_ICONS[track.icon] ?? Boxes;
         const isActive = track.id === active;
         return (
           <Link
@@ -30,7 +26,6 @@ export default function TrackSwitcher({ active }: { active: JalurId }) {
                 : undefined
             }
           >
-            <Icon className="h-4 w-4" />
             {track.singkatan}
           </Link>
         );

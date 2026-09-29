@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { IconArrowLeft } from "@/components/ui/icons";
 import { Progress } from "@/components/ui/progress";
 import QuestionCard from "./question-card";
 import ResultCard from "./result-card";
@@ -68,7 +68,7 @@ export default function QuizFlow() {
           className="rounded-full p-2 text-muted-foreground hover:bg-muted disabled:opacity-30"
           aria-label="Pertanyaan sebelumnya"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <IconArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex-1">
           <Progress value={progress} />

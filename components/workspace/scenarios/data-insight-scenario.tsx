@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, XCircle, RotateCcw } from "lucide-react";
+import { IconCheckCircle, IconRetry, IconXCircle } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { DataInsightContent } from "@/lib/types";
@@ -35,9 +35,9 @@ export default function DataInsightScenario({ konten }: { konten: DataInsightCon
             >
               {selected && (opsi.benar || isSelected) ? (
                 opsi.benar ? (
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-track-erp-foreground" />
+                  <IconCheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-track-erp-foreground" />
                 ) : (
-                  <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-track-audit" />
+                  <IconXCircle className="mt-0.5 h-5 w-5 shrink-0 text-track-audit" />
                 )
               ) : (
                 <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full border-2 border-border" />
@@ -53,7 +53,7 @@ export default function DataInsightScenario({ konten }: { konten: DataInsightCon
           <p className="font-bold">{selected.benar ? "Tepat sekali!" : "Belum tepat."}</p>
           <p className="mt-1 text-muted-foreground">{selected.penjelasan}</p>
           <Button variant="outline" size="sm" className="mt-4" onClick={() => setSelectedId(null)}>
-            <RotateCcw className="h-3.5 w-3.5" /> Pilih ulang
+            <IconRetry className="h-3.5 w-3.5" /> Pilih ulang
           </Button>
         </div>
       )}

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { Droplets, Flame, Timer } from "lucide-react";
+import { IconDrop, IconFire, IconTimer } from "@/components/ui/icons";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import type { SoundName } from "@/components/game/use-game-audio";
 import { cn } from "@/lib/utils";
@@ -329,7 +329,7 @@ function RiverController({
     WATERFALLS.forEach((fall, k) => {
       if (!fallSeen.current[k] && prevS < fall.s && r.s >= fall.s) {
         fallSeen.current[k] = true;
-        ev.toast({ ok: true, judul: k ? "Air terjun besar — WUUUSH!" : "Air terjun kecil!", teks: k ? "Pegangan! Arus di ngarai paling deras." : "Selamat datang di Sawah Terasering: tren penjualan dari bulan ke bulan.", konsep: undefined });
+        ev.toast({ ok: true, judul: k ? "Air terjun besar, WUUUSH!" : "Air terjun kecil!", teks: k ? "Pegangan! Arus di ngarai paling deras." : "Selamat datang di Sawah Terasering: tren penjualan dari bulan ke bulan.", konsep: undefined });
       }
     });
 
@@ -828,7 +828,7 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
         if (state === "clean") {
           sound("success");
           flashOf("good");
-          setToast({ ok: true, judul: `Toko ${shop.label}: ${shop.nilai} unit ✓`, teks: index === 2 ? "Tepat! Penjualan negatif (−5) sudah dibersihkan menjadi 0." : "Data bersih — batangnya akurat di grafik.", konsep: "Data bersih" });
+          setToast({ ok: true, judul: `Toko ${shop.label}: ${shop.nilai}`, teks: index === 2 ? "Tepat! Penjualan negatif (−5) sudah dibersihkan menjadi 0." : "Data bersih, batangnya akurat di grafik.", konsep: "Data bersih" });
         } else if (state === "dirty") {
           sound("error");
           flashOf("bad");
@@ -845,7 +845,7 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
         flashOf(ok ? "good" : "bad");
         setToast(
           ok
-            ? { ok: true, judul: `${gate.label}: ${gate.nilai} ✓`, teks: "Titik tren tergambar tepat di grafik garis.", konsep: "Grafik garis" }
+            ? { ok: true, judul: `${gate.label}: ${gate.nilai}`, teks: "Titik tren tergambar tepat di grafik garis.", konsep: "Grafik garis" }
             : { ok: false, judul: `${gate.label}: seharusnya ${gate.nilai}`, teks: `Kamu melewati ${gate.options[pick]}. Satu titik yang salah bisa membuat tren terlihat naik/turun drastis.`, konsep: "Grafik garis" }
         );
       },
@@ -855,7 +855,7 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
         if (state === "clean") {
           sound("success");
           flashOf("good");
-          setToast({ ok: true, judul: `${slice.label}: ${slice.nilai}% ✓`, teks: "Porsi yang tepat — totalnya tetap 100%.", konsep: "Grafik lingkaran" });
+          setToast({ ok: true, judul: `${slice.label}: ${slice.nilai}%`, teks: "Porsi yang tepat, totalnya tetap 100%.", konsep: "Grafik lingkaran" });
         } else if (state === "dirty") {
           sound("error");
           flashOf("bad");
@@ -872,7 +872,7 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
         flashOf(ok ? "good" : "bad");
         setToast({
           ok,
-          judul: ok ? `Grafik ${CHART_LABEL[fork.channels[pick]]} — tepat! Arus lancar` : `Kurang tepat: lebih cocok grafik ${CHART_LABEL[fork.question.jawaban]}`,
+          judul: ok ? `Grafik ${CHART_LABEL[fork.channels[pick]]}, tepat! Arus lancar` : `Kurang tepat: lebih cocok grafik ${CHART_LABEL[fork.question.jawaban]}`,
           teks: fork.question.penjelasan,
           konsep: "Memilih visualisasi",
         });
@@ -885,7 +885,7 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
       repair: () => {
         sound("boom");
         flashOf("bad");
-        setToast({ ok: false, judul: "Rakit rusak — diperbaiki!", teks: "Kamu kembali ke titik simpan terakhir. Hindari batu, kayu, dan tepi sungai." });
+        setToast({ ok: false, judul: "Rakit rusak, diperbaiki!", teks: "Kamu kembali ke titik simpan terakhir. Hindari batu, kayu, dan tepi sungai." });
       },
       zone: (name) => setZone((prev) => ({ name, n: (prev?.n ?? 0) + 1 })),
       toast: setToast,
@@ -918,7 +918,7 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
   let prompt: ReactNode;
   if (!ended && !hud.finale) {
     if (hud.whirl) prompt = <>Pusaran outlier! Tahan <kbd>Shift</kbd> untuk mendayung kuat</>;
-    else if (hud.logAhead && !hud.airborne) prompt = <>Kayu di depan — tekan <kbd>Spasi</kbd> untuk melompat!</>;
+    else if (hud.logAhead && !hud.airborne) prompt = <>Kayu di depan, tekan <kbd>Spasi</kbd> untuk melompat!</>;
     else if (hud.tired) prompt = <>Tenaga habis… tunggu pulih</>;
     else if (hud.time < 9) prompt = <><kbd>A/D</kbd>belok · <kbd>W</kbd>dayung · <kbd>Shift</kbd>dayung kuat · <kbd>Spasi</kbd>lompat</>;
   }
@@ -940,16 +940,16 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
             stats={
               <>
                 <HudChip tone={hud.time > PAR_TIME ? "red" : "dark"}>
-                  <Timer />
+                  <IconTimer />
                   {clock(hud.time)}
                 </HudChip>
                 <HudChip tone="green">
-                  <Droplets />
+                  <IconDrop />
                   {orbs.count}
                 </HudChip>
                 {orbs.combo >= 3 && (
                   <HudChip tone="gold">
-                    <Flame />×{orbs.combo}
+                    <IconFire />×{orbs.combo}
                   </HudChip>
                 )}
                 <HudMeter label="RAKIT" value={hud.hp} tone={hud.hp < 35 ? "red" : hud.hp < 65 ? "gold" : "green"} />

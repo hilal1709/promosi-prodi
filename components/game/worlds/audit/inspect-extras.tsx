@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Lock } from "lucide-react";
+import { IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp, IconLock } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import type { BonusKind } from "@/lib/data/worlds";
 
@@ -155,7 +155,7 @@ export function ConceptQuiz({ options, onPick }: { options: string[]; onPick: (v
 
 type Dir = "up" | "down" | "left" | "right";
 const DIRS: Dir[] = ["up", "down", "left", "right"];
-const DIR_ICON = { up: ArrowUp, down: ArrowDown, left: ArrowLeft, right: ArrowRight };
+const DIR_ICON = { up: IconArrowUp, down: IconArrowDown, left: IconArrowLeft, right: IconArrowRight };
 const KEY_DIR: Record<string, Dir> = {
   KeyW: "up", ArrowUp: "up",
   KeyS: "down", ArrowDown: "down",
@@ -219,7 +219,7 @@ export function SecureChallenge({ aksi, onDone }: { aksi: string; onDone: (succe
 
   return (
     <div className="mt-3">
-      <p className="flex items-center gap-2 text-sm font-bold"><Lock className="h-4 w-4 text-track-audit" /> {aksi}</p>
+      <p className="flex items-center gap-2 text-sm font-bold"><IconLock className="h-4 w-4 text-track-audit" /> {aksi}</p>
       <p className="mt-1 text-xs text-muted-foreground">Tekan urutan arah (WASD / panah) sebelum waktu habis. Drone tetap patroli!</p>
       <div className="mt-3 flex justify-center gap-2">
         {sequence.map((dir, index) => {
@@ -240,7 +240,7 @@ export function SecureChallenge({ aksi, onDone }: { aksi: string; onDone: (succe
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
         <div className={cn("h-full rounded-full", left < 1.5 ? "bg-track-audit" : "bg-brand-gold")} style={{ width: `${(left / SECURE_TIME) * 100}%` }} />
       </div>
-      {miss && <p className="mt-2 text-center text-xs font-bold text-track-audit">Salah urutan — ulangi dari awal!</p>}
+      {miss && <p className="mt-2 text-center text-xs font-bold text-track-audit">Salah urutan, ulangi dari awal!</p>}
       <div className="mt-3 grid grid-cols-4 gap-2">
         {DIRS.map((dir) => {
           const Icon = DIR_ICON[dir];

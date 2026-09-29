@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, type ComponentType, type CSSProperties } from "react";
-import { ArrowLeft, Gamepad2, Keyboard, Play, RotateCcw, Smartphone } from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentType, type CSSProperties } from "react";
+import { IconArrowLeft, IconKeyboard, IconPhone } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import {
   AffinityStep,
@@ -11,19 +11,42 @@ import {
   MissionIntro,
   type OnMissionComplete,
 } from "@/components/game/missions/mission-kit";
-import type { SoundName } from "@/components/game/use-game-audio";
+import type { MusicThemeId, SoundName } from "@/components/game/use-game-audio";
 import { WORLD_BRIEFS, WORLD_LEVELS } from "@/lib/data/worlds";
 import type { GameAvatarId, GameQuality, MissionId } from "@/lib/types";
+import { GameLoader } from "@/components/game/game-loader";
 import { useWorldInput } from "./world-controls";
 import type { WorldLevelProps } from "./world-kit";
-import { AUDIT_LEVELS } from "./audit/inspektur-world";
-import { DATA_LEVELS } from "./data/data-lab-world";
-import { ERP_LEVELS } from "./erp/levels";
+type LevelModule = () => Promise<ComponentType<WorldLevelProps>>;
+
+// Setiap level dimuat terpisah: masuk satu misi hanya mengunduh kode level yang
+// sedang dimainkan, bukan kesembilan level sekaligus.
+const LEVEL_MODULES: Record<MissionId, LevelModule[]> = {
+  "it-audit": [
+    () => import("./audit/inspektur-world").then((m) => m.InspectLevel),
+    () => import("./audit/inspektur-world").then((m) => m.FirewallLevel),
+    () => import("./audit/hacker-arena").then((m) => m.ArenaLevel),
+  ],
+  "enterprise-system": [
+    () => import("./erp/route-level").then((m) => m.RouteLevel),
+    () => import("./erp/ops-level").then((m) => m.OpsLevel),
+    () => import("./erp/drone-level").then((m) => m.DroneLevel),
+  ],
+  // Level 1 · Pemburu Data Liar, Level 2 · Arung Jeram Data, Level 3 · Armada Prediksi.
+  "data-science": [
+    () => import("./data/hunt-level").then((m) => m.HuntLevel),
+    () => import("./data/river-level").then((m) => m.RiverLevel),
+    () => import("./data/sea-level").then((m) => m.SeaLevel),
+  ],
+};
+
+const lazyLevels = (modules: LevelModule[]) =>
+  modules.map((load) => lazy(() => load().then((component) => ({ default: component }))));
 
 const LEVELS: Record<MissionId, ComponentType<WorldLevelProps>[]> = {
-  "it-audit": AUDIT_LEVELS,
-  "enterprise-system": ERP_LEVELS,
-  "data-science": DATA_LEVELS,
+  "it-audit": lazyLevels(LEVEL_MODULES["it-audit"]),
+  "enterprise-system": lazyLevels(LEVEL_MODULES["enterprise-system"]),
+  "data-science": lazyLevels(LEVEL_MODULES["data-science"]),
 };
 
 export default function MissionWorld({
@@ -31,6 +54,7 @@ export default function MissionWorld({
   avatar,
   quality,
   sound,
+  setMusic,
   onComplete,
   onExit,
 }: {
@@ -38,6 +62,7 @@ export default function MissionWorld({
   avatar: GameAvatarId;
   quality: GameQuality;
   sound: (name: SoundName) => void;
+  setMusic: (theme: MusicThemeId | null, intensity?: number) => void;
   onComplete: OnMissionComplete;
   onExit: () => void;
 }) {
@@ -52,9 +77,27 @@ export default function MissionWorld({
   const playing = stage >= 0 && stage < levels.length;
   const done = stage >= levels.length;
   const input = useWorldInput(playing && started && !paused);
+
+  // Unduh kode level berikutnya selagi pemain membaca briefing, agar tidak menunggu.
+  const upcoming = LEVEL_MODULES[missionId][Math.max(0, stage)];
+  useEffect(() => {
+    if (upcoming) void upcoming();
+  }, [upcoming]);
   const Level = playing ? levels[stage] : null;
   const info = playing ? WORLD_LEVELS[missionId][stage] : null;
   const performance = clampPercent(scores.reduce((sum, value) => sum + value, 0) / levels.length);
+
+  // Musik tema misi: penuh saat bermain, lembut saat briefing, jeda, atau rangkuman.
+  const active = playing && started && !paused;
+  useEffect(() => {
+    setMusic(missionId, active ? 1 : 0.4);
+  }, [active, missionId, setMusic]);
+
+  const wasPaused = useRef(paused);
+  useEffect(() => {
+    if (wasPaused.current !== paused && playing && started) sound(paused ? "open" : "close");
+    wasPaused.current = paused;
+  }, [paused, playing, sound, started]);
 
   useEffect(() => {
     if (!playing || !started) return;
@@ -66,7 +109,6 @@ export default function MissionWorld({
   }, [playing, started]);
 
   const finishLevel = (score: number) => {
-    sound("success");
     setScores((current) => [...current, clampPercent(score)]);
     setStage((current) => current + 1);
     setStarted(false);
@@ -74,6 +116,7 @@ export default function MissionWorld({
   };
 
   const restartLevel = () => {
+    sound("click");
     setAttempt((value) => value + 1);
     setStarted(false);
     setPaused(false);
@@ -89,6 +132,9 @@ export default function MissionWorld({
       {!playing && <div className="world-backdrop" />}
 
       {Level && info && (
+        <Suspense
+          fallback={<GameLoader label="Memuat level…" className="is-overlay" />}
+        >
         <Level
           key={`${stage}-${attempt}`}
           levelIndex={stage}
@@ -101,16 +147,17 @@ export default function MissionWorld({
           onPause={() => setPaused(true)}
           onFinish={finishLevel}
         />
+        </Suspense>
       )}
 
       {stage === -1 && (
         <>
-          <button className="world-exit" onClick={onExit}><ArrowLeft className="h-4 w-4" /> Kembali ke kampus</button>
+          <button className="world-exit" onClick={() => { sound("close"); onExit(); }}><IconArrowLeft className="h-4 w-4" /> Kembali ke kampus</button>
           <div className="world-panel-wrap">
             <div className="world-panel">
               <p className="text-xs font-black tracking-[0.15em] text-muted-foreground">{brief.kicker}</p>
               <h2 className="text-2xl font-black">{brief.judul}</h2>
-              <MissionIntro missionId={missionId} brief={brief} onStart={() => setStage(0)} />
+              <MissionIntro missionId={missionId} brief={brief} onStart={() => { sound("start"); setStage(0); }} />
             </div>
           </div>
         </>
@@ -123,11 +170,11 @@ export default function MissionWorld({
             <h2 className="text-2xl font-black">{info.judul}</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{info.misi}</p>
             <div className="mt-4 grid gap-2 text-sm">
-              <p className="flex items-center gap-2 rounded-2xl bg-card p-3 ring-1 ring-border"><Keyboard className="h-4 w-4 shrink-0" /> {info.kontrol}</p>
-              <p className="flex items-center gap-2 rounded-2xl bg-card p-3 ring-1 ring-border"><Smartphone className="h-4 w-4 shrink-0" /> {info.kontrolSentuh}</p>
+              <p className="flex items-center gap-2 rounded-2xl bg-card p-3 ring-1 ring-border"><IconKeyboard className="h-4 w-4 shrink-0" /> {info.kontrol}</p>
+              <p className="flex items-center gap-2 rounded-2xl bg-card p-3 ring-1 ring-border"><IconPhone className="h-4 w-4 shrink-0" /> {info.kontrolSentuh}</p>
             </div>
-            <Button className="mt-5 w-full" onClick={() => setStarted(true)} autoFocus>
-              <Gamepad2 className="h-4 w-4" /> Mulai level
+            <Button className="mt-5 w-full" onClick={() => { sound("start"); setStarted(true); }} autoFocus>
+              Mulai level
             </Button>
           </div>
         </div>
@@ -138,9 +185,9 @@ export default function MissionWorld({
           <div className="world-panel mission-pop max-w-sm text-center">
             <h2 className="text-2xl font-black">Permainan dijeda</h2>
             <div className="mt-4 grid gap-2">
-              <Button onClick={() => setPaused(false)} autoFocus><Play className="h-4 w-4" /> Lanjutkan</Button>
-              <Button variant="outline" onClick={restartLevel}><RotateCcw className="h-4 w-4" /> Ulangi level</Button>
-              <Button variant="ghost" onClick={onExit}><ArrowLeft className="h-4 w-4" /> Keluar ke kampus</Button>
+              <Button onClick={() => setPaused(false)} autoFocus>Lanjutkan</Button>
+              <Button variant="outline" onClick={restartLevel}>Ulangi level</Button>
+              <Button variant="ghost" onClick={() => { sound("close"); onExit(); }}><IconArrowLeft className="h-4 w-4" /> Keluar ke kampus</Button>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">Keluar sekarang tidak menyimpan progres misi ini.</p>
           </div>

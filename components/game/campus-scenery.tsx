@@ -301,7 +301,7 @@ const FOREST_MATERIAL = new THREE.MeshLambertMaterial({ color: "#ffffff" });
 const FOREST_GREENS = ["#2f6b3f", "#3f7f45", "#4f9d45", "#5f9b4b", "#356e44", "#6bb356"];
 const FOREST_ACCENTS = ["#e39b3a", "#f3a5c0", "#d8742f"];
 
-// Sabuk pepohonan di luar jalan, lalu siluet kota dan bukit di kejauhan —
+// Sabuk pepohonan di luar jalan, lalu siluet kota dan bukit di kejauhan -
 // semuanya memudar ke kabut sehingga ujung dunia tidak terlihat.
 function DistantForest() {
   const { trunks, cones, balls } = useMemo(() => {

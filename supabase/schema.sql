@@ -1,5 +1,5 @@
 -- =====================================================================
--- SISFOR UISI: Pilih Jalurmu — Skema Database Supabase
+-- SISFOR UISI: Pilih Jalurmu: Skema Database Supabase
 -- Sesuai bab "Skema Data (Supabase)" pada PRD.
 -- Jalankan file ini di Supabase SQL Editor (Project > SQL Editor > New query)
 -- =====================================================================

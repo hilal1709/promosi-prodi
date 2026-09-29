@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Float, OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -8,6 +8,11 @@ import * as THREE from "three";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { CampusBuilding, type BuildingStyle } from "@/components/game/campus-building";
 import { CampusSurroundings, Tree, type TreeKind } from "@/components/game/campus-scenery";
+import { AdaptiveResolution } from "@/components/game/adaptive-resolution";
+import { ResponsiveCamera } from "@/components/game/responsive-camera";
+import { SceneLoader, SceneReady } from "@/components/game/scene-loader";
+import { TouchControls } from "@/components/game/worlds/touch-controls";
+import { createInputState, type WorldInput } from "@/components/game/worlds/world-controls";
 import type { GameAvatarId, GameQuality, MissionId } from "@/lib/types";
 
 export type CampusZone = MissionId | "info";
@@ -82,10 +87,13 @@ const MOVEMENT_KEYS = new Set(["w", "a", "s", "d", "arrowup", "arrowleft", "arro
 
 type MovementInput = {
   keys: { current: Record<string, boolean> };
+  /** Joystick sentuh (x = kanan, y = maju), ditulis oleh TouchControls. */
+  touch: WorldInput;
 };
 
 function useMovementKeys() {
   const keys = useRef<Record<string, boolean>>({});
+  const touch = useRef(createInputState());
   const releaseTimers = useRef<Record<string, number>>({});
 
   useEffect(() => {
@@ -128,7 +136,7 @@ function useMovementKeys() {
     };
   }, []);
 
-  return { keys } satisfies MovementInput;
+  return { keys, touch } satisfies MovementInput;
 }
 
 const TREES: Array<{ position: [number, number, number]; kind: TreeKind; scale: number }> = [
@@ -261,14 +269,19 @@ function Avatar({
     if (!paused) {
       const heldHorizontal = Number(Boolean(input.keys.current.d || input.keys.current.arrowright)) - Number(Boolean(input.keys.current.a || input.keys.current.arrowleft));
       const heldVertical = Number(Boolean(input.keys.current.w || input.keys.current.arrowup)) - Number(Boolean(input.keys.current.s || input.keys.current.arrowdown));
-      if (heldHorizontal || heldVertical) {
+      const stick = input.touch.current.stick;
+      const moveX = heldHorizontal + stick.x;
+      const moveY = heldVertical + stick.y;
+      // Joystick bersifat analog: dorongan kecil berjalan pelan, penuh berjalan normal.
+      const strength = Math.min(1, Math.hypot(moveX, moveY));
+      if (strength > 0.12) {
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
         forward.y = 0;
         forward.normalize();
         const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
-        const movement = forward.multiplyScalar(heldVertical).add(right.multiplyScalar(heldHorizontal)).normalize();
-        const distance = delta * 3.2;
+        const movement = forward.multiplyScalar(moveY).add(right.multiplyScalar(moveX)).normalize();
+        const distance = delta * 3.2 * strength;
         const nextX = player.position.x + movement.x * distance;
         const nextZ = player.position.z + movement.z * distance;
         const canMoveX = !isBlocked(nextX, player.position.z);
@@ -276,7 +289,7 @@ function Avatar({
         if (canMoveX) player.position.x = nextX;
         if (canMoveZ) player.position.z = nextZ;
         player.rotation.y = Math.atan2(movement.x, movement.z);
-        motion.current.phase += delta * 6.4;
+        motion.current.phase += delta * 6.4 * Math.max(0.5, strength);
         motion.current.moving = true;
         onStep();
       } else {
@@ -405,11 +418,13 @@ function CampusWorld({
   completed,
   paused,
   spawnZone,
+  quality,
   input,
   onNearZone,
   onStep,
 }: {
   avatar: GameAvatarId;
+  quality: GameQuality;
   completed: MissionId[];
   paused: boolean;
   spawnZone: "plaza" | CampusZone;
@@ -479,7 +494,8 @@ function CampusWorld({
         <Tree key={index} position={tree.position} kind={tree.kind} scale={tree.scale} rotation={index * 1.7} />
       ))}
       <CampusSurroundings />
-      <ContactShadows position={[0, 0.02, -2]} opacity={0.34} scale={38} blur={2.2} far={12} />
+      {/* Merender ulang scene setiap frame; hanya sepadan di kualitas tinggi. */}
+      {quality === "tinggi" && <ContactShadows position={[0, 0.02, -2]} opacity={0.34} scale={38} blur={2.2} far={12} />}
       <Avatar avatar={avatar} spawnZone={spawnZone} paused={paused} input={input} onNearZone={onNearZone} onStep={onStep} />
     </>
   );
@@ -503,26 +519,38 @@ function GameCanvas({
   onStep: () => void;
 }) {
   const input = useMovementKeys();
+  const [ready, setReady] = useState(false);
+  const markReady = useCallback(() => setReady(true), []);
   const dpr: [number, number] = quality === "hemat" ? [1, 1] : quality === "tinggi" ? [1.25, 1.75] : [1, 1.5];
   return (
     <div className="game-canvas-focus">
       <Canvas
+        // Saat dialog/jeda terbuka kampus diam, jadi tidak perlu render terus (hemat baterai).
+        frameloop={paused ? "demand" : "always"}
         shadows={quality !== "hemat" ? "percentage" : false}
         dpr={dpr}
         camera={{ position: [7, 7, 10], fov: 48, near: 0.1, far: 100 }}
         gl={{ antialias: quality !== "hemat", powerPreference: "high-performance" }}
       >
-        <CampusWorld
-          avatar={avatar}
-          completed={completed}
-          paused={paused}
-          spawnZone={spawnZone}
-          input={input}
-          onNearZone={onNearZone}
-          onStep={onStep}
-        />
+        <ResponsiveCamera />
+        <AdaptiveResolution max={dpr[1]} />
+        <Suspense fallback={null}>
+          <CampusWorld
+            avatar={avatar}
+            completed={completed}
+            paused={paused}
+            spawnZone={spawnZone}
+            quality={quality}
+            input={input}
+            onNearZone={onNearZone}
+            onStep={onStep}
+          />
+          <SceneReady onReady={markReady} />
+        </Suspense>
       </Canvas>
-      <div className="game-keyboard-hint" aria-hidden="true"><kbd>WASD</kbd><span>Tekan untuk melangkah · tahan untuk berjalan</span></div>
+      <SceneLoader ready={ready} label="Membangun kampus virtual…" />
+      <TouchControls inputRef={input.touch} mode="stick" />
+      <div className="game-keyboard-hint hint-pointer" aria-hidden="true"><kbd>WASD</kbd><span>Tekan untuk melangkah · tahan untuk berjalan</span></div>
     </div>
   );
 }

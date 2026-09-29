@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Check, Crosshair, Heart, Server, Shield, ShieldAlert, Skull, Wind, X, Zap } from "lucide-react";
+import { IconBolt, IconCheck, IconCrosshair, IconHeart, IconShield, IconSkull, IconThreat, IconUser, IconWind, IconX } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { cn } from "@/lib/utils";
@@ -218,7 +218,7 @@ function UnitNode({ unit }: { unit: Unit }) {
     <group ref={group} position={[unit.x, 0, unit.z]}>
       <group ref={inner}>{hostile ? <ThreatModel unit={unit} /> : <StaffModel unit={unit} />}</group>
       <Label position={[0, 2.3, 0]} className={cn("arena-tag", hostile ? "is-red" : "is-green")} distanceFactor={12}>
-        {hostile ? "⚠ " : "✓ "}
+        {hostile ? <IconThreat className="mr-1 inline h-3 w-3 align-[-2px]" /> : <IconUser className="mr-1 inline h-3 w-3 align-[-2px]" />}
         {unit.label}
       </Label>
     </group>
@@ -884,21 +884,21 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
             toast={phase === "play" ? toast : null}
             stats={
               <>
-                <HudChip>{Array.from({ length: PLAYER_HEARTS }, (_, i) => <Heart key={i} className={i < hud.hearts ? "fill-current text-track-audit" : "opacity-30"} />)}</HudChip>
+                <HudChip>{Array.from({ length: PLAYER_HEARTS }, (_, i) => <IconHeart key={i} className={i < hud.hearts ? "fill-current text-track-audit" : "opacity-30"} />)}</HudChip>
                 <HudMeter label="SERVER DB" value={hud.serverHp} tone={hud.serverHp < 35 ? "red" : hud.serverHp < 65 ? "gold" : "green"} />
-                <HudChip tone="gold"><Crosshair />{hud.kills}</HudChip>
-                {hud.combo >= 3 && <HudChip tone="green"><Zap />Combo x{hud.combo}</HudChip>}
+                <HudChip tone="gold"><IconCrosshair />{hud.kills}</HudChip>
+                {hud.combo >= 3 && <HudChip tone="green"><IconBolt />Combo x{hud.combo}</HudChip>}
                 {hud.wave < 3 && <HudChip tone="dark">Gelombang {hud.wave}</HudChip>}
-                {hud.mfa > 0 && <HudChip tone="green"><Shield />{Math.ceil(hud.mfa)}s</HudChip>}
-                {hud.overclock > 0 && <HudChip tone="gold"><Zap />x3 {Math.ceil(hud.overclock)}s</HudChip>}
-                <HudChip tone={hud.dashReady ? "dark" : "red"}><Wind />{hud.dashReady ? "Dash" : "…"}</HudChip>
+                {hud.mfa > 0 && <HudChip tone="green"><IconShield />{Math.ceil(hud.mfa)}s</HudChip>}
+                {hud.overclock > 0 && <HudChip tone="gold"><IconBolt />x3 {Math.ceil(hud.overclock)}s</HudChip>}
+                <HudChip tone={hud.dashReady ? "dark" : "red"}><IconWind />{hud.dashReady ? "Dash" : "…"}</HudChip>
               </>
             }
           />
           {bossVisible && (
             <div className={cn("world-boss-bar", hud.bossShield && "is-shield")}>
               <small>
-                <span><Skull className="mr-1 inline h-3 w-3" />PERETAS BAYANGAN</span>
+                <span><IconSkull className="mr-1 inline h-3 w-3" />PERETAS BAYANGAN</span>
                 <span>{hud.bossShield ? "PERISAI AKTIF" : `FASE ${hud.bossPhase + 1}/3`}</span>
               </small>
               <span><i style={{ width: `${hud.bossShield ? 100 : (hud.bossHp / Math.max(1, hud.bossMax)) * 100}%` }} /></span>
@@ -914,12 +914,12 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
             mode="stick"
             buttons={[
               { holdKey: "shift", label: "Dash", tone: "light" },
-              { holdKey: "space", label: <Crosshair className="h-7 w-7" /> },
+              { holdKey: "space", label: <IconCrosshair className="h-7 w-7" /> },
             ]}
           />
           {phase === "intro" && (
             <div className="world-overlay-card mission-pop">
-              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground"><ShieldAlert className="h-4 w-4" /> CARA MAIN</p>
+              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground">CARA MAIN</p>
               <p className="mt-1 text-lg font-black">Pertahankan server database!</p>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 Ancaman datang dari segala arah menuju server. <b className="text-foreground">Tahan Spasi</b> untuk menembakkan patch keamanan (bidikan otomatis),{" "}
@@ -927,12 +927,10 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
               </p>
               <div className="mt-3 grid gap-2 text-sm">
                 <div className="flex items-center gap-2 rounded-2xl bg-track-audit-soft p-2.5">
-                  <ShieldAlert className="h-4 w-4 shrink-0 text-track-audit" />
                   <span className="flex-1"><b>Virus USB · Bot brute force · Phishing · Akun resign</b></span>
                   <span className="rounded-full bg-track-audit px-2 py-0.5 text-xs font-black text-white">TEMBAK</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 p-2.5">
-                  <Check className="h-4 w-4 shrink-0 text-emerald-600" />
                   <span className="flex-1"><b>Staf hijau</b> · akses sah ke server</span>
                   <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-black text-white">JANGAN</span>
                 </div>
@@ -954,7 +952,7 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
           )}
           {phase === "quiz" && finding && (
             <div className="world-overlay-card mission-pop">
-              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground"><Server className="h-4 w-4" /> JEBOL PERISAI · FASE {quizPhase + 1}/3</p>
+              <p className="flex items-center gap-2 text-xs font-black tracking-[0.15em] text-muted-foreground">JEBOL PERISAI · FASE {quizPhase + 1}/3</p>
               <p className="mt-1 text-sm text-muted-foreground">Perisai bos terbuat dari celah ini:</p>
               <p className="mt-1 text-lg font-black">{finding.judul}</p>
               <p className="mt-2 text-sm font-bold">Kontrol mana yang menutup celahnya?</p>
@@ -972,9 +970,9 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
                     )}
                   >
                     {quizPick !== null && index === finding.rekomendasiBenar ? (
-                      <Check className="h-4 w-4 shrink-0 text-emerald-600" />
+                      <IconCheck className="h-4 w-4 shrink-0 text-emerald-600" />
                     ) : quizPick === index ? (
-                      <X className="h-4 w-4 shrink-0 text-track-audit" />
+                      <IconX className="h-4 w-4 shrink-0 text-track-audit" />
                     ) : null}
                     {rec}
                   </button>

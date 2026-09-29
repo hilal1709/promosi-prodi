@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { RotateCcw, ShieldAlert, ShieldCheck } from "lucide-react";
+import { IconRetry, IconShield, IconThreat } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -69,12 +69,12 @@ export default function AuditScenario({ konten }: { konten: AuditScenarioContent
         >
           <div className="flex items-center gap-2">
             {aman ? (
-              <ShieldCheck className="h-5 w-5 text-track-erp-foreground" />
+              <IconShield className="h-5 w-5 text-track-erp-foreground" />
             ) : (
-              <ShieldAlert className="h-5 w-5 text-track-audit-foreground" />
+              <IconThreat className="h-5 w-5 text-track-audit-foreground" />
             )}
             <p className={cn("font-bold", aman ? "text-track-erp-foreground" : "text-track-audit-foreground")}>
-              Skor Kepatuhan: {skor}% {aman ? "— Aman" : "— Perlu Perbaikan"}
+              Skor Kepatuhan: {skor}% {aman ? "· Aman" : "· Perlu Perbaikan"}
             </p>
           </div>
           <Progress
@@ -93,7 +93,7 @@ export default function AuditScenario({ konten }: { konten: AuditScenarioContent
             </div>
           )}
           <Button variant="outline" size="sm" className="mt-5" onClick={reset}>
-            <RotateCcw className="h-3.5 w-3.5" /> Ulangi Pemeriksaan
+            <IconRetry className="h-3.5 w-3.5" /> Ulangi Pemeriksaan
           </Button>
         </div>
       )}

@@ -160,7 +160,7 @@ const WATER_SIZE = 4000;
 const WATER_REPEAT = 120;
 const WATER_TILE = WATER_SIZE / WATER_REPEAT;
 
-/** Air laut & sungai: satu bidang besar yang mengikuti kamera — tidak pernah terlihat ujungnya. */
+/** Air laut & sungai: satu bidang besar yang mengikuti kamera, tidak pernah terlihat ujungnya. */
 function Water() {
   const mesh = useRef<THREE.Mesh>(null);
   const material = useRef<THREE.MeshStandardMaterial>(null);

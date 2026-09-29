@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, X, Share } from "lucide-react";
+import { IconDownload, IconIosShare, IconX } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -79,7 +79,7 @@ export default function InstallPwaPrompt() {
   return (
     <div className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-xl sm:inset-x-auto sm:right-6">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Download className="h-5 w-5" />
+        <IconDownload className="h-5 w-5" />
       </div>
       <div className="flex-1 text-sm">
         <p className="font-bold">Instal SISFOR UISI</p>
@@ -87,7 +87,7 @@ export default function InstallPwaPrompt() {
           <p className="text-muted-foreground">Tambahkan ke layar utama HP-mu, seperti aplikasi biasa.</p>
         ) : (
           <p className="text-muted-foreground flex items-center gap-1 flex-wrap">
-            Ketuk <Share className="h-3.5 w-3.5 inline" /> lalu pilih &quot;Add to Home Screen&quot;.
+            Ketuk <IconIosShare className="h-3.5 w-3.5 inline" /> lalu pilih &quot;Add to Home Screen&quot;.
           </p>
         )}
       </div>
@@ -101,7 +101,7 @@ export default function InstallPwaPrompt() {
         aria-label="Tutup"
         className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
       >
-        <X className="h-4 w-4" />
+        <IconX className="h-4 w-4" />
       </button>
     </div>
   );

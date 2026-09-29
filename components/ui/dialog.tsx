@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { IconX } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
 const Dialog = DialogPrimitive.Root;
@@ -42,7 +42,7 @@ function DialogContent({
       >
         {children}
         <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-1.5 opacity-70 transition-opacity hover:opacity-100 hover:bg-muted focus:outline-none">
-          <X className="h-4 w-4" />
+          <IconX className="h-4 w-4" />
           <span className="sr-only">Tutup</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

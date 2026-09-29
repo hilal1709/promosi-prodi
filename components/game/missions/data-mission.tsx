@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, BarChart3, Check, LineChart, PieChart } from "lucide-react";
+import { IconArrowRight, IconChartBar, IconChartLine, IconChartPie, IconCheck } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -125,7 +125,7 @@ function CleanLevel({ onFinish }: LevelProps) {
                             isSelected && "bg-track-data-soft ring-2 ring-track-data"
                           )}
                         >
-                          {cellFixed && <Check className="mr-1 inline h-3.5 w-3.5" />}
+                          {cellFixed && <IconCheck className="mr-1 inline h-3.5 w-3.5" />}
                           {raw === "" ? <span className="italic text-muted-foreground">(kosong)</span> : String(raw)}
                         </button>
                       </td>
@@ -262,10 +262,10 @@ export function MiniChart({ kind, data }: { kind: ChartKind; data: { label: stri
   );
 }
 
-const CHART_OPTIONS: { kind: ChartKind; label: string; Icon: typeof BarChart3 }[] = [
-  { kind: "bar", label: "Batang", Icon: BarChart3 },
-  { kind: "line", label: "Garis", Icon: LineChart },
-  { kind: "pie", label: "Lingkaran", Icon: PieChart },
+const CHART_OPTIONS: { kind: ChartKind; label: string; Icon: typeof IconChartBar }[] = [
+  { kind: "bar", label: "Batang", Icon: IconChartBar },
+  { kind: "line", label: "Garis", Icon: IconChartLine },
+  { kind: "pie", label: "Lingkaran", Icon: IconChartPie },
 ];
 
 function ChartLevel({ onFinish }: LevelProps) {
@@ -324,7 +324,7 @@ function ChartLevel({ onFinish }: LevelProps) {
                 }}
               />
               <Button className="mt-3" onClick={() => { setPicked(null); setIndex((value) => value + 1); }}>
-                {index + 1 < CHART_QUESTIONS.length ? "Soal berikutnya" : "Selesai"} <ArrowRight className="h-4 w-4" />
+                {index + 1 < CHART_QUESTIONS.length ? "Soal berikutnya" : "Selesai"} <IconArrowRight className="h-4 w-4" />
               </Button>
             </>
           )}
@@ -386,7 +386,7 @@ function InsightLevel({ onFinish }: LevelProps) {
             <>
               <FeedbackToast feedback={{ ok: picked.benar, judul: picked.benar ? "Insight tajam!" : "Belum tepat", teks: picked.penjelasan, konsep: "Data-driven decision" }} />
               <Button className="mt-3" onClick={() => { setPickedId(null); setIndex((value) => value + 1); }}>
-                {index + 1 < INSIGHT_QUESTIONS.length ? "Kasus berikutnya" : "Selesai"} <ArrowRight className="h-4 w-4" />
+                {index + 1 < INSIGHT_QUESTIONS.length ? "Kasus berikutnya" : "Selesai"} <IconArrowRight className="h-4 w-4" />
               </Button>
             </>
           )}

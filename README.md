@@ -5,11 +5,11 @@ Web app (sekaligus PWA yang bisa diinstal di HP) untuk sayembara promosi Program
 ## Tech stack
 
 - **Next.js 16** (App Router, Turbopack) + TypeScript
-- **Tailwind CSS v4** untuk styling (tanpa `tailwind.config.js` — token warna & radius didefinisikan langsung di `app/globals.css`)
+- **Tailwind CSS v4** untuk styling (tanpa `tailwind.config.js`, token warna & radius didefinisikan langsung di `app/globals.css`)
 - Komponen UI bergaya **shadcn/ui** (Radix UI primitives + `class-variance-authority`), ditulis manual di `components/ui/`
 - **GSAP** untuk animasi & transisi halaman
-- **Supabase** (`@supabase/supabase-js`) sebagai lapisan data opsional — aplikasi tetap berjalan penuh dengan **data mock** bila Supabase belum disambungkan
-- **PWA manual** (manifest + service worker ditulis sendiri di `public/`, bukan lewat plugin) — dipilih karena Next.js 16 memakai Turbopack sebagai default builder, dan plugin PWA populer (mis. `next-pwa`) masih bergantung pada konfigurasi Webpack yang tidak kompatibel dengan Turbopack
+- **Supabase** (`@supabase/supabase-js`) sebagai lapisan data opsional, aplikasi tetap berjalan penuh dengan **data mock** bila Supabase belum disambungkan
+- **PWA manual** (manifest + service worker ditulis sendiri di `public/`, bukan lewat plugin), dipilih karena Next.js 16 memakai Turbopack sebagai default builder, dan plugin PWA populer (mis. `next-pwa`) masih bergantung pada konfigurasi Webpack yang tidak kompatibel dengan Turbopack
 
 ## Menjalankan secara lokal
 
@@ -27,7 +27,7 @@ npm run start
 
 ## Menyambungkan Supabase (opsional, tapi direkomendasikan untuk data real)
 
-Selama `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY` belum diisi, seluruh konten (pertanyaan kuis, menu ruang kerja, FAQ, testimoni, prestasi) diambil dari data mock di `lib/data/*.ts` — jadi aplikasi **selalu bisa didemokan** tanpa setup tambahan (sesuai mitigasi risiko di PRD: "isi data dummy sejak hari ke-2").
+Selama `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY` belum diisi, seluruh konten (pertanyaan kuis, menu ruang kerja, FAQ, testimoni, prestasi) diambil dari data mock di `lib/data/*.ts`, jadi aplikasi **selalu bisa didemokan** tanpa setup tambahan (sesuai mitigasi risiko di PRD: "isi data dummy sejak hari ke-2").
 
 Untuk memakai Supabase sungguhan:
 
@@ -59,7 +59,7 @@ supabase/schema.sql      DDL + RLS sesuai skema data di PRD
 supabase/seed.sql        Data awal (contoh; workspace_scenarios lain bisa ditambah lewat Table Editor)
 public/manifest.json     Manifest PWA
 public/sw.js             Service worker manual (app-shell caching + fallback offline.html)
-public/icons/            Ikon PWA (placeholder monogram "SI" — ganti dengan logo resmi UISI kalau ada)
+public/icons/            Ikon PWA (placeholder monogram "SI", ganti dengan logo resmi UISI kalau ada)
 scripts/generate-icons.py Skrip Python yang dipakai untuk membuat ikon placeholder di atas
 ```
 

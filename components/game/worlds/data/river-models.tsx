@@ -700,7 +700,7 @@ export const Orbs = memo(function Orbs({ simRef }: { simRef: RiverSimRef }) {
 });
 
 /* ------------------------------------------------------------------ */
-/* Finale: Galeri Dasbor — grafik hasil pemain muncul raksasa           */
+/* Finale: Galeri Dasbor, grafik hasil pemain muncul raksasa           */
 /* ------------------------------------------------------------------ */
 
 export const FINALE_CENTER = (() => {

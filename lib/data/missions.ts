@@ -26,7 +26,7 @@ export const MISSION_BRIEFS: Record<MissionId, MissionBrief> = {
       dialog: [
         "Selamat datang di Pusat Keamanan! Hari ini sistem data pelanggan kita dibanjiri permintaan akses.",
         "Tugasmu: jadi penjaga gerbang. Izinkan yang memang butuh, tolak yang mencurigakan. Setelah itu, kita telusuri log audit untuk mencari jejak aneh.",
-        "Terakhir, susun laporan audit. Auditor TI bukan cuma mencari kesalahan — kita memastikan data semua orang tetap aman. Siap?",
+        "Terakhir, susun laporan audit. Auditor TI bukan cuma mencari kesalahan, kita memastikan data semua orang tetap aman. Siap?",
       ],
     },
     level: [
@@ -36,7 +36,7 @@ export const MISSION_BRIEFS: Record<MissionId, MissionBrief> = {
     ],
     pelajaran: [
       "Least privilege: setiap orang hanya diberi akses yang benar-benar dibutuhkan untuk tugasnya.",
-      "Log audit adalah 'CCTV' sistem informasi — jejaknya membantu menemukan penyalahgunaan.",
+      "Log audit adalah 'CCTV' sistem informasi, jejaknya membantu menemukan penyalahgunaan.",
       "Auditor menilai tingkat risiko lalu memberi rekomendasi kontrol yang realistis.",
     ],
   },
@@ -47,7 +47,7 @@ export const MISSION_BRIEFS: Record<MissionId, MissionBrief> = {
       nama: "Pak Dimas",
       peran: "Manajer Operasi",
       dialog: [
-        "Halo! Pabrik semen kita punya banyak divisi: penjualan, gudang, produksi, logistik, keuangan. Dulu tiap divisi punya catatan sendiri-sendiri — kacau!",
+        "Halo! Pabrik semen kita punya banyak divisi: penjualan, gudang, produksi, logistik, keuangan. Dulu tiap divisi punya catatan sendiri-sendiri, kacau!",
         "Sekarang kita pakai ERP: satu sistem terintegrasi. Pertama, bantu aku merakit alur pesanan dari pelanggan sampai pembayaran.",
         "Lalu kamu pegang kendali saat hari sibuk: kirim pesanan, atur produksi, dan tangani masalah yang muncul. Ayo mulai!",
       ],
@@ -111,7 +111,7 @@ export const ACCESS_REQUESTS: AccessRequest[] = [
     alasan: "Menelepon balik pelanggan yang komplain.",
     izinkan: true,
     konsep: "Need-to-know",
-    penjelasan: "Sesuai peran dan jam kerja — Rani memang butuh data ini untuk tugasnya.",
+    penjelasan: "Sesuai peran dan jam kerja, Rani memang butuh data ini untuk tugasnya.",
   },
   {
     id: "a2",
@@ -166,7 +166,7 @@ export const ACCESS_REQUESTS: AccessRequest[] = [
     alasan: "Tiket perubahan #CR-204 sudah disetujui.",
     izinkan: true,
     konsep: "Change management",
-    penjelasan: "Ada tiket perubahan yang disetujui — prosesnya tercatat dan bisa diaudit.",
+    penjelasan: "Ada tiket perubahan yang disetujui, prosesnya tercatat dan bisa diaudit.",
   },
   {
     id: "a7",
@@ -242,7 +242,7 @@ export const AUDIT_FINDINGS: AuditFinding[] = [
     risikoBenar: ["Tinggi"],
     rekomendasi: ["Beri teguran lisan saja", "Blokir port USB & investigasi potensi kebocoran", "Hapus semua data pelanggan"],
     rekomendasiBenar: 1,
-    penjelasan: "Data pribadi dalam jumlah besar keluar dari sistem — risiko tertinggi dan melanggar perlindungan data.",
+    penjelasan: "Data pribadi dalam jumlah besar keluar dari sistem, risiko tertinggi dan melanggar perlindungan data.",
   },
   {
     id: "l11",
@@ -258,7 +258,7 @@ export const AUDIT_FINDINGS: AuditFinding[] = [
     risikoBenar: ["Rendah"],
     rekomendasi: ["Jadwalkan pembaruan dokumen kebijakan", "Hentikan operasional sampai dokumen diperbarui", "Tidak perlu dicatat"],
     rekomendasiBenar: 0,
-    penjelasan: "Penting tapi tidak mendesak — cukup dijadwalkan agar dokumentasi tetap relevan.",
+    penjelasan: "Penting tapi tidak mendesak, cukup dijadwalkan agar dokumentasi tetap relevan.",
   },
 ];
 
@@ -266,7 +266,7 @@ export const AUDIT_FINDINGS: AuditFinding[] = [
 
 export const ERP_MODULES: ErpModule[] = [
   { id: "m1", label: "Pesanan Pelanggan", divisi: "CRM", aliranData: "Pelanggan memesan 50 ton semen lewat portal." },
-  { id: "m2", label: "Sales Order", divisi: "Penjualan", aliranData: "Pesanan dicatat sekali — langsung terlihat gudang & keuangan." },
+  { id: "m2", label: "Sales Order", divisi: "Penjualan", aliranData: "Pesanan dicatat sekali, langsung terlihat gudang & keuangan." },
   { id: "m3", label: "Cek Stok", divisi: "Gudang", aliranData: "Sistem mengecek stok real-time dan memesan barang." },
   { id: "m4", label: "Produksi", divisi: "Manufaktur", aliranData: "Jika stok kurang, jadwal produksi dibuat otomatis." },
   { id: "m5", label: "Pengiriman", divisi: "Logistik", aliranData: "Surat jalan dibuat, truk dijadwalkan, status bisa dilacak." },
@@ -320,7 +320,7 @@ export const ERP_EVENTS: ErpEvent[] = [
     id: "e2",
     muncul: 48,
     judul: "Pesanan ganda terdeteksi",
-    deskripsi: "Pesanan PT Karya Bangun masuk dua kali — dari admin cabang Gresik dan Tuban.",
+    deskripsi: "Pesanan PT Karya Bangun masuk dua kali, dari admin cabang Gresik dan Tuban.",
     konsep: "Data terpusat",
     opsi: [
       { label: "Kirim dua-duanya biar aman", benar: false, hasil: "70 ton semen terkirim sia-sia dan harus ditarik kembali.", stok: -70 },
@@ -371,10 +371,10 @@ export const DATA_TABLE: DataDetectiveTable = {
     { baris: "r2", kolom: "Toko", jenis: "format", perbaikan: "Toko Sejahtera", penjelasan: "Huruf kecil & spasi berlebih membuat 'toko sejahtera ' dianggap toko berbeda." },
     { baris: "r3", kolom: "Unit Terjual", jenis: "invalid", perbaikan: 0, penjelasan: "Penjualan tidak mungkin negatif. Setelah dicek, toko ini tidak menjual apa pun." },
     { baris: "r4", kolom: "Toko", jenis: "format", perbaikan: "Toko Jaya", penjelasan: "Penulisan huruf kapital semua tidak seragam dengan data lain." },
-    { baris: "r4", kolom: "Harga (Rp)", jenis: "format", perbaikan: 65000, penjelasan: "'65rb' adalah teks, bukan angka — tidak bisa dijumlahkan." },
+    { baris: "r4", kolom: "Harga (Rp)", jenis: "format", perbaikan: 65000, penjelasan: "'65rb' adalah teks, bukan angka, tidak bisa dijumlahkan." },
     { baris: "r5", kolom: "Kota", jenis: "kosong", perbaikan: "Tuban", penjelasan: "Kota kosong dilengkapi dari data master toko." },
-    { baris: "r6", kolom: "*", jenis: "duplikat", asli: "r1", penjelasan: "Baris ini sama persis dengan Toko Makmur di atas — kalau tidak dihapus, penjualannya terhitung dua kali." },
-    { baris: "r8", kolom: "Harga (Rp)", jenis: "invalid", perbaikan: 65000, penjelasan: "Harga 10× lipat dari toko lain — kemungkinan salah ketik satu angka nol." },
+    { baris: "r6", kolom: "*", jenis: "duplikat", asli: "r1", penjelasan: "Baris ini sama persis dengan Toko Makmur di atas, kalau tidak dihapus, penjualannya terhitung dua kali." },
+    { baris: "r8", kolom: "Harga (Rp)", jenis: "invalid", perbaikan: 65000, penjelasan: "Harga 10× lipat dari toko lain, kemungkinan salah ketik satu angka nol." },
   ],
 };
 
@@ -454,7 +454,7 @@ export const INSIGHT_QUESTIONS: InsightQuestion[] = [
         id: "o3",
         label: "Samakan stok dengan bulan Januari",
         benar: false,
-        penjelasan: "Penjualan Juni sudah jauh di atas Januari — stok akan kurang.",
+        penjelasan: "Penjualan Juni sudah jauh di atas Januari, stok akan kurang.",
       },
     ],
   },

@@ -456,15 +456,15 @@
     "semantic_hash": ""
   },
   "components/chatbot/chatbot-widget.tsx": {
-    "mtime": 1790063610.286105,
-    "seen": 1790580751.505067,
-    "ast_hash": "7962ecd7a3d0d2555e9b2aea093742a1",
+    "mtime": 1790656262.731494,
+    "seen": 1790656660.7971218,
+    "ast_hash": "4b7493e51918a19d4f88480fbde55963",
     "semantic_hash": ""
   },
   "components/game/campus-panels.tsx": {
-    "mtime": 1790091724.103572,
-    "seen": 1790580751.5050688,
-    "ast_hash": "c2582a3e0556913f41400ea0f88357c4",
+    "mtime": 1790656542.8271475,
+    "seen": 1790656660.7976317,
+    "ast_hash": "93413248e004a6b88008feb068e01b26",
     "semantic_hash": ""
   },
   "components/game/character-model.tsx": {
@@ -474,21 +474,21 @@
     "semantic_hash": ""
   },
   "components/game/game-canvas.tsx": {
-    "mtime": 1790590487.4898567,
-    "seen": 1790590541.1916177,
-    "ast_hash": "aca247d86275d0541334b469416c7555",
+    "mtime": 1790659324.7754507,
+    "seen": 1790659535.44424,
+    "ast_hash": "52a5969a396f42e3da091d56357b596b",
     "semantic_hash": ""
   },
   "components/game/game-entry.tsx": {
-    "mtime": 1790609272.858961,
-    "seen": 1790609323.3744612,
-    "ast_hash": "3b7b8c7e6f90a0d044b7a2b9d8152687",
+    "mtime": 1790659324.7788935,
+    "seen": 1790659535.4442465,
+    "ast_hash": "04be19488cbf6e24eff904666278a017",
     "semantic_hash": ""
   },
   "components/game/legacy-redirect.tsx": {
-    "mtime": 1790089419.468682,
-    "seen": 1790580751.5050762,
-    "ast_hash": "2c39be2eea7bd99e1c74477a33932e89",
+    "mtime": 1790659324.781427,
+    "seen": 1790659535.4446435,
+    "ast_hash": "865f181ad4d98ce4f9a4a0e816525fa1",
     "semantic_hash": ""
   },
   "components/game/mission-panel.tsx": {
@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "components/game/use-game-audio.ts": {
-    "mtime": 1790605404.1249177,
-    "seen": 1790606499.8299105,
-    "ast_hash": "c8b55a177afd822e064a67191b44d836",
+    "mtime": 1790654877.1875484,
+    "seen": 1790655241.7391822,
+    "ast_hash": "1203a20afac133cf1550fbaff68c6144",
     "semantic_hash": ""
   },
   "components/gsap/page-transition.tsx": {
@@ -516,33 +516,33 @@
     "semantic_hash": ""
   },
   "components/gsap/stagger-children.tsx": {
-    "mtime": 1790063612.0509698,
-    "seen": 1790580751.5050862,
-    "ast_hash": "507431249dced8bc5359dc14a3b4b83c",
+    "mtime": 1790655423.9358459,
+    "seen": 1790655562.6860468,
+    "ast_hash": "4536967c7bd4b8f44c498dfb26b50c55",
     "semantic_hash": ""
   },
   "components/info/achievement-gallery.tsx": {
-    "mtime": 1790063612.6175284,
-    "seen": 1790580751.505088,
-    "ast_hash": "f3efe6c22e8ee62a0697169604833807",
+    "mtime": 1790656263.7007391,
+    "seen": 1790656660.8105536,
+    "ast_hash": "55b228bc28d850572e73bee0742afc25",
     "semantic_hash": ""
   },
   "components/info/career-grid.tsx": {
-    "mtime": 1790089064.003363,
-    "seen": 1790580751.5050898,
-    "ast_hash": "3d3cf850e9fdf682a9c07c4310743594",
+    "mtime": 1790656219.9342213,
+    "seen": 1790656660.8105571,
+    "ast_hash": "75b88e2c0ee04de67f8415580eb1068e",
     "semantic_hash": ""
   },
   "components/info/curriculum-tabs.tsx": {
-    "mtime": 1790063613.7594812,
-    "seen": 1790580751.505092,
-    "ast_hash": "02ea71ed2e84612c5ac82dd24de92639",
+    "mtime": 1790656272.622724,
+    "seen": 1790656660.8105612,
+    "ast_hash": "1f4fc06814e5dff06caa30f24d1ba4ab",
     "semantic_hash": ""
   },
   "components/info/testimonial-card.tsx": {
-    "mtime": 1790063614.5883088,
-    "seen": 1790580751.5050936,
-    "ast_hash": "c8ed2adcce8775f368a792ea816a4011",
+    "mtime": 1790656273.1924095,
+    "seen": 1790656660.8105643,
+    "ast_hash": "0caef6b7b322172efe8edeb2574fd9e9",
     "semantic_hash": ""
   },
   "components/layout/footer.tsx": {
@@ -552,39 +552,39 @@
     "semantic_hash": ""
   },
   "components/layout/navbar.tsx": {
-    "mtime": 1790063617.4070666,
-    "seen": 1790580751.5050972,
-    "ast_hash": "099c8b916a142174f57bf4b9b27dd641",
+    "mtime": 1790656273.197426,
+    "seen": 1790656660.8109426,
+    "ast_hash": "c77988db3235c60ba38f103389b1d2a8",
     "semantic_hash": ""
   },
   "components/pwa/install-pwa-prompt.tsx": {
-    "mtime": 1790089275.9286737,
-    "seen": 1790580751.5050993,
-    "ast_hash": "68fb26f0552daabcc2c9740f17b1809f",
+    "mtime": 1790656273.2024271,
+    "seen": 1790656660.8109481,
+    "ast_hash": "a3a07879b68e108c4c81d3f6aee5731a",
     "semantic_hash": ""
   },
   "components/pwa/service-worker-register.tsx": {
-    "mtime": 1790092696.2475264,
-    "seen": 1790580751.5051007,
-    "ast_hash": "763975645f638ae7a370dd51270b3945",
+    "mtime": 1790655423.939345,
+    "seen": 1790655562.688289,
+    "ast_hash": "5dde6ce401980fdd6643ed9f9d0580bc",
     "semantic_hash": ""
   },
   "components/quiz/question-card.tsx": {
-    "mtime": 1790089177.691792,
-    "seen": 1790580751.5051026,
-    "ast_hash": "d7378ee7030a096d38cb820ff72fc645",
+    "mtime": 1790656273.2044249,
+    "seen": 1790656660.811455,
+    "ast_hash": "b588a4665788c9ffd5fe2ec164e67eee",
     "semantic_hash": ""
   },
   "components/quiz/quiz-flow.tsx": {
-    "mtime": 1790063619.7240748,
-    "seen": 1790580751.5051043,
-    "ast_hash": "b93402b7c44b30373efa8882575646d9",
+    "mtime": 1790656273.2074268,
+    "seen": 1790656660.8114636,
+    "ast_hash": "f6539f2be5d55dac673bb16239f3663c",
     "semantic_hash": ""
   },
   "components/quiz/result-card.tsx": {
-    "mtime": 1790089071.1036072,
-    "seen": 1790580751.5051062,
-    "ast_hash": "151032945e72b472df5b54da23932567",
+    "mtime": 1790656273.2119548,
+    "seen": 1790656660.8114672,
+    "ast_hash": "68d108da166c7cda3ad4ae8870bea1a5",
     "semantic_hash": ""
   },
   "components/ui/avatar.tsx": {
@@ -612,9 +612,9 @@
     "semantic_hash": ""
   },
   "components/ui/dialog.tsx": {
-    "mtime": 1790063623.2068813,
-    "seen": 1790580751.5051143,
-    "ast_hash": "a3f82e8cf375ee1caa9ca8e06cd587ea",
+    "mtime": 1790656273.2129555,
+    "seen": 1790656660.8126929,
+    "ast_hash": "8450c6aa6a2fa58f187c406d676c5764",
     "semantic_hash": ""
   },
   "components/ui/progress.tsx": {
@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "components/workspace/menu-grid.tsx": {
-    "mtime": 1790089089.794069,
-    "seen": 1790580751.5051196,
-    "ast_hash": "8134f1f9247c5dc780e60ab34244b68f",
+    "mtime": 1790656324.3628254,
+    "seen": 1790656660.8132522,
+    "ast_hash": "4fe6d6a81fa49ef8cc3295e72231b088",
     "semantic_hash": ""
   },
   "components/workspace/scenario-dialog.tsx": {
@@ -642,9 +642,9 @@
     "semantic_hash": ""
   },
   "components/workspace/scenarios/audit-scenario.tsx": {
-    "mtime": 1790091759.380427,
-    "seen": 1790580751.505123,
-    "ast_hash": "a20a507cc67506faccaf9ce816ace116",
+    "mtime": 1790656273.2189567,
+    "seen": 1790656660.8135524,
+    "ast_hash": "d5b875f65e81f766a4ecc1a1dcf06a6b",
     "semantic_hash": ""
   },
   "components/workspace/scenarios/data-chart-scenario.tsx": {
@@ -654,33 +654,33 @@
     "semantic_hash": ""
   },
   "components/workspace/scenarios/data-clean-scenario.tsx": {
-    "mtime": 1790091768.6581693,
-    "seen": 1790580751.5051262,
-    "ast_hash": "2fd06e4ba40374ca423091e715c91200",
+    "mtime": 1790656273.225957,
+    "seen": 1790656660.8138518,
+    "ast_hash": "25cbf5c56af1c6b698c4b87d232a5891",
     "semantic_hash": ""
   },
   "components/workspace/scenarios/data-insight-scenario.tsx": {
-    "mtime": 1790091772.7879932,
-    "seen": 1790580751.505128,
-    "ast_hash": "cfcc845c8cd0ab454955548af1f576e8",
+    "mtime": 1790656273.2299578,
+    "seen": 1790656660.8138583,
+    "ast_hash": "c59463cc3e2aeab36415c54acbd3b7bd",
     "semantic_hash": ""
   },
   "components/workspace/scenarios/erp-scenario.tsx": {
-    "mtime": 1790091763.9626343,
-    "seen": 1790580751.5051296,
-    "ast_hash": "327726c4b5b4716ccd9b19af4c6cd87c",
+    "mtime": 1790656273.2339537,
+    "seen": 1790656660.8138633,
+    "ast_hash": "9b45558731f3f4d14b8cd3c44604c07f",
     "semantic_hash": ""
   },
   "components/workspace/track-switcher.tsx": {
-    "mtime": 1790089083.762314,
-    "seen": 1790580751.5051312,
-    "ast_hash": "092abf276093df078b76f94a120fbdb5",
+    "mtime": 1790656219.9372334,
+    "seen": 1790656660.8138697,
+    "ast_hash": "c6824dd9138284fa860aaa2462c06739",
     "semantic_hash": ""
   },
   "components/workspace/workspace-shell.tsx": {
-    "mtime": 1790089077.4528146,
-    "seen": 1790580751.5051332,
-    "ast_hash": "e5fa990066734b3abae6ab9997411c1d",
+    "mtime": 1790656219.9362345,
+    "seen": 1790656660.8138747,
+    "ast_hash": "bcbc7faa4dd9e02511bf071674c88f74",
     "semantic_hash": ""
   },
   "eslint.config.mjs": {
@@ -690,9 +690,9 @@
     "semantic_hash": ""
   },
   "lib/data/achievements.ts": {
-    "mtime": 1790063653.4979677,
-    "seen": 1790580751.5051365,
-    "ast_hash": "6a3454fb88a93251cbdb3dab2d5b6ac7",
+    "mtime": 1790655423.2345488,
+    "seen": 1790655562.6933472,
+    "ast_hash": "763dcda5ae70f1f214b9883e1d97a403",
     "semantic_hash": ""
   },
   "lib/data/curriculum.ts": {
@@ -702,9 +702,9 @@
     "semantic_hash": ""
   },
   "lib/data/faq.ts": {
-    "mtime": 1790063654.7063189,
-    "seen": 1790580751.5051394,
-    "ast_hash": "54e34a547b78911314d5b594a34b8280",
+    "mtime": 1790655424.1308105,
+    "seen": 1790655562.6936698,
+    "ast_hash": "3a9c517b6a0dc6a2a91bd2b20db90bd4",
     "semantic_hash": ""
   },
   "lib/data/index.ts": {
@@ -732,15 +732,15 @@
     "semantic_hash": ""
   },
   "lib/data/workspace.ts": {
-    "mtime": 1790063657.8975966,
-    "seen": 1790580751.5051484,
-    "ast_hash": "f6a24361030ad12749592100eee973c6",
+    "mtime": 1790656323.6867044,
+    "seen": 1790656660.81684,
+    "ast_hash": "98a3a875c2619cea1a5ce2d0c6cb9810",
     "semantic_hash": ""
   },
   "lib/game.ts": {
-    "mtime": 1790100137.7148235,
-    "seen": 1790580751.5051503,
-    "ast_hash": "b4e51adb643bc80535ba780814158fff",
+    "mtime": 1790654755.2718244,
+    "seen": 1790655241.7623425,
+    "ast_hash": "16bb1f009fc0a61e25f365fda0295f71",
     "semantic_hash": ""
   },
   "lib/quiz.ts": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "lib/types.ts": {
-    "mtime": 1790591663.5976827,
-    "seen": 1790592130.6130288,
-    "ast_hash": "287e4e3adb45f9d132f8288676197461",
+    "mtime": 1790656312.3559496,
+    "seen": 1790656660.818298,
+    "ast_hash": "cc1ce2513f3856d72adc011f32257b35",
     "semantic_hash": ""
   },
   "lib/utils.ts": {
@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1790087201.544392,
-    "seen": 1790580751.5051618,
-    "ast_hash": "e4e87b02c89a1edc710c354b6386e74c",
+    "mtime": 1790656338.2813642,
+    "seen": 1790656660.8189144,
+    "ast_hash": "5225d92456a909623f599c92fe3a51ba",
     "semantic_hash": ""
   },
   "postcss.config.mjs": {
@@ -798,9 +798,9 @@
     "semantic_hash": ""
   },
   "public/sw.js": {
-    "mtime": 1790088205.690544,
-    "seen": 1790580751.5051665,
-    "ast_hash": "25e6fed82259e47ca5ceb0fbda4fe47b",
+    "mtime": 1790658858.9517064,
+    "seen": 1790659158.4705462,
+    "ast_hash": "62048f02777b893dd2ad9d724c832eef",
     "semantic_hash": ""
   },
   "scripts/generate-icons.py": {
@@ -912,15 +912,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790064773.8345306,
-    "seen": 1790580751.5051992,
-    "ast_hash": "b146e2228f7af83cfe04a11f8c337cb7",
+    "mtime": 1790655423.2511098,
+    "seen": 1790655562.7063017,
+    "ast_hash": "d7e7a4cf5034da8d19193f58ac743f70",
     "semantic_hash": ""
   },
   "SETUP-SUPABASE.md": {
-    "mtime": 1790064774.391698,
-    "seen": 1790580751.5052009,
-    "ast_hash": "4d2a7a5081cb5e95eb7763792a777bca",
+    "mtime": 1790655423.2719862,
+    "seen": 1790655562.7063062,
+    "ast_hash": "e0e3a6bcf7dce1c931854d6345dbb3ea",
     "semantic_hash": ""
   },
   "public/offline.html": {
@@ -1056,9 +1056,9 @@
     "semantic_hash": ""
   },
   "tools/character/README.md": {
-    "mtime": 1790583640.933107,
-    "seen": 1790583659.7215836,
-    "ast_hash": "e80fc400d3f553c721257e7d8e119b94",
+    "mtime": 1790658496.467052,
+    "seen": 1790659158.4792004,
+    "ast_hash": "5ea4faa80690e3631f4de7bf1de36c8c",
     "semantic_hash": ""
   },
   ".claude/launch.json": {
@@ -1068,57 +1068,51 @@
     "semantic_hash": ""
   },
   "components/game/campus-building.tsx": {
-    "mtime": 1790590186.378134,
-    "seen": 1790590312.8522136,
-    "ast_hash": "f663a6537715bbbb58476664dc7b84e7",
+    "mtime": 1790657404.8972843,
+    "seen": 1790657636.2007685,
+    "ast_hash": "180818f2d17a5a4a89dd00d5c797720e",
     "semantic_hash": ""
   },
   "components/game/campus-scenery.tsx": {
-    "mtime": 1790590215.674908,
-    "seen": 1790590312.85254,
-    "ast_hash": "d1d1688e2acd131eebc12deb75a1d230",
+    "mtime": 1790655423.3460977,
+    "seen": 1790655562.6775367,
+    "ast_hash": "5266765b1d27ee8cf308d7ef394b21f9",
     "semantic_hash": ""
   },
   "components/game/missions/audit-mission.tsx": {
-    "mtime": 1790591470.645196,
-    "seen": 1790592130.599789,
-    "ast_hash": "a8a98bfc8d6bc43341c8486d56d2e436",
+    "mtime": 1790656262.8745272,
+    "seen": 1790656660.7999115,
+    "ast_hash": "912a86468aae55b3ec01ebbc04f21e31",
     "semantic_hash": ""
   },
   "components/game/missions/data-mission.tsx": {
-    "mtime": 1790592048.4008412,
-    "seen": 1790592130.5997925,
-    "ast_hash": "7d13ffd8b75f82cfaeaadcf6736acd78",
+    "mtime": 1790656262.908528,
+    "seen": 1790656660.7999163,
+    "ast_hash": "aa44863b47807f8e063b6deb4adc1b59",
     "semantic_hash": ""
   },
   "components/game/missions/erp-mission.tsx": {
-    "mtime": 1790591715.2350237,
-    "seen": 1790592130.5997946,
-    "ast_hash": "410f680d4902b9c78d43fce5ee7e7f2c",
+    "mtime": 1790656398.9268138,
+    "seen": 1790656660.79992,
+    "ast_hash": "1a44635b125f8ff997e17e21617cb156",
     "semantic_hash": ""
   },
   "components/game/missions/mission-kit.tsx": {
-    "mtime": 1790593873.411299,
-    "seen": 1790597919.9267876,
-    "ast_hash": "d3aaaedd822deb745b8489941bc9d38e",
+    "mtime": 1790656263.043199,
+    "seen": 1790656660.7999237,
+    "ast_hash": "4f557c2d22c895fcec06e8cdb9546822",
     "semantic_hash": ""
   },
   "lib/data/missions.ts": {
-    "mtime": 1790591663.5986834,
-    "seen": 1790592130.6107395,
-    "ast_hash": "f0be133efc4c4551d275148aa3d63148",
+    "mtime": 1790655424.134344,
+    "seen": 1790655562.6939564,
+    "ast_hash": "5ce2768811381c90cd34924d10f3893d",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspektur-world.tsx": {
-    "mtime": 1790609273.3030791,
-    "seen": 1790609323.377242,
-    "ast_hash": "4aee21661ea469bdb7758100aeb398a7",
-    "semantic_hash": ""
-  },
-  "components/game/worlds/data/data-lab-world.tsx": {
-    "mtime": 1790653298.893849,
-    "seen": 1790654450.41213,
-    "ast_hash": "63f52c12a6a5f674826149b4ef55e99e",
+    "mtime": 1790658531.0098116,
+    "seen": 1790659158.4385037,
+    "ast_hash": "01aa02a780a3ca28631e7d1c1df3ec96",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-world.tsx": {
@@ -1128,15 +1122,15 @@
     "semantic_hash": ""
   },
   "components/game/worlds/mission-world.tsx": {
-    "mtime": 1790611894.1267238,
-    "seen": 1790616307.8381336,
-    "ast_hash": "3f3716ff901a406d717e58649e5ccf53",
+    "mtime": 1790659324.779907,
+    "seen": 1790659535.456561,
+    "ast_hash": "71d9c22ef9790b6cfe60794dcc038a3c",
     "semantic_hash": ""
   },
   "components/game/worlds/touch-controls.tsx": {
-    "mtime": 1790598258.178242,
-    "seen": 1790598908.5282469,
-    "ast_hash": "f84fb38e75835b145aa840f3a2069505",
+    "mtime": 1790656263.6897216,
+    "seen": 1790656660.8091817,
+    "ast_hash": "16ba78ed024172386e9cd4fb9954ad72",
     "semantic_hash": ""
   },
   "components/game/worlds/world-controls.ts": {
@@ -1146,21 +1140,21 @@
     "semantic_hash": ""
   },
   "components/game/worlds/world-kit.tsx": {
-    "mtime": 1790609915.8911324,
-    "seen": 1790611269.8995597,
-    "ast_hash": "a345386f4882530b0618209b65386eb4",
+    "mtime": 1790659324.776455,
+    "seen": 1790659535.4571335,
+    "ast_hash": "6b5d264675e6bc1c7c2666a84132b775",
     "semantic_hash": ""
   },
   "lib/data/worlds.ts": {
-    "mtime": 1790653300.907789,
-    "seen": 1790654450.4325554,
-    "ast_hash": "b07e6d62606de363e229278be6ae1fa2",
+    "mtime": 1790655424.1383622,
+    "seen": 1790655562.694799,
+    "ast_hash": "199acf4b0ee537de8bca37165b369b55",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/inspect-extras.tsx": {
-    "mtime": 1790598388.309685,
-    "seen": 1790598908.5266998,
-    "ast_hash": "b07dcb814e3ac9b7b0a572c9ffb336f9",
+    "mtime": 1790656263.1675544,
+    "seen": 1790656660.8008642,
+    "ast_hash": "05aac4656fcf15acce6717590144aaba",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/data-center.tsx": {
@@ -1170,27 +1164,27 @@
     "semantic_hash": ""
   },
   "components/game/worlds/audit/hacker-arena.tsx": {
-    "mtime": 1790609273.0701005,
-    "seen": 1790609323.3768334,
-    "ast_hash": "5e19ef43f943ad4318f71908e65ab8a0",
+    "mtime": 1790656263.15187,
+    "seen": 1790656660.8008595,
+    "ast_hash": "8a3c83c5f30424e713c3198cd50d0fd5",
     "semantic_hash": ""
   },
   "components/game/worlds/audit/arena-models.tsx": {
-    "mtime": 1790609272.6459875,
-    "seen": 1790609323.3765373,
-    "ast_hash": "90b586d62bcd03cc99736a3a1ea0a030",
+    "mtime": 1790655423.424153,
+    "seen": 1790655562.6806514,
+    "ast_hash": "b5aa19113658b7b0bfd454d9776bf5d6",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-scenery.tsx": {
-    "mtime": 1790617051.4991846,
-    "seen": 1790618422.1793127,
-    "ast_hash": "4da8dee2b56deaab7e9c8b1f705fea18",
+    "mtime": 1790655423.8795352,
+    "seen": 1790655562.683464,
+    "ast_hash": "b4d94e3b3a731b5dd15c41b9f33bb1ce",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/race-track.ts": {
-    "mtime": 1790609952.9146667,
-    "seen": 1790611269.898599,
-    "ast_hash": "f92fd384958503267d9f081c72c54deb",
+    "mtime": 1790655423.8820753,
+    "seen": 1790655562.6834676,
+    "ast_hash": "447e77305efdfd3fdaeb9853f1c7489d",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/truck-models.tsx": {
@@ -1199,22 +1193,16 @@
     "ast_hash": "83692af9214cc375c4d780e1f45345ec",
     "semantic_hash": ""
   },
-  "components/game/worlds/erp/levels.ts": {
-    "mtime": 1790621185.7875402,
-    "seen": 1790621252.7986042,
-    "ast_hash": "64c2ead2bf4579d15489930a6e1052a2",
-    "semantic_hash": ""
-  },
   "components/game/worlds/erp/race-fx.tsx": {
-    "mtime": 1790616039.4427795,
-    "seen": 1790616307.8373544,
-    "ast_hash": "65d6269ebbc505d75c9c17fe3a66eea8",
+    "mtime": 1790657814.514172,
+    "seen": 1790657952.0992973,
+    "ast_hash": "ebcced11e91430501cec659b1a46c6db",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/route-level.tsx": {
-    "mtime": 1790616253.572642,
-    "seen": 1790616307.8376844,
-    "ast_hash": "5acff54ecae0c4dffe91f11ac2beb2aa",
+    "mtime": 1790656263.6777215,
+    "seen": 1790656660.8088908,
+    "ast_hash": "2d298e94ce33f29e0e063ae9fd44bff3",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/ops-layout.ts": {
@@ -1224,9 +1212,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/ops-level.tsx": {
-    "mtime": 1790618385.1293585,
-    "seen": 1790618422.1789834,
-    "ast_hash": "8afb21c824627ee995406bef2cd91f75",
+    "mtime": 1790656263.6133845,
+    "seen": 1790656660.807161,
+    "ast_hash": "4eaa96bed51d806a3ddf4f7d97a2049b",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/ops-models.tsx": {
@@ -1236,15 +1224,15 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/ops-scenery.tsx": {
-    "mtime": 1790619607.5710697,
-    "seen": 1790621252.79965,
-    "ast_hash": "3032aa08861c5f3fdb5402c5f7a14457",
+    "mtime": 1790655423.2450876,
+    "seen": 1790655562.6831703,
+    "ast_hash": "dd4c414026cf36185cd6ab6476ad1c8c",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/drone-city.tsx": {
-    "mtime": 1790620514.6331112,
-    "seen": 1790621252.7985854,
-    "ast_hash": "f29b49fc1352b3882746725f44c7a1d5",
+    "mtime": 1790655423.6546795,
+    "seen": 1790655562.6816027,
+    "ast_hash": "aa2d5afeaea5e82f9458131ae36fd045",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/drone-layout.ts": {
@@ -1254,9 +1242,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/drone-level.tsx": {
-    "mtime": 1790621185.786537,
-    "seen": 1790621252.7985935,
-    "ast_hash": "70b24829476b6765f29f4e79bbb13259",
+    "mtime": 1790656263.4932895,
+    "seen": 1790656660.8059487,
+    "ast_hash": "4fb84eba5476acce130c22ee4fd09a57",
     "semantic_hash": ""
   },
   "components/game/worlds/erp/drone-models.tsx": {
@@ -1266,21 +1254,21 @@
     "semantic_hash": ""
   },
   "components/game/worlds/erp/drone-scenery.tsx": {
-    "mtime": 1790621139.395941,
-    "seen": 1790621252.7985997,
-    "ast_hash": "50a84fcdd8190415eac225bf24dd6527",
+    "mtime": 1790655423.8092072,
+    "seen": 1790655562.6821954,
+    "ast_hash": "23cd9de16297f27c6227987ac90c6255",
     "semantic_hash": ""
   },
   "components/game/worlds/data/hunt-layout.ts": {
-    "mtime": 1790623567.8529322,
-    "seen": 1790624092.4196289,
-    "ast_hash": "606250a8b64201aa94fc74d1cbcc9a53",
+    "mtime": 1790655423.435109,
+    "seen": 1790655562.6812518,
+    "ast_hash": "605797a37236abc565358c97b39f426f",
     "semantic_hash": ""
   },
   "components/game/worlds/data/hunt-level.tsx": {
-    "mtime": 1790624027.9947906,
-    "seen": 1790624092.4196324,
-    "ast_hash": "50e06d80e2f48aab70fd7ae8c47c2273",
+    "mtime": 1790656263.326964,
+    "seen": 1790656660.8014858,
+    "ast_hash": "0c09355ae39e7d6e2a7cf240e168eef9",
     "semantic_hash": ""
   },
   "components/game/worlds/data/hunt-models.tsx": {
@@ -1290,57 +1278,111 @@
     "semantic_hash": ""
   },
   "components/game/worlds/data/hunt-scenery.tsx": {
-    "mtime": 1790625170.0954146,
-    "seen": 1790651942.36716,
-    "ast_hash": "5d3790da1c31ed4addbfe28200737474",
+    "mtime": 1790655423.444178,
+    "seen": 1790655562.6815774,
+    "ast_hash": "6d4ebb9568c226a76b22561391adcf01",
     "semantic_hash": ""
   },
   "components/game/worlds/data/river-layout.ts": {
-    "mtime": 1790650541.7355456,
-    "seen": 1790651942.3671644,
-    "ast_hash": "8ca91d4572067a5e83057c036d18e608",
+    "mtime": 1790655423.4471815,
+    "seen": 1790655562.6815813,
+    "ast_hash": "c08f2242847bb3e47c4146cd9687d094",
     "semantic_hash": ""
   },
   "components/game/worlds/data/river-level.tsx": {
-    "mtime": 1790651847.8586664,
-    "seen": 1790651942.3671684,
-    "ast_hash": "9be45bb2ef3f106271d28b3d3029110d",
+    "mtime": 1790656263.3555124,
+    "seen": 1790656660.8023922,
+    "ast_hash": "8b6aa4e39e14f0ed301c79c2a877422c",
     "semantic_hash": ""
   },
   "components/game/worlds/data/river-models.tsx": {
-    "mtime": 1790651701.228739,
-    "seen": 1790651942.367172,
-    "ast_hash": "1b3b0ef17a38df0a50aea8e3b7df8b01",
+    "mtime": 1790655423.5842333,
+    "seen": 1790655562.6815872,
+    "ast_hash": "9ff99a2355e76eecfc0006d38d7275ef",
     "semantic_hash": ""
   },
   "components/game/worlds/data/river-scenery.tsx": {
-    "mtime": 1790652899.0660045,
-    "seen": 1790654450.41416,
-    "ast_hash": "5b2ba0b771ea3360af901fe2ab764f7a",
+    "mtime": 1790655423.5903604,
+    "seen": 1790655562.6815894,
+    "ast_hash": "f90bcdeed94bebdac476981a0282e40b",
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-layout.ts": {
-    "mtime": 1790654275.360336,
-    "seen": 1790654450.4141662,
-    "ast_hash": "2f5a83a06e3f54a5bf5dd2239ef43a8a",
+    "mtime": 1790655423.5944047,
+    "seen": 1790655562.6815925,
+    "ast_hash": "57ee886a550194330a62668fdd63ec80",
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-level.tsx": {
-    "mtime": 1790654374.827504,
-    "seen": 1790654450.41417,
-    "ast_hash": "5c24b204938f0c87cace113fad7aeed1",
+    "mtime": 1790656263.4000616,
+    "seen": 1790656660.8039267,
+    "ast_hash": "c9a980f26d3c053c18f93a16c5de9906",
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-models.tsx": {
-    "mtime": 1790653728.6852539,
-    "seen": 1790654450.4141726,
-    "ast_hash": "254c05b0414603853539d63dea1bb4c9",
+    "mtime": 1790655423.648633,
+    "seen": 1790655562.6815977,
+    "ast_hash": "5ef103ef7bc81f48c23e528b569adad9",
     "semantic_hash": ""
   },
   "components/game/worlds/data/sea-scenery.tsx": {
-    "mtime": 1790654221.3800056,
-    "seen": 1790654450.414175,
-    "ast_hash": "6b6ac1abbc7717020e36c921ee427267",
+    "mtime": 1790655423.6521668,
+    "seen": 1790655562.6816003,
+    "ast_hash": "47520c10a4067b0836c782d5cb282ac3",
+    "semantic_hash": ""
+  },
+  "components/game/game-music.ts": {
+    "mtime": 1790654849.8210304,
+    "seen": 1790655241.7375796,
+    "ast_hash": "889e1b078fa937a33d373095ec54a037",
+    "semantic_hash": ""
+  },
+  "components/illustrations/track-illustration.tsx": {
+    "mtime": 1790656121.2021377,
+    "seen": 1790656660.8105474,
+    "ast_hash": "78e11e12648d7805f77573b4905308af",
+    "semantic_hash": ""
+  },
+  "components/ui/icons.ts": {
+    "mtime": 1790656085.5319712,
+    "seen": 1790656660.812698,
+    "ast_hash": "e88da75d95687dc21a0f8ef8eec0566a",
+    "semantic_hash": ""
+  },
+  "components/game/responsive-camera.tsx": {
+    "mtime": 1790657260.0208988,
+    "seen": 1790657636.2054596,
+    "ast_hash": "9eb4c0f19e41be5a8255001a4c0aa5eb",
+    "semantic_hash": ""
+  },
+  "components/game/adaptive-resolution.tsx": {
+    "mtime": 1790658683.962206,
+    "seen": 1790659158.4321873,
+    "ast_hash": "534d4875f1629ae88af17c7f988621c0",
+    "semantic_hash": ""
+  },
+  "lib/device-quality.ts": {
+    "mtime": 1790658683.8379235,
+    "seen": 1790659158.4659212,
+    "ast_hash": "d7eb7287215b43d2a91f308f8bd53332",
+    "semantic_hash": ""
+  },
+  "app/loading.tsx": {
+    "mtime": 1790659325.0510867,
+    "seen": 1790659535.4413424,
+    "ast_hash": "154807df0871992df21b2359a10533bb",
+    "semantic_hash": ""
+  },
+  "components/game/game-loader.tsx": {
+    "mtime": 1790659304.0069344,
+    "seen": 1790659535.444251,
+    "ast_hash": "57f938f2f1a3e6ec663508d4e0ba731a",
+    "semantic_hash": ""
+  },
+  "components/game/scene-loader.tsx": {
+    "mtime": 1790659304.1036515,
+    "seen": 1790659535.4469798,
+    "ast_hash": "ef42f091f3217145edb2e82c23fb95f9",
     "semantic_hash": ""
   }
 }

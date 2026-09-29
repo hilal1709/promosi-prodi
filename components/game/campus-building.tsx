@@ -219,9 +219,9 @@ export function CampusBuilding({
         </group>
       ))}
 
-      <Html position={[0, labelY, DEPTH / 2]} center distanceFactor={13} style={{ pointerEvents: "none" }}>
+      <Html position={[0, labelY, DEPTH / 2]} center distanceFactor={13} zIndexRange={[8, 0]} style={{ pointerEvents: "none" }}>
         <div className="game-world-label" style={{ borderColor: color }}>
-          <span>{completed ? "✓ " : ""}{short}</span>
+          <span>{short}{completed ? " · selesai" : ""}</span>
           <strong>{title}</strong>
         </div>
       </Html>

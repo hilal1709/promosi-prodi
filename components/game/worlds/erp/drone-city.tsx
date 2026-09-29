@@ -34,7 +34,7 @@ import {
 
 /* ------------------------------------------------------------------ */
 /* Kawasan buatan manusia: kota, pabrik, gudang, pelabuhan, proyek,    */
-/* perumahan, kampung — plus kendaraan, kereta, dan kapal yang hidup.  */
+/* perumahan, kampung, plus kendaraan, kereta, dan kapal yang hidup.  */
 /* ------------------------------------------------------------------ */
 
 type Inst = { p: [number, number, number]; r?: [number, number, number]; s?: number | [number, number, number]; c?: string };

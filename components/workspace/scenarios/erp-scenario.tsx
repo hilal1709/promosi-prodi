@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RotateCcw, TrendingUp, TrendingDown } from "lucide-react";
+import { IconRetry, IconTrendDown, IconTrendUp } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ErpScenarioContent } from "@/lib/types";
@@ -16,7 +16,7 @@ function DampakBadge({ label, value }: { label: string; value?: number }) {
         positive ? "bg-track-erp-soft text-track-erp-foreground" : "bg-track-audit-soft text-track-audit-foreground"
       )}
     >
-      {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+      {positive ? <IconTrendUp className="h-3 w-3" /> : <IconTrendDown className="h-3 w-3" />}
       {label} {positive ? "+" : ""}
       {value}
     </span>
@@ -54,7 +54,7 @@ export default function ErpScenario({ konten }: { konten: ErpScenarioContent }) 
             <DampakBadge label="Risiko" value={selected.dampak.risiko} />
           </div>
           <Button variant="outline" size="sm" className="mt-5" onClick={() => setSelectedId(null)}>
-            <RotateCcw className="h-3.5 w-3.5" /> Coba opsi lain
+            <IconRetry className="h-3.5 w-3.5" /> Coba opsi lain
           </Button>
         </div>
       )}

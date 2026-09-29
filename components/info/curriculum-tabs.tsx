@@ -1,6 +1,5 @@
 "use client";
 
-import { GraduationCap, Sparkle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TRACK_LIST } from "@/lib/data/tracks";
 import { CURRICULUM } from "@/lib/data/curriculum";
@@ -23,7 +22,7 @@ export default function CurriculumTabs() {
             <div className="grid gap-6 rounded-2xl border border-border bg-card p-6 sm:grid-cols-2 sm:p-8">
               <div>
                 <div className="flex items-center gap-2 text-sm font-bold" style={{ color: `var(--color-${t.warna})` }}>
-                  <GraduationCap className="h-4 w-4" /> Mata Kuliah Inti
+                  Mata Kuliah Inti
                 </div>
                 <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                   {c.mataKuliahInti.map((m) => (
@@ -39,7 +38,7 @@ export default function CurriculumTabs() {
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm font-bold" style={{ color: `var(--color-${t.warna})` }}>
-                  <Sparkle className="h-4 w-4" /> Keahlian Utama
+                  Keahlian Utama
                 </div>
                 <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                   {c.keahlianUtama.map((k) => (

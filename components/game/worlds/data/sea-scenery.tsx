@@ -33,7 +33,7 @@ export type Focus = RefObject<{ pos: THREE.Vector3 }>;
 const smooth = THREE.MathUtils.smoothstep;
 
 /* ------------------------------------------------------------------ */
-/* Langit sore keemasan — warna cakrawala = warna kabut (batas tak terlihat) */
+/* Langit sore keemasan, warna cakrawala = warna kabut (batas tak terlihat) */
 /* ------------------------------------------------------------------ */
 
 export const SEA_HORIZON = "#f0dcc4";

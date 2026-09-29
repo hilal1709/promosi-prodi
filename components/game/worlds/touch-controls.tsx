@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type PointerEvent, type ReactNode } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { IconChevronLeft, IconChevronRight } from "@/components/ui/icons";
 import type { PressName, WorldInput } from "./world-controls";
 
 export type TouchButton = { press?: PressName; label: ReactNode; holdKey?: string; tone?: "gold" | "light" };
@@ -83,8 +83,8 @@ export function TouchControls({
         {mode === "stick" && <Joystick inputRef={inputRef} />}
         {mode === "lanes" && (
           <>
-            <PressButton inputRef={inputRef} button={{ press: "left", label: <ChevronLeft className="h-7 w-7" />, holdKey: "a", tone: "light" }} />
-            <PressButton inputRef={inputRef} button={{ press: "right", label: <ChevronRight className="h-7 w-7" />, holdKey: "d", tone: "light" }} />
+            <PressButton inputRef={inputRef} button={{ press: "left", label: <IconChevronLeft className="h-7 w-7" />, holdKey: "a", tone: "light" }} />
+            <PressButton inputRef={inputRef} button={{ press: "right", label: <IconChevronRight className="h-7 w-7" />, holdKey: "d", tone: "light" }} />
           </>
         )}
       </div>

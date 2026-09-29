@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Flame, Package, Timer } from "lucide-react";
+import { IconFire, IconPackage, IconTimer } from "@/components/ui/icons";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { DRONE_JOBS, DRONE_SITES, type DroneSiteId } from "@/lib/data/worlds";
 import { cn } from "@/lib/utils";
@@ -144,7 +144,7 @@ function createDrone(): DroneState {
   };
 }
 
-/** Status tugas yang ditampilkan HUD & beacon — hanya berubah saat ada kejadian. */
+/** Status tugas yang ditampilkan HUD & beacon, hanya berubah saat ada kejadian. */
 type Stage = { phase: Phase; job: number; carrying: boolean; dropped: THREE.Vector3 | null; wrongSites: DroneSiteId[]; hinted: boolean };
 
 const stageOf = (s: Sim): Stage => ({
@@ -242,7 +242,7 @@ function DroneController({
       if (low && !s.lowWarned) {
         s.lowWarned = true;
         events.sound("error");
-        events.toast({ ok: false, judul: "Baterai habis — mode hemat!", teks: "Drone melambat. Ambil sel baterai hijau atau mendarat di landasan Pusat Operasi untuk mengisi ulang." });
+        events.toast({ ok: false, judul: "Baterai habis, mode hemat!", teks: "Drone melambat. Ambil sel baterai hijau atau mendarat di landasan Pusat Operasi untuk mengisi ulang." });
       }
       if (!low) s.lowWarned = false;
 
@@ -328,7 +328,7 @@ function DroneController({
 
       if (!finale && near(SITE.hq.x, SITE.hq.z, padY("hq")) && d.battery < 100) {
         d.battery = Math.min(100, d.battery + 30 * delta);
-        prompt = "⚡ Mengisi baterai di Pusat Operasi";
+        prompt = "Mengisi baterai di Pusat Operasi";
       }
 
       if (s.phase === "pickup" || (s.phase === "deliver" && s.dropped)) {
@@ -477,7 +477,7 @@ function DroneController({
           s.carrying = false;
           s.combo = 0;
           s.dropped = new THREE.Vector3(d.pos.x, surfaceAt(d.pos.x, d.pos.z), d.pos.z);
-          events.toast({ ok: false, judul: "Paket dicuri bug Data Silo!", teks: "Paket jatuh ke tanah. Ambil lagi — dan tabrak bug pakai turbo (Shift) untuk menghancurkannya.", konsep: "Data silo" });
+          events.toast({ ok: false, judul: "Paket dicuri bug Data Silo!", teks: "Paket jatuh ke tanah. Ambil lagi, dan tabrak bug pakai turbo (Shift) untuk menghancurkannya.", konsep: "Data silo" });
           events.stage(s);
         } else {
           events.toast({ ok: false, judul: "Ditabrak bug Data Silo!", teks: "Baterai berkurang. Tabrak bug sambil turbo untuk menghancurkannya." });
@@ -787,7 +787,7 @@ function JobCard({ stage }: { stage: Stage }) {
   return (
     <div className="drone-job">
       <small>TUGAS {stage.job + 1}/{JOBS} · {job.kode}</small>
-      <strong><Package className="inline h-4 w-4" /> {job.paket}</strong>
+      <strong><IconPackage className="inline h-4 w-4" /> {job.paket}</strong>
       {stage.dropped ? (
         <p className="is-warn">Paket jatuh! Terbang ke sinar kuning dan ambil lagi.</p>
       ) : stage.phase === "pickup" ? (
@@ -887,7 +887,7 @@ export function DroneLevel({ levelIndex, info, paused, quality, input, sound, on
         if (stage.wrongSites.includes(id)) modes[id] = "wrong";
         else if (stage.hinted) modes[id] = id === job.ke ? "correct" : "idle";
         else modes[id] = "candidate";
-        if (modes[id] !== "idle") labels[id] = modes[id] === "wrong" ? `✗ ${SITE[id].nama}` : `? ${SITE[id].nama}`;
+        if (modes[id] !== "idle") labels[id] = modes[id] === "wrong" ? `Salah: ${SITE[id].nama}` : `? ${SITE[id].nama}`;
       });
     }
     return { modes, labels };
@@ -912,7 +912,7 @@ export function DroneLevel({ levelIndex, info, paused, quality, input, sound, on
             toast={toast}
             prompt={
               result ? null : hud.outside ? (
-                <span className="text-brand-gold">Sinyal ERP melemah — putar balik!</span>
+                <span className="text-brand-gold">Sinyal ERP melemah, putar balik!</span>
               ) : hud.prompt ? (
                 hud.prompt.startsWith("E ") ? (
                   <>
@@ -927,16 +927,16 @@ export function DroneLevel({ levelIndex, info, paused, quality, input, sound, on
             stats={
               <>
                 <HudChip tone={hud.timeLeft < 30 ? "red" : "dark"} pulse={hud.timeLeft < 15}>
-                  <Timer />
+                  <IconTimer />
                   {minutes}:{seconds}
                 </HudChip>
                 <HudChip tone="gold">
-                  <Package />
+                  <IconPackage />
                   {hud.delivered}/{JOBS}
                 </HudChip>
                 {hud.combo > 1 && (
                   <HudChip tone="green">
-                    <Flame />
+                    <IconFire />
                     Combo x{hud.combo}
                   </HudChip>
                 )}
