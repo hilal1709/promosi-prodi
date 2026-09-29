@@ -69,6 +69,12 @@ const SOUNDS: Record<SoundName, Blip[]> = {
   whoosh: [["sine", 300, 900, 0.15, 0.05, 0.18]],
 };
 
+// Level dasar tiap bus pada slider 100%. Nada musik dibuat pelan (0.03–0.14),
+// jadi bus musik diberi penguatan besar; kompresor di ujung rantai mencegah clipping.
+const MASTER_GAIN = 0.9;
+const MUSIC_GAIN = 2.2;
+const SFX_GAIN = 0.5;
+
 /** Pemutar SFX bersama agar komponen UI di dalam game bisa berbunyi tanpa prop drilling. */
 export const GameSoundContext = createContext<(name: SoundName) => void>(() => undefined);
 
@@ -91,9 +97,9 @@ export function useGameAudio(settings: AudioSettings) {
     const context = contextRef.current;
     if (!context || context.state === "closed" || !masterRef.current) return;
     const now = context.currentTime;
-    masterRef.current.gain.setTargetAtTime(settings.muted ? 0 : settings.volume * 0.25, now, 0.04);
-    musicBusRef.current?.gain.setTargetAtTime(settings.music * 0.5, now, 0.04);
-    sfxBusRef.current?.gain.setTargetAtTime(settings.sfx, now, 0.04);
+    masterRef.current.gain.setTargetAtTime(settings.muted ? 0 : settings.volume * MASTER_GAIN, now, 0.04);
+    musicBusRef.current?.gain.setTargetAtTime(settings.music * MUSIC_GAIN, now, 0.04);
+    sfxBusRef.current?.gain.setTargetAtTime(settings.sfx * SFX_GAIN, now, 0.04);
   }, [settings]);
 
   const start = useCallback(async () => {
@@ -104,13 +110,23 @@ export function useGameAudio(settings: AudioSettings) {
       context = createdContext;
       contextRef.current = createdContext;
       const master = createdContext.createGain();
-      master.gain.value = current.muted ? 0 : current.volume * 0.25;
-      master.connect(createdContext.destination);
+      master.gain.value = current.muted ? 0 : current.volume * MASTER_GAIN;
+      // Kompresor meratakan puncak (kick, efek suara) lalu dinaikkan lagi,
+      // sehingga musik terdengar keras di speaker HP tanpa pecah/clipping.
+      const compressor = createdContext.createDynamicsCompressor();
+      compressor.threshold.value = -14;
+      compressor.knee.value = 8;
+      compressor.ratio.value = 4;
+      compressor.attack.value = 0.004;
+      compressor.release.value = 0.2;
+      const makeup = createdContext.createGain();
+      makeup.gain.value = 1.8;
+      master.connect(compressor).connect(makeup).connect(createdContext.destination);
       const musicBus = createdContext.createGain();
-      musicBus.gain.value = current.music * 0.5;
+      musicBus.gain.value = current.music * MUSIC_GAIN;
       musicBus.connect(master);
       const sfxBus = createdContext.createGain();
-      sfxBus.gain.value = current.sfx;
+      sfxBus.gain.value = current.sfx * SFX_GAIN;
       sfxBus.connect(master);
       masterRef.current = master;
       musicBusRef.current = musicBus;

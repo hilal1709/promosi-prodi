@@ -474,15 +474,15 @@
     "semantic_hash": ""
   },
   "components/game/game-canvas.tsx": {
-    "mtime": 1790659324.7754507,
-    "seen": 1790659535.44424,
-    "ast_hash": "52a5969a396f42e3da091d56357b596b",
+    "mtime": 1790673682.1317446,
+    "seen": 1790674641.9759226,
+    "ast_hash": "7d3111630ff4f3e724f7baedf2462490",
     "semantic_hash": ""
   },
   "components/game/game-entry.tsx": {
-    "mtime": 1790661143.4608839,
-    "seen": 1790670084.215661,
-    "ast_hash": "2cce9d85d0ee26f60d693ec65e6e87a1",
+    "mtime": 1790673770.401133,
+    "seen": 1790674641.9759288,
+    "ast_hash": "5ef976badd5047d26c2122b6a6a66a0f",
     "semantic_hash": ""
   },
   "components/game/legacy-redirect.tsx": {
@@ -600,9 +600,9 @@
     "semantic_hash": ""
   },
   "components/ui/button.tsx": {
-    "mtime": 1790063622.1075659,
-    "seen": 1790580751.505111,
-    "ast_hash": "0e51f9f7a5b18c7d2608bb7b13d4c168",
+    "mtime": 1790675006.8248537,
+    "seen": 1790675128.3676069,
+    "ast_hash": "75d25f940796f732cf2a95758f159b98",
     "semantic_hash": ""
   },
   "components/ui/card.tsx": {
@@ -738,9 +738,9 @@
     "semantic_hash": ""
   },
   "lib/game.ts": {
-    "mtime": 1790654755.2718244,
-    "seen": 1790655241.7623425,
-    "ast_hash": "16bb1f009fc0a61e25f365fda0295f71",
+    "mtime": 1790673698.349372,
+    "seen": 1790674642.0095775,
+    "ast_hash": "36e7c633dc08d91ce71edb0ed9b3141b",
     "semantic_hash": ""
   },
   "lib/quiz.ts": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "lib/types.ts": {
-    "mtime": 1790656312.3559496,
-    "seen": 1790656660.818298,
-    "ast_hash": "cc1ce2513f3856d72adc011f32257b35",
+    "mtime": 1790673698.3478596,
+    "seen": 1790674642.0103927,
+    "ast_hash": "cdd0b2a13b845364417128eb38a24364",
     "semantic_hash": ""
   },
   "lib/utils.ts": {
@@ -1122,9 +1122,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/mission-world.tsx": {
-    "mtime": 1790659324.779907,
-    "seen": 1790659535.456561,
-    "ast_hash": "71d9c22ef9790b6cfe60794dcc038a3c",
+    "mtime": 1790673886.8738327,
+    "seen": 1790674641.9943686,
+    "ast_hash": "9dda8eba4a7bb2a03fe8f8d78526b669",
     "semantic_hash": ""
   },
   "components/game/worlds/touch-controls.tsx": {
@@ -1140,9 +1140,9 @@
     "semantic_hash": ""
   },
   "components/game/worlds/world-kit.tsx": {
-    "mtime": 1790661562.6527228,
-    "seen": 1790670084.228144,
-    "ast_hash": "54ee0351db3bef15278bddf502f02dc6",
+    "mtime": 1790673682.1327443,
+    "seen": 1790674641.9952967,
+    "ast_hash": "5738686d82b5ce18108faebda2250211",
     "semantic_hash": ""
   },
   "lib/data/worlds.ts": {
@@ -1356,15 +1356,15 @@
     "semantic_hash": ""
   },
   "components/game/adaptive-resolution.tsx": {
-    "mtime": 1790658683.962206,
-    "seen": 1790659158.4321873,
-    "ast_hash": "534d4875f1629ae88af17c7f988621c0",
+    "mtime": 1790673592.9795642,
+    "seen": 1790674641.974556,
+    "ast_hash": "e2986e2769bc0c794995326e69f5aa65",
     "semantic_hash": ""
   },
   "lib/device-quality.ts": {
-    "mtime": 1790658683.8379235,
-    "seen": 1790659158.4659212,
-    "ast_hash": "d7eb7287215b43d2a91f308f8bd53332",
+    "mtime": 1790673584.6708,
+    "seen": 1790674642.009573,
+    "ast_hash": "ec01820372119c1429c06e79fcc2f979",
     "semantic_hash": ""
   },
   "app/loading.tsx": {
@@ -1395,6 +1395,24 @@
     "mtime": 1790670919.139626,
     "seen": 1790672742.5158865,
     "ast_hash": "25293b3fe04ec467a5b5d68cc54ae03c",
+    "semantic_hash": ""
+  },
+  "components/game/lite-renderer.tsx": {
+    "mtime": 1790673663.8824358,
+    "seen": 1790674641.9777627,
+    "ast_hash": "8ee65ded6ced0a79f09edfc90a32a7d0",
+    "semantic_hash": ""
+  },
+  "components/game/orientation-controls.tsx": {
+    "mtime": 1790674106.1958444,
+    "seen": 1790674641.9794853,
+    "ast_hash": "db1dc03ff02f95341771b42e84ff193b",
+    "semantic_hash": ""
+  },
+  "lib/orientation.ts": {
+    "mtime": 1790673713.4445603,
+    "seen": 1790674642.0095816,
+    "ast_hash": "8c672656db4520cd372750fc575eb4f6",
     "semantic_hash": ""
   }
 }
