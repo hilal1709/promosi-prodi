@@ -450,3 +450,73 @@ kbd { display: inline-grid; min-width: 2rem; place-items: center; border: 1px so
   .hunt-minimap { top: 11.4rem; left: .6rem; width: 6.2rem; }
 }
 @media (hover: none) { .hunt-bin kbd { display: none; } }
+
+/* Arung Jeram Data (Level 2 Data Science) */
+.river-chart { position: absolute; left: .75rem; top: 4.6rem; z-index: 30; width: min(15.5rem, calc(100% - 1.5rem)); border-radius: 1rem; background: rgb(16 19 26 / .8); padding: .55rem .7rem .6rem; color: white; backdrop-filter: blur(8px); pointer-events: none; }
+.river-chart > small { display: block; font-size: .6rem; font-weight: 900; letter-spacing: .12em; color: var(--brand-gold); }
+.river-chart svg { display: block; width: 100%; height: auto; margin-top: .3rem; }
+.river-chart > p { margin-top: .35rem; font-size: .68rem; line-height: 1.3; color: rgb(255 255 255 / .75); }
+.river-chart > p b { color: white; }
+.river-ledger { margin-top: .35rem; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .2rem; }
+.river-ledger li { display: flex; flex-direction: column; align-items: center; border-radius: .45rem; background: rgb(255 255 255 / .08); padding: .15rem 0; font-size: .6rem; }
+.river-ledger li span { color: rgb(255 255 255 / .65); }
+.river-ledger li b { font-size: .72rem; font-variant-numeric: tabular-nums; }
+.river-ledger.is-col { grid-template-columns: 1fr; flex: 1; margin-top: 0; }
+.river-ledger.is-col li { flex-direction: row; gap: .35rem; padding: .15rem .4rem; }
+.river-ledger.is-col li b { margin-left: auto; }
+.river-ledger li i { width: .55rem; height: .55rem; border-radius: 999px; }
+.river-ledger li.is-ok { background: rgb(47 174 102 / .45); }
+.river-ledger li.is-bad { background: rgb(229 75 75 / .5); }
+.river-progress { position: absolute; left: 50%; top: 4.4rem; z-index: 29; width: min(24rem, 44vw); transform: translateX(-50%); border-radius: 999px; background: rgb(16 19 26 / .6); padding: .35rem .5rem; backdrop-filter: blur(6px); pointer-events: none; }
+.river-progress-track { position: relative; height: .45rem; border-radius: 999px; background: rgb(255 255 255 / .12); }
+.river-progress-track i { position: absolute; top: 0; height: 100%; opacity: .75; }
+.river-progress-track i:first-child { border-radius: 999px 0 0 999px; }
+.river-progress-track i:nth-last-of-type(1) { border-radius: 0 999px 999px 0; }
+.river-progress-track b { position: absolute; top: 50%; width: .6rem; height: .6rem; transform: translate(-50%, -50%) rotate(45deg); background: white; box-shadow: 0 0 0 2px #10131a; }
+.river-progress-track span { position: absolute; top: 50%; width: .95rem; height: .95rem; transform: translate(-50%, -50%); border-radius: 999px; background: #7ee8fa; box-shadow: 0 0 0 3px #10131a, 0 0 12px #7ee8fa; }
+.river-question { position: absolute; left: 50%; top: 6.4rem; z-index: 31; width: min(calc(100% - 1.5rem), 30rem); transform: translateX(-50%); border: 2px solid var(--brand-gold); border-radius: 1rem; background: rgb(16 19 26 / .88); padding: .55rem .8rem .65rem; text-align: center; color: white; backdrop-filter: blur(8px); pointer-events: none; animation: hunt-pop .25s ease-out both; }
+.river-question small { display: block; font-size: .6rem; font-weight: 900; letter-spacing: .12em; color: var(--brand-gold); }
+.river-question strong { display: block; margin-top: .2rem; font-size: .9rem; font-weight: 900; line-height: 1.25; }
+.river-question > div { margin-top: .45rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; }
+.river-question span { display: flex; flex-direction: column; border-radius: .7rem; background: rgb(255 255 255 / .1); padding: .3rem; font-size: .82rem; font-weight: 900; }
+.river-question span em { font-style: normal; font-size: .58rem; letter-spacing: .12em; color: rgb(255 255 255 / .6); }
+.river-question span.is-ok { background: #2fae66; }
+.river-question span.is-bad { background: #e54b4b; }
+@media (max-width: 640px) {
+  .river-chart { top: 7.6rem; left: .5rem; width: 11.5rem; padding: .4rem .5rem; }
+  .river-chart > p { display: none; }
+  .river-progress { top: 6.9rem; left: auto; right: .5rem; width: 38vw; transform: none; }
+  .river-question { top: auto; bottom: 9.5rem; }
+  .river-question strong { font-size: .78rem; }
+}
+
+/* Level 3 Data Science · Armada Prediksi */
+.sea-wind { position: absolute; left: .75rem; top: 16.2rem; z-index: 30; display: flex; align-items: center; gap: .55rem; width: 10.5rem; border-radius: 1rem; background: rgb(16 19 26 / .72); padding: .45rem .55rem; color: white; backdrop-filter: blur(8px); pointer-events: none; }
+.sea-wind-dial { position: relative; flex: none; width: 2.9rem; height: 2.9rem; border-radius: 999px; background: rgb(255 255 255 / .1); box-shadow: inset 0 0 0 2px rgb(255 255 255 / .25); }
+.sea-wind-boat { position: absolute; left: 50%; top: 50%; width: .5rem; height: 1.3rem; transform: translate(-50%, -50%); border-radius: 999px 999px .2rem .2rem; background: #c9a36b; }
+.sea-wind-arrow { position: absolute; inset: .2rem; transition: transform .2s linear; }
+.sea-wind-arrow::before { content: ""; position: absolute; left: 50%; top: 0; transform: translateX(-50%); border: .35rem solid transparent; border-bottom: .6rem solid #7ee8fa; }
+.sea-wind-info { min-width: 0; flex: 1; }
+.sea-wind-info small { display: block; font-size: .56rem; font-weight: 900; letter-spacing: .14em; color: var(--brand-gold); }
+.sea-wind-info span { display: block; font-size: .72rem; font-weight: 900; line-height: 1.2; }
+.sea-wind-bar { margin-top: .25rem; height: .35rem; border-radius: 999px; background: rgb(255 255 255 / .15); overflow: hidden; }
+.sea-wind-bar i { display: block; height: 100%; border-radius: 999px; background: #f3ead3; transition: width .15s linear; }
+.sea-wind-info p { margin-top: .15rem; font-size: .58rem; color: rgb(255 255 255 / .7); }
+.sea-wind-info p b { color: #7ee8fa; }
+.sea-deliver { width: min(calc(100% - 1.5rem), 34rem); max-height: calc(100% - 2rem); overflow-y: auto; }
+.sea-deliver-data { margin-top: .6rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: .6rem; }
+.sea-deliver-data > div { border-radius: 1rem; background: var(--muted); padding: .55rem .7rem; }
+.sea-deliver-data small { display: block; font-size: .62rem; font-weight: 800; letter-spacing: .06em; color: var(--muted-foreground); }
+.sea-deliver-data strong { display: block; font-size: 1.5rem; font-weight: 900; line-height: 1.2; }
+.sea-deliver-data em { display: block; margin-top: .3rem; font-style: normal; font-size: .7rem; font-weight: 700; line-height: 1.3; color: #b4532a; }
+.sea-deliver-data em.is-ok { color: #1f8a50; }
+.sea-trend { display: block; width: 100%; height: auto; margin-top: .2rem; color: var(--muted-foreground); }
+.sea-touch { display: none; }
+@media (hover: none) { .sea-keys { display: none; } .sea-touch { display: inline; } }
+@media (max-width: 640px) {
+  .sea-wind { top: 18.1rem; left: .6rem; width: 8rem; padding: .35rem .4rem; gap: .35rem; }
+  .sea-wind-dial { width: 2.2rem; height: 2.2rem; }
+  .sea-wind-info p { display: none; }
+  .sea-deliver-data { grid-template-columns: 1fr; }
+  .sea-deliver-data strong { font-size: 1.2rem; }
+}
