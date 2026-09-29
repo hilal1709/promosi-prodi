@@ -8,10 +8,11 @@ import CharacterModel, { type CharacterMotion } from "@/components/game/characte
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import type { SoundName } from "@/components/game/use-game-audio";
 import { cn } from "@/lib/utils";
-import { DATA_ISSUE_LABELS, DATA_TABLE } from "@/lib/data/missions";
-import { DATA_BINS, DATA_CUBES, type DataCube } from "@/lib/data/worlds";
+import { DATA_ISSUE_LABELS } from "@/lib/data/missions";
+import { DATA_BINS, HUNT_CUBE_BANK, HUNT_CUBE_COUNT, type BinId, type DataCube } from "@/lib/data/worlds";
 import type { GameAvatarId } from "@/lib/types";
 import { Effects, type FxApi } from "../erp/race-fx";
+import { shuffled } from "../quiz-bank";
 import { TouchControls } from "../touch-controls";
 import { stackCompassLabels } from "../hud-layout";
 import { readAxis, type WorldInput } from "../world-controls";
@@ -42,7 +43,7 @@ import { HuntNature } from "./hunt-scenery";
 /* ------------------------------------------------------------------ */
 
 const HUNT_TIME = 300;
-const TOTAL = DATA_CUBES.length;
+const TOTAL = HUNT_CUBE_COUNT;
 const SCAN_RANGE = 8.5;
 const CAPTURE_TIME = 1.15;
 const WALK = 5.4;
@@ -56,6 +57,7 @@ const SHAPE_BY_COLUMN: Record<string, SpriteShape> = {
   Kota: "oktahedron",
   "Unit Terjual": "limas",
   "Harga (Rp)": "dodeka",
+  Tanggal: "oktahedron",
 };
 
 const BIN_HINT: Record<string, string> = {
@@ -800,30 +802,25 @@ function MiniMap({ playerRef, simRef }: { playerRef: RefObject<PlayerSim>; simRe
   );
 }
 
-function rowOf(cube: DataCube) {
-  const [rowId, column] = cube.id.split(":");
-  const rowNumber = Number(rowId.replace("r", ""));
-  const others =
-    column && column !== "*"
-      ? DATA_TABLE.baris
-          .filter((row) => row.id !== rowId)
-          .map((row) => String(row.data[column] === "" ? "(kosong)" : row.data[column]))
-          .filter((value, i, list) => list.indexOf(value) === i)
-          .slice(0, 5)
-      : [];
-  return { rowNumber, others };
+/** Undi kasus sel data untuk satu permainan: minimal dua per jenis, sisanya acak. */
+function drawCubes(): DataCube[] {
+  const pool = shuffled(HUNT_CUBE_BANK);
+  const picked: DataCube[] = [];
+  const kinds = [...new Set(pool.map((cube) => cube.jenis))] as BinId[];
+  kinds.forEach((kind) => picked.push(...pool.filter((cube) => cube.jenis === kind).slice(0, 2)));
+  picked.push(...pool.filter((cube) => !picked.includes(cube)).slice(0, TOTAL - picked.length));
+  return shuffled(picked).slice(0, TOTAL);
 }
 
-function ClassifyPanel({ index, onPick }: { index: number; onPick: (bin: number) => void }) {
-  const cube = DATA_CUBES[index];
-  const [cursor, setCursorState] = useState(2);
-  const cursorRef = useRef(2);
+function ClassifyPanel({ cube, index, onPick }: { cube: DataCube; index: number; onPick: (bin: number) => void }) {
+  // Kursor mulai kosong supaya menekan E tanpa memilih tidak otomatis menjawab.
+  const [cursor, setCursorState] = useState(-1);
+  const cursorRef = useRef(-1);
   const setCursor = useCallback((update: (c: number) => number) => {
     cursorRef.current = update(cursorRef.current);
     setCursorState(cursorRef.current);
   }, []);
   const opened = useRef(0);
-  const { rowNumber, others } = rowOf(cube);
   const spawn = SPRITE_SPAWNS[index];
 
   useEffect(() => {
@@ -835,9 +832,9 @@ function ClassifyPanel({ index, onPick }: { index: number; onPick: (bin: number)
         onPick(Number(digit[2]) - 1);
         return;
       }
-      if (event.code === "KeyA" || event.code === "ArrowLeft") setCursor((c) => (c + DATA_BINS.length - 1) % DATA_BINS.length);
+      if (event.code === "KeyA" || event.code === "ArrowLeft") setCursor((c) => (c < 0 ? DATA_BINS.length - 1 : (c + DATA_BINS.length - 1) % DATA_BINS.length));
       if (event.code === "KeyD" || event.code === "ArrowRight") setCursor((c) => (c + 1) % DATA_BINS.length);
-      if ((event.code === "KeyE" || event.code === "Enter" || event.code === "Space") && performance.now() - opened.current > 450) {
+      if ((event.code === "KeyE" || event.code === "Enter" || event.code === "Space") && performance.now() - opened.current > 450 && cursorRef.current >= 0) {
         onPick(cursorRef.current);
       }
     };
@@ -852,12 +849,14 @@ function ClassifyPanel({ index, onPick }: { index: number; onPick: (bin: number)
           <IconScan className="inline h-3.5 w-3.5" /> DATA TERTANGKAP · {PERSONA_LABEL[spawn.personality]}
         </small>
         <span className="hunt-classify-cell">
-          <em>{cube.id.endsWith(":*") ? `Seluruh ${cube.kolom}` : `Baris ${rowNumber} · kolom ${cube.kolom}`}</em>
-          <strong>{cube.nilai}</strong>
+          <em>{cube.baris === undefined ? `Seluruh ${cube.kolom}` : `Baris ${cube.baris} · kolom ${cube.kolom}`}</em>
+          <strong>{cube.nilai === "" ? " " : cube.nilai}</strong>
         </span>
-        {others.length > 0 && (
+        {cube.catatan && <p>Catatan: {cube.catatan}</p>}
+        {cube.konteks && cube.konteks.length > 0 && (
           <p>
-            Nilai lain di kolom ini: {others.map((value) => <b key={value}>{value}</b>)}
+            {cube.baris === undefined ? "Baris lain: " : "Nilai lain di kolom ini: "}
+            {cube.konteks.map((value) => <b key={value}>{value}</b>)}
           </p>
         )}
       </div>
@@ -900,6 +899,8 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
   const fx = useRef<FxApi | null>(null);
   const veg = useMemo(() => scatterVegetation(quality), [quality]);
   const solidsAt = useMemo(() => buildSolidGrid(veg.solids), [veg]);
+  // Kasus data diundi ulang setiap level dimulai / diulang.
+  const [cubes] = useState(drawCubes);
 
   const [hud, setHud] = useState<Hud>(EMPTY_HUD);
   const pushHud = useThrottled(setHud, 10);
@@ -948,7 +949,7 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
       const s = simRef.current;
       const index = s.classifying;
       if (index < 0) return;
-      const cube = DATA_CUBES[index];
+      const cube = cubes[index];
       const bin = DATA_BINS[binIndex];
       const ok = bin.id === cube.jenis;
       const right = DATA_BINS.find((item) => item.id === cube.jenis)!;
@@ -981,7 +982,7 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
       });
       setClassify(null);
     },
-    [sound]
+    [sound, cubes]
   );
 
   const near = hud.near;
@@ -1039,7 +1040,7 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
               Semua data siap dianalisis!
             </div>
           )}
-          {classify !== null && !ended && <ClassifyPanel index={classify} onPick={pick} />}
+          {classify !== null && !ended && <ClassifyPanel cube={cubes[classify]} index={classify} onPick={pick} />}
           {classify === null && !ended && (
             <TouchControls
               inputRef={input}
@@ -1076,7 +1077,7 @@ export function HuntLevel({ levelIndex, info, paused, avatar, quality, input, so
       />
       <DataLakeTower simRef={simRef} total={TOTAL} />
       {SPRITE_SPAWNS.map((spawn) => (
-        <DataSprite key={spawn.index} simRef={simRef} index={spawn.index} shape={SHAPE_BY_COLUMN[DATA_CUBES[spawn.index].kolom] ?? "kubus"} />
+        <DataSprite key={spawn.index} simRef={simRef} index={spawn.index} shape={SHAPE_BY_COLUMN[cubes[spawn.index].kolom] ?? "kubus"} />
       ))}
       <ScannerBeam simRef={simRef} />
       <Effects apiRef={fx} />

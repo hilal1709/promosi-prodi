@@ -6,9 +6,10 @@ import * as THREE from "three";
 import { IconAlarm, IconBolt, IconCheck, IconCoffee, IconFactory, IconPackage, IconSmile, IconTimer, IconWarehouse, IconX } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
-import { ERP_EVENTS } from "@/lib/data/missions";
-import { OPS_EVENT_TIMES, OPS_ORDERS, OPS_PRODUCT_IDS, OPS_PRODUCTS, type OpsOrder, type OpsProductId } from "@/lib/data/worlds";
+import type { ErpEvent } from "@/lib/types";
+import { OPS_EVENT_BANK, OPS_EVENT_TIMES, OPS_ORDERS, OPS_PRODUCT_IDS, OPS_PRODUCTS, type OpsOrder, type OpsProductId } from "@/lib/data/worlds";
 import { cn } from "@/lib/utils";
+import { drawVariants } from "../quiz-bank";
 import { TouchControls } from "../touch-controls";
 import { usePressReader, type WorldInput } from "../world-controls";
 import { clampDelta, HudChip, KeyHint, Label, LevelEnd, Walker, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
@@ -93,14 +94,16 @@ type Sim = {
   alarm: number | null;
   alarmDeadline: number;
   answers: Record<string, number>;
-  susulan: { at: number; pallets: number } | null;
+  susulan: { at: number; pallets: number; konsep: string } | null;
+  /** Kejadian alarm yang diundi untuk permainan ini. */
+  alarmEvents: ErpEvent[];
   satisfaction: number;
   combo: number;
   bestCombo: number;
   uid: number;
 };
 
-function createSim(): Sim {
+function createSim(alarmEvents: ErpEvent[] = []): Sim {
   return {
     time: 0,
     ended: false,
@@ -124,6 +127,7 @@ function createSim(): Sim {
     alarmDeadline: 0,
     answers: {},
     susulan: null,
+    alarmEvents,
     satisfaction: 100,
     combo: 0,
     bestCombo: 0,
@@ -645,25 +649,26 @@ function OpsScene({
     }
 
     if (s.susulan && s.time >= s.susulan.at) {
-      removeStock(s, s.susulan.pallets);
+      const { pallets, konsep } = s.susulan;
+      removeStock(s, pallets);
       s.susulan = null;
       dirty = true;
       events.sound("error");
       events.banner("STOK SELISIH!", "bad");
-      events.toast({ ok: false, judul: "Selisih stok membesar!", teks: "Selisih yang diabaikan ternyata membuat stok fisik kurang 2 palet.", konsep: "Stock opname" });
+      events.toast({ ok: false, judul: "Masalah merembet ke stok!", teks: `Keputusan tadi ternyata membuat stok fisik kurang ${pallets} palet.`, konsep });
     }
 
     // Alarm kejadian ERP.
-    if (s.alarm === null && s.eventIdx < ERP_EVENTS.length && s.time >= OPS_EVENT_TIMES[s.eventIdx]) {
+    if (s.alarm === null && s.eventIdx < s.alarmEvents.length && s.time >= OPS_EVENT_TIMES[s.eventIdx]) {
       s.alarm = s.eventIdx;
       s.alarmDeadline = s.time + ALARM_WINDOW;
       dirty = true;
       events.sound("boom");
       events.banner("ALARM ERP!", "bad");
-      events.toast({ ok: false, judul: `Kejadian: ${ERP_EVENTS[s.alarm].judul}`, teks: "Lari ke Terminal ERP di depan Pusat Kendali untuk memutuskan!", konsep: ERP_EVENTS[s.alarm].konsep });
+      events.toast({ ok: false, judul: `Kejadian: ${s.alarmEvents[s.alarm].judul}`, teks: "Lari ke Terminal ERP di depan Pusat Kendali untuk memutuskan!", konsep: s.alarmEvents[s.alarm].konsep });
     }
     if (s.alarm !== null && s.time > s.alarmDeadline) {
-      const event = ERP_EVENTS[s.alarm];
+      const event = s.alarmEvents[s.alarm];
       s.answers[event.id] = -1;
       s.satisfaction = Math.max(0, s.satisfaction - 10);
       s.alarm = null;
@@ -735,7 +740,7 @@ function OpsScene({
     d.sat = Math.round(s.satisfaction);
     d.alarm = s.alarm !== null;
 
-    const allDone = s.completed.length + s.failed.length >= OPS_ORDERS.length && s.eventIdx >= ERP_EVENTS.length && s.alarm === null;
+    const allDone = s.completed.length + s.failed.length >= OPS_ORDERS.length && s.eventIdx >= s.alarmEvents.length && s.alarm === null;
     if (s.time >= OPS_TIME || allDone) {
       s.ended = true;
       events.end();
@@ -835,8 +840,10 @@ function ProductDot({ id }: { id: OpsProductId }) {
 }
 
 export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sound, onPause, onFinish }: WorldLevelProps) {
+  // Kejadian alarm diundi ulang setiap level dimulai / diulang.
+  const [alarmEvents] = useState(() => drawVariants(OPS_EVENT_BANK));
   const simRef = useRef<Sim>(null as unknown as Sim);
-  if (simRef.current === null) simRef.current = createSim();
+  if (simRef.current === null) simRef.current = createSim(alarmEvents);
   const [phase, setPhase] = useState<"intro" | "play" | "event" | "done">("intro");
   const [view, setView] = useState<View>(() => snapshot(createSim()));
   const pushView = useThrottled(setView, 8);
@@ -864,7 +871,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
     },
     end: () => {
       const s = simRef.current;
-      const correct = ERP_EVENTS.filter((e) => s.answers[e.id] !== undefined && s.answers[e.id] >= 0 && e.opsi[s.answers[e.id]].benar).length;
+      const correct = s.alarmEvents.filter((e) => s.answers[e.id] !== undefined && s.answers[e.id] >= 0 && e.opsi[s.answers[e.id]].benar).length;
       const pallets = s.completed.reduce((sum, id) => sum + (OPS_ORDERS.find((o) => o.id === id)?.palet.length ?? 0), 0);
       setResult({ correct, pallets, bestCombo: s.bestCombo });
       sound("success");
@@ -872,7 +879,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
     },
   };
 
-  const event = view.alarm !== null ? ERP_EVENTS[view.alarm] : null;
+  const event = view.alarm !== null ? alarmEvents[view.alarm] : null;
 
   const answer = (index: number) => {
     if (pick !== null || !event) return;
@@ -887,7 +894,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
       const option = event.opsi[pick];
       s.answers[event.id] = pick;
       if (option.stok && option.stok < 0) removeStock(s, Math.max(1, Math.round(-option.stok / 20)));
-      if (option.stokSusulan) s.susulan = { at: s.time + 12, pallets: 2 };
+      if (option.stokSusulan) s.susulan = { at: s.time + 12, pallets: 2, konsep: event.konsep };
       if (option.kepuasan) s.satisfaction = Math.max(0, Math.min(100, s.satisfaction + option.kepuasan));
       if (option.benar) s.satisfaction = Math.min(100, s.satisfaction + 4);
       s.alarm = null;
@@ -900,7 +907,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
   };
 
   const score = result
-    ? clampPercent((result.pallets / TOTAL_PALLETS) * 50 + (result.correct / ERP_EVENTS.length) * 30 + view.satisfaction * 0.2)
+    ? clampPercent((result.pallets / TOTAL_PALLETS) * 50 + (result.correct / OPS_EVENT_TIMES.length) * 30 + view.satisfaction * 0.2)
     : 0;
   const timeLeft = Math.max(0, Math.ceil(OPS_TIME - view.time));
   const orders = view.trucks.filter((t) => t.phase !== "leave").sort((a, b) => a.bay - b.bay);
@@ -1051,7 +1058,7 @@ export function OpsLevel({ levelIndex, info, paused, quality, avatar, input, sou
             <LevelEnd
               score={score}
               reason={view.completed + view.failed >= OPS_ORDERS.length ? "Semua truk sudah dilayani" : "Shift selesai"}
-              detail={`${view.completed}/${OPS_ORDERS.length} pesanan · ${result.pallets}/${TOTAL_PALLETS} palet · ${result.correct}/${ERP_EVENTS.length} keputusan tepat · kepuasan ${view.satisfaction}% · combo terbaik x${result.bestCombo}`}
+              detail={`${view.completed}/${OPS_ORDERS.length} pesanan · ${result.pallets}/${TOTAL_PALLETS} palet · ${result.correct}/${alarmEvents.length} keputusan tepat · kepuasan ${view.satisfaction}% · combo terbaik x${result.bestCombo}`}
               onNext={() => onFinish(score)}
             />
           )}

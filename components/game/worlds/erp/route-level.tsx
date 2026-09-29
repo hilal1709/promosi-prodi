@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { IconCoins, IconFire, IconFlag, IconGauge, IconPackage, IconTimer } from "@/components/ui/icons";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
-import { ERP_MODULES } from "@/lib/data/missions";
+import { pickOne, shuffled } from "../quiz-bank";
 import { TouchControls } from "../touch-controls";
 import { controlHint } from "../world-controls";
 import { clampDelta, HudChip, HudMeter, Label, LevelEnd, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
@@ -44,13 +44,64 @@ import {
 /* Tata letak level (deterministik)                                   */
 /* ------------------------------------------------------------------ */
 
-export const ROUTE = ERP_MODULES.map((module, k) => {
-  const distractors = [ERP_MODULES[(k + 1) % 6], ERP_MODULES[(k + 3) % 6]];
-  const options = [module, ...distractors];
-  const shift = k % 3;
-  const ordered = [...options.slice(shift), ...options.slice(0, shift)];
-  return { t: 0.1 + k * 0.135, options: ordered, correct: ordered.indexOf(module) };
-});
+/** Posisi 6 gerbang di lintasan (urutan tahap order-to-cash). */
+const ROUTE_T = [0, 1, 2, 3, 4, 5].map((k) => 0.1 + k * 0.135);
+
+interface GateCase {
+  soal: string;
+  benar: string;
+  salah: [string, string];
+  penjelasan: string;
+  konsep: string;
+}
+
+/** Bank studi kasus per tahap order-to-cash; tiap main diundi satu kasus per gerbang. */
+const GATE_BANK: GateCase[][] = [
+  [
+    { soal: "PT Beton Jaya menelepon: butuh 50 ton semen minggu depan. Modul mana yang pertama mencatatnya?", benar: "Pesanan Pelanggan (CRM)", salah: ["Faktur & Pembayaran", "Produksi"], penjelasan: "Alur order-to-cash selalu dimulai dari permintaan pelanggan yang dicatat di CRM.", konsep: "Modul CRM" },
+    { soal: "Kontraktor mengisi formulir pesanan di portal pelanggan. Datanya masuk ke…", benar: "Pesanan Pelanggan (CRM)", salah: ["Pengadaan Bahan Baku", "Gudang"], penjelasan: "Portal pelanggan terhubung ke modul CRM, jadi pesanan tercatat sekali tanpa diketik ulang.", konsep: "Modul CRM" },
+    { soal: "Sales membawa permintaan penawaran harga dari Perumahan Asri, harganya belum disepakati. Dicatat di…", benar: "Penawaran di CRM", salah: ["Sales Order", "Surat Jalan"], penjelasan: "Selama harga belum disepakati, statusnya masih penawaran (quotation) di CRM, belum Sales Order.", konsep: "Modul CRM" },
+  ],
+  [
+    { soal: "Harga disepakati dan pelanggan setuju. Supaya gudang & keuangan ikut melihatnya, dibuat…", benar: "Sales Order", salah: ["Purchase Order", "Surat Jalan"], penjelasan: "Sales Order adalah pesanan resmi dari pelanggan. Purchase Order justru pesanan kita ke pemasok.", konsep: "Modul Penjualan" },
+    { soal: "Pesanan 60 ton Proyek Tol sudah dikonfirmasi. Dokumen resmi apa yang terbit di sistem?", benar: "Sales Order", salah: ["Faktur", "Jadwal Produksi"], penjelasan: "Konfirmasi pesanan menjadi Sales Order; faktur baru terbit setelah barang dikirim.", konsep: "Modul Penjualan" },
+    { soal: "Pelanggan mengubah pesanan dari 40 ke 45 ton sebelum barang disiapkan. Yang diperbarui…", benar: "Sales Order", salah: ["Stok Gudang", "Faktur"], penjelasan: "Perubahan pesanan dicatat di Sales Order; gudang & keuangan otomatis melihat angka terbaru.", konsep: "Modul Penjualan" },
+  ],
+  [
+    { soal: "Sales Order 60 ton masuk. Sebelum menjanjikan tanggal kirim, sistem harus…", benar: "Cek Stok Gudang", salah: ["Terbitkan Faktur", "Jadwalkan Truk"], penjelasan: "Tanggal kirim hanya bisa dijanjikan setelah ketersediaan stok dicek (available-to-promise).", konsep: "Modul Gudang" },
+    { soal: "Gudang punya 120 ton, pesanan 40 ton. Langkah berikutnya di sistem?", benar: "Reservasi Stok", salah: ["Buat Jadwal Produksi", "Beli Bahan Baku"], penjelasan: "Stok cukup, jadi cukup dipesan (reservasi) untuk pesanan ini, tanpa produksi tambahan.", konsep: "Modul Gudang" },
+  ],
+  [
+    { soal: "Stok hanya 20 ton, padahal pesanan 70 ton. Modul mana yang bergerak?", benar: "Produksi", salah: ["Pengiriman", "Faktur & Pembayaran"], penjelasan: "Kekurangan 50 ton memicu jadwal produksi otomatis.", konsep: "Modul Manufaktur" },
+    { soal: "Jadwal produksi siap, tapi stok gipsum di pabrik menipis. Modul yang membuat permintaan pembelian?", benar: "Pengadaan (MM)", salah: ["Sales Order", "CRM"], penjelasan: "Kebutuhan bahan baku produksi diteruskan ke modul pengadaan untuk dibelikan dari pemasok.", konsep: "Modul Pengadaan" },
+    { soal: "Produksi 50 ton selesai. Apa yang otomatis terjadi di sistem?", benar: "Stok Gudang Bertambah", salah: ["Faktur Terbit", "Sales Order Dihapus"], penjelasan: "Hasil produksi dicatat sebagai barang masuk (goods receipt) sehingga stok siap dikirim.", konsep: "Modul Manufaktur" },
+  ],
+  [
+    { soal: "Barang siap diangkut. Dokumen apa yang dibawa sopir truk?", benar: "Surat Jalan", salah: ["Purchase Order", "Slip Gaji"], penjelasan: "Surat jalan (delivery order) menyertai barang dan menjadi bukti pengiriman.", konsep: "Modul Logistik" },
+    { soal: "Truk sudah berangkat. Pelanggan menanyakan posisi pesanannya. Info diambil dari…", benar: "Pelacakan Pengiriman", salah: ["Laporan Keuangan", "Jadwal Produksi"], penjelasan: "Modul logistik mencatat status & posisi truk sehingga CS bisa menjawab tanpa menelepon sopir.", konsep: "Modul Logistik" },
+    { soal: "Pelanggan menandatangani bukti terima barang. Status apa yang diperbarui?", benar: "Pengiriman: Terkirim", salah: ["Produksi: Selesai", "Pengadaan: Diterima"], penjelasan: "Bukti terima (proof of delivery) menutup tahap pengiriman dan memicu penagihan.", konsep: "Modul Logistik" },
+  ],
+  [
+    { soal: "Barang sudah diterima pelanggan. Langkah keuangan berikutnya?", benar: "Terbitkan Faktur", salah: ["Buat Sales Order Baru", "Cek Stok Lagi"], penjelasan: "Setelah barang terkirim, faktur terbit otomatis dari data Sales Order & surat jalan.", konsep: "Modul Keuangan" },
+    { soal: "Pelanggan mentransfer Rp325 juta. Di sistem, transfer ini dicocokkan dengan…", benar: "Faktur Belum Lunas", salah: ["PO Pemasok", "Jadwal Produksi"], penjelasan: "Pembayaran pelanggan melunasi piutang (faktur terbuka) miliknya.", konsep: "Modul Keuangan" },
+    { soal: "Akhir bulan, direksi ingin melihat pendapatan semua pesanan. Datanya diambil dari…", benar: "Faktur & Pembayaran di ERP", salah: ["Rekap Excel Tiap Divisi", "Catatan Sopir Truk"], penjelasan: "Karena faktur & pembayaran tercatat otomatis, laporan pendapatan tersedia tanpa rekap manual.", konsep: "Modul Keuangan" },
+  ],
+];
+
+interface RouteGate extends Omit<GateCase, "benar" | "salah"> {
+  t: number;
+  options: string[];
+  correct: number;
+}
+
+/** Undi kasus tiap gerbang & acak lajur jawabannya. */
+function drawRoute(): RouteGate[] {
+  return GATE_BANK.map((cases, k) => {
+    const { benar, salah, ...rest } = pickOne(cases);
+    const options = shuffled([benar, ...salah]);
+    return { ...rest, t: ROUTE_T[k], options, correct: options.indexOf(benar) };
+  });
+}
 
 const START_TIME = 60;
 const GATE_BONUS = 15;
@@ -58,10 +109,10 @@ const WRONG_BONUS = 5;
 const PACKET_FUEL = 6;
 const LANES3 = [-4.3, 0, 4.3];
 
-const nearGate = (t: number) => ROUTE.some((row) => Math.abs(row.t - t) < 0.028) || t < 0.035 || t > 0.965;
+const nearGate = (t: number) => ROUTE_T.some((gateT) => Math.abs(gateT - t) < 0.028) || t < 0.035 || t > 0.965;
 
 const RAMPS = [1, 3, 5].map((k, i) => {
-  const t = ROUTE[k].t - 0.055;
+  const t = ROUTE_T[k] - 0.055;
   const offset = [0, -3.4, 3.4][i];
   const p = pointAt(t, offset);
   return { t, offset, x: p.x, z: p.z, heading: headingAt(indexAt(t)) };
@@ -386,6 +437,8 @@ type Game = {
 const createGame = (): Game => ({ time: START_TIME, elapsed: 0, points: 0, combo: 0, bestCombo: 0, packets: 0, drones: 0, results: [], over: false, airborne: false, launchedAt: 0 });
 
 export function RouteLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
+  // Studi kasus tiap gerbang diundi ulang setiap level dimulai / diulang.
+  const [route] = useState(drawRoute);
   const truck = useRef<TruckState>(createTruck());
   const nitro = useRef<NitroTank>({ fuel: 40 });
   const fx = useRef<FxApi | null>(null);
@@ -433,7 +486,7 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
     const g = game.current;
     const s = truck.current;
     const next = g.results.length;
-    const gap = next < ROUTE.length ? ((((indexAt(ROUTE[next].t) - s.index) % SAMPLES) + SAMPLES) % SAMPLES) * (TRACK.length / SAMPLES) : 999;
+    const gap = next < route.length ? ((((indexAt(route[next].t) - s.index) % SAMPLES) + SAMPLES) % SAMPLES) * (TRACK.length / SAMPLES) : 999;
     return { time: g.time, points: g.points, combo: g.combo, speed: s.speed, fuel: nitro.current.fuel, nitro: s.nitro, packets: g.packets, gap };
   };
 
@@ -441,12 +494,12 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
     const g = game.current;
     if (g.over) return;
     g.over = true;
-    const correct = g.results.filter((picked, k) => picked === ROUTE[k].correct).length;
-    const score = clampPercent((correct / ROUTE.length) * 60 + Math.min(25, g.points / 120) + (timeout ? 0 : Math.min(15, g.time * 0.5)));
+    const correct = g.results.filter((picked, k) => picked === route[k].correct).length;
+    const score = clampPercent((correct / route.length) * 60 + Math.min(25, g.points / 120) + (timeout ? 0 : Math.min(15, g.time * 0.5)));
     setEnding({
       timeout,
       score,
-      detail: `${correct}/${ROUTE.length} gerbang benar · ${g.points} poin · ${g.packets} paket data · combo terbaik ×${g.bestCombo}${timeout ? "" : ` · sisa waktu ${g.time.toFixed(1)}s`}`,
+      detail: `${correct}/${route.length} gerbang benar · ${g.points} poin · ${g.packets} paket data · combo terbaik ×${g.bestCombo}${timeout ? "" : ` · sisa waktu ${g.time.toFixed(1)}s`}`,
     });
     push({ ...snapshot(), speed: 0 }, true);
     sound(timeout ? "error" : "success");
@@ -536,8 +589,8 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
       return;
     }
     const next = g.results.length;
-    if (next < ROUTE.length && crossed(from, to, indexAt(ROUTE[next].t))) {
-      const row = ROUTE[next];
+    if (next < route.length && crossed(from, to, indexAt(route[next].t))) {
+      const row = route[next];
       const s = truck.current;
       const picked = pickGate(s.lateral, 3);
       const ok = picked === row.correct;
@@ -570,12 +623,12 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
       }
       setToast({
         ok,
-        judul: ok ? `${target.label}` : `Harusnya: ${target.label}`,
-        teks: target.aliranData,
-        konsep: `Modul ${target.divisi}`,
+        judul: ok ? target : `Harusnya: ${target}`,
+        teks: row.penjelasan,
+        konsep: row.konsep,
       });
     }
-    if (lapDone && truck.current.lap >= 1 && g.results.length >= ROUTE.length) {
+    if (lapDone && truck.current.lap >= 1 && g.results.length >= route.length) {
       finish(false);
       return;
     }
@@ -583,8 +636,8 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
   };
 
   const next = results.length;
-  const showHint = playing && !ending && next < ROUTE.length && hud.gap < 110;
-  const markers: MapMarker[] = ROUTE.map((row, k) => ({
+  const showHint = playing && !ending && next < route.length && hud.gap < 110;
+  const markers: MapMarker[] = route.map((row, k) => ({
     t: row.t,
     big: k === next,
     color: k < next ? (results[k] === row.correct ? "#2fae66" : "#e54b4b") : k === next ? "#ffc857" : "#8a8f98",
@@ -610,18 +663,18 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
                 <HudChip tone={hud.time <= 10 ? "red" : "dark"} pulse={hud.time <= 10 && running}><IconTimer />{Math.ceil(hud.time)}s</HudChip>
                 <HudChip tone="gold"><IconCoins />{hud.points}</HudChip>
                 {hud.combo > 1 && <HudChip tone="green"><IconFire />×{hud.combo}</HudChip>}
-                <HudChip><IconFlag />{next}/{ROUTE.length}</HudChip>
+                <HudChip><IconFlag />{next}/{route.length}</HudChip>
                 <HudChip><IconPackage />{hud.packets}</HudChip>
                 <HudMeter label={hud.nitro ? "NITRO AKTIF!" : controlHint("NITRO · SPASI", "NITRO")} value={hud.fuel} tone={hud.fuel > 30 ? "green" : "red"} />
                 <HudChip><IconGauge />{Math.round(Math.abs(hud.speed) * 5)} km/j</HudChip>
               </>
             }
-            prompt={next >= ROUTE.length && !ending ? <>Semua modul terlewati, ngebut ke garis finis!</> : undefined}
+            prompt={next >= route.length && !ending ? <>Semua modul terlewati, ngebut ke garis finis!</> : undefined}
           />
           {showHint && (
             <HintCard>
-              <small>GERBANG {next + 1}/{ROUTE.length} · {Math.round(hud.gap)} m</small>
-              <strong>{next === 0 ? "Alur dimulai dari mana?" : <>Setelah <em>{ROUTE[next - 1].options[ROUTE[next - 1].correct].label}</em>, lalu apa?</>}</strong>
+              <small>GERBANG {next + 1}/{route.length} · {Math.round(hud.gap)} m</small>
+              <strong>{route[next].soal}</strong>
             </HintCard>
           )}
           <Countdown count={count} />
@@ -639,11 +692,11 @@ export function RouteLevel({ levelIndex, info, paused, quality, input, sound, on
       }
     >
       <RaceWorld quality={quality} truck={truck}>
-        {ROUTE.map((row, k) => (
+        {route.map((row, k) => (
           <GateRow
             key={k}
             t={row.t}
-            labels={row.options.map((module) => module.label)}
+            labels={row.options}
             status={k < next ? { picked: results[k], correct: row.correct } : null}
             active={k === next}
             showLabels={k === next || k === next - 1}

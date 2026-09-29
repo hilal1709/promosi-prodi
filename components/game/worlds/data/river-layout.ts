@@ -1,7 +1,8 @@
 import * as THREE from "three";
-import type { ChartKind, GameQuality } from "@/lib/types";
+import type { ChartKind, ChartQuestion, GameQuality } from "@/lib/types";
 import { CHART_QUESTIONS } from "@/lib/data/missions";
 import { fbm, seeded } from "../erp/race-track";
+import { pickOne, sample, shuffled } from "../quiz-bank";
 
 /* ------------------------------------------------------------------ */
 /* Sungai Visualisasi, tata letak deterministik Level 2 Data Science   */
@@ -120,20 +121,36 @@ export const FORK_WIDTH = 44;
 export interface Fork {
   id: number;
   s: number;
-  question: (typeof CHART_QUESTIONS)[number];
+  /** Soal diundi ulang tiap main (lihat `rerollRiver`). */
+  question: ChartQuestion;
   /** Jenis grafik tiap kanal: kiri, tengah, kanan. */
   channels: ChartKind[];
   correct: number;
 }
 
-export const FORKS: Fork[] = [
-  { s: at(0.35), q: 0, channels: ["line", "bar", "pie"] as ChartKind[] },
-  { s: at(0.61), q: 1, channels: ["line", "pie", "bar"] as ChartKind[] },
-  { s: at(0.878), q: 2, channels: ["bar", "line", "pie"] as ChartKind[] },
-].map((fork, id) => {
-  const question = CHART_QUESTIONS[fork.q];
-  return { id, s: fork.s, question, channels: fork.channels, correct: fork.channels.indexOf(question.jawaban) };
-});
+/** Bank studi kasus "grafik apa yang tepat?" untuk percabangan sungai. */
+const FORK_BANK: ChartQuestion[] = [
+  { id: "f-toko", pertanyaan: "Toko mana yang penjualannya paling tinggi dan paling rendah bulan lalu?", jawaban: "bar", penjelasan: "Membandingkan nilai antar kategori (toko) paling mudah dengan grafik batang.", data: [] },
+  { id: "f-retur", pertanyaan: "Tim gudang ingin tahu cabang mana yang paling banyak mengembalikan sak rusak.", jawaban: "bar", penjelasan: "Tiap cabang adalah kategori terpisah; batang memudahkan melihat siapa tertinggi.", data: [] },
+  { id: "f-truk", pertanyaan: "Bandingkan jumlah pengiriman 5 sopir truk minggu ini.", jawaban: "bar", penjelasan: "Perbandingan antar orang/kategori → grafik batang.", data: [] },
+  { id: "f-produk9", pertanyaan: "Ada 9 jenis produk dengan porsi mirip-mirip. Mana yang terjual paling banyak?", jawaban: "bar", penjelasan: "Pie dengan 9 irisan mirip sulit dibaca. Batang lebih jelas untuk mengurutkan.", data: [] },
+  { id: "f-tren", pertanyaan: "Bagaimana naik-turun total penjualan dari Januari sampai Juni?", jawaban: "line", penjelasan: "Perubahan dari waktu ke waktu paling jelas dengan grafik garis.", data: [] },
+  { id: "f-iklan", pertanyaan: "Apakah penjualan Toko Jaya naik setelah iklan radio dimulai bulan April?", jawaban: "line", penjelasan: "Melihat efek sebelum-sesudah dalam urutan waktu → grafik garis.", data: [] },
+  { id: "f-harga", pertanyaan: "Bagaimana harga batu bara (bahan bakar pabrik) bergerak tiap minggu tahun ini?", jawaban: "line", penjelasan: "Data mingguan berurutan waktu → garis menunjukkan polanya.", data: [] },
+  { id: "f-puncak", pertanyaan: "Di bulan apa biasanya pesanan semen mencapai puncak dalam setahun?", jawaban: "line", penjelasan: "Pola musiman sepanjang tahun terlihat jelas pada grafik garis.", data: [] },
+  { id: "f-produk", pertanyaan: "Berapa porsi tiap jenis produk (PCC, OPC, Mortar) dari total penjualan?", jawaban: "pie", penjelasan: "Bagian dari keseluruhan (komposisi) cocok dengan grafik lingkaran.", data: [] },
+  { id: "f-bayar", pertanyaan: "Berapa persen pelanggan membayar tunai, transfer, atau kredit?", jawaban: "pie", penjelasan: "Tiga bagian yang totalnya 100% → grafik lingkaran.", data: [] },
+  { id: "f-pelanggan", pertanyaan: "Seberapa besar porsi kontraktor, toko bangunan, dan perorangan dalam pembeli kita?", jawaban: "pie", penjelasan: "Komposisi pembeli dari keseluruhan → grafik lingkaran.", data: [] },
+  { id: "f-biaya", pertanyaan: "Direksi ingin melihat pembagian biaya produksi: bahan baku, energi, dan tenaga kerja.", jawaban: "pie", penjelasan: "Pembagian satu total ke beberapa bagian → grafik lingkaran.", data: [] },
+];
+
+const FORK_CHANNELS: ChartKind[][] = [
+  ["line", "bar", "pie"],
+  ["line", "pie", "bar"],
+  ["bar", "line", "pie"],
+];
+
+export const FORKS: Fork[] = [at(0.35), at(0.61), at(0.878)].map((s, id) => ({ id, s, question: FORK_BANK[0], channels: FORK_CHANNELS[id], correct: -1 }));
 
 /** Jarak tengah kanal dari garis tengah sungai. */
 export const CHANNEL_LAT = 14.2;
@@ -322,17 +339,42 @@ export interface ShopStop {
   dirtyText: string;
   dirtyValue: number;
   alasan: string;
+  okTeks?: string;
   cleanLeft: boolean;
 }
 
-const DIRTY: { text: string; value: number; alasan: string }[] = [
-  { text: "1200", value: 240, alasan: "Salah ketik: satu nol berlebih membuat penjualan tampak 10× lipat." },
-  { text: "95 + 95", value: 190, alasan: "Baris ganda (duplikat) membuat penjualan terhitung dua kali." },
-  { text: "−5", value: -5, alasan: "Penjualan tidak mungkin negatif, setelah dibersihkan nilainya 0." },
-  { text: "(kosong)", value: 0, alasan: "Sel kosong tidak bisa digambar. Pakai nilai yang sudah dilengkapi: 210." },
-  { text: "150 sak", value: 150, alasan: "Angka bercampur teks tidak bisa dihitung grafik. Simpan sebagai angka murni." },
-  { text: "8,8", value: 9, alasan: "Format desimal salah: tertulis 8,8 padahal penjualannya 88 unit." },
-  { text: "999", value: 240, alasan: "999 adalah nilai 'placeholder', bukan penjualan nyata." },
+type Dirty = { text: string; value: number; alasan: string; okTeks?: string };
+
+/** Bank data kotor per toko (urutan = CHART_QUESTIONS[0].data), diundi tiap main. */
+const DIRTY_BANK: Dirty[][] = [
+  [
+    { text: "1200", value: 240, alasan: "Salah ketik: satu nol berlebih membuat penjualan tampak 10× lipat." },
+    { text: "12", value: 12, alasan: "Satu digit hilang saat input, penjualannya 120, bukan 12." },
+  ],
+  [
+    { text: "95 + 95", value: 190, alasan: "Baris ganda (duplikat) membuat penjualan terhitung dua kali." },
+    { text: "59", value: 59, alasan: "Digit tertukar saat mengetik: yang benar 95." },
+  ],
+  [
+    { text: "−5", value: -5, alasan: "Penjualan tidak mungkin negatif, setelah dibersihkan nilainya 0.", okTeks: "Tepat! Penjualan negatif (−5) sudah dibersihkan menjadi 0." },
+    { text: "125", value: 125, alasan: "Itu angka bulan lalu yang tersalin. Bulan ini Barokah memang 0 karena stoknya kosong.", okTeks: "Tepat! Nol di sini data asli: stok Barokah kosong, bukan salah input." },
+  ],
+  [
+    { text: "(kosong)", value: 0, alasan: "Sel kosong tidak bisa digambar. Pakai nilai yang sudah dilengkapi: 210." },
+    { text: "2,1 rb", value: 2, alasan: "Ditulis dengan singkatan ribuan & koma yang salah. Penjualan Jaya 210 sak." },
+  ],
+  [
+    { text: "150 sak", value: 150, alasan: "Angka bercampur teks tidak bisa dihitung grafik. Simpan sebagai angka murni." },
+    { text: "7,5 ton", value: 8, alasan: "Tercatat dalam ton. 7,5 ton = 150 sak (1 sak = 50 kg), satuannya harus seragam." },
+  ],
+  [
+    { text: "8,8", value: 9, alasan: "Format desimal salah: tertulis 8,8 padahal penjualannya 88 unit." },
+    { text: "880", value: 880, alasan: "Kelebihan satu nol, 10× dari penjualan Sentosa biasanya." },
+  ],
+  [
+    { text: "999", value: 240, alasan: "999 adalah nilai 'placeholder', bukan penjualan nyata." },
+    { text: "132 (2×)", value: 264, alasan: "Nota yang sama terinput dua kali, jadi terhitung ganda." },
+  ],
 ];
 
 export const SHOPS: ShopStop[] = (() => {
@@ -343,9 +385,10 @@ export const SHOPS: ShopStop[] = (() => {
     side: (index % 2 === 0 ? -1 : 1) as 1 | -1,
     label: item.label,
     nilai: item.nilai,
-    dirtyText: DIRTY[index].text,
-    dirtyValue: DIRTY[index].value,
-    alasan: DIRTY[index].alasan,
+    dirtyText: DIRTY_BANK[index][0].text,
+    dirtyValue: DIRTY_BANK[index][0].value,
+    alasan: DIRTY_BANK[index][0].alasan,
+    okTeks: DIRTY_BANK[index][0].okTeks,
     cleanLeft: rand() > 0.5,
   }));
 })();
@@ -360,20 +403,28 @@ export interface MonthGate {
   correct: number;
 }
 
-const MONTH_DECOYS = [
-  [160, 6100],
-  [460, 64],
-  [70, 1700],
-  [960, 609],
-  [670, 76],
-  [579, 7950],
-];
+/** Pengecoh titik bulan: berbagai jenis salah catat, diundi tiap main. */
+function monthDecoys(k: number, values: number[], rand: () => number) {
+  const v = values[k];
+  const digits = String(v).split("");
+  const swapped = Number([digits[1], digits[0], ...digits.slice(2)].join(""));
+  const candidates = [
+    v * 10, // kelebihan nol
+    Math.round(v / 10), // kurang satu digit
+    swapped, // digit tertukar
+    values[k - 1] ?? values[k + 1], // tersalin dari bulan sebelah
+    values[k + 1] ?? values[k - 1],
+    v + (rand() > 0.5 ? 100 : -100), // salah ketik digit ratusan
+    Math.round(v * 0.5), // hanya separuh bulan tercatat
+  ].filter((n, i, list) => n > 0 && n !== v && list.indexOf(n) === i);
+  return sample(candidates, 2, rand);
+}
 
 export const MONTH_GATES: MonthGate[] = (() => {
   const rand = seeded(57);
   return CHART_QUESTIONS[1].data.map((item, index) => {
     const correct = Math.floor(rand() * 3);
-    const decoys = [...MONTH_DECOYS[index]];
+    const decoys = monthDecoys(index, CHART_QUESTIONS[1].data.map((d) => d.nilai), rand);
     const options = [0, 1, 2].map((k) => (k === correct ? item.nilai : decoys.shift()!));
     return { index, s: at(0.458 + index * 0.0245), label: item.label, nilai: item.nilai, options, correct };
   });
@@ -390,7 +441,12 @@ export interface SliceStop {
   cleanLeft: boolean;
 }
 
-const SLICE_DIRTY = [75, 3, 40];
+/** Porsi keliru per irisan (urutan = CHART_QUESTIONS[2].data), diundi tiap main. */
+const SLICE_DIRTY_BANK = [
+  [75, 45, 65],
+  [3, 10, 50],
+  [40, 25, 5],
+];
 
 export const SLICES: SliceStop[] = (() => {
   const rand = seeded(91);
@@ -399,12 +455,43 @@ export const SLICES: SliceStop[] = (() => {
     s: at(0.818 + index * 0.02),
     label: item.label,
     nilai: item.nilai,
-    dirtyValue: SLICE_DIRTY[index],
+    dirtyValue: SLICE_DIRTY_BANK[index][0],
     cleanLeft: rand() > 0.5,
   }));
 })();
 
 export const PAIR_LAT = 4.6;
+
+/**
+ * Undi ulang studi kasus sungai: soal percabangan, data kotor, pengecoh bulan,
+ * dan sisi pelampung. Objek diubah di tempat karena model 3D membacanya langsung;
+ * dipanggil sekali setiap level dimulai (sebelum model pertama kali dirender).
+ */
+export function rerollRiver() {
+  const rand = Math.random;
+  SHOPS.forEach((shop) => {
+    const dirty = pickOne(DIRTY_BANK[shop.index], rand);
+    Object.assign(shop, { dirtyText: dirty.text, dirtyValue: dirty.value, alasan: dirty.alasan, okTeks: dirty.okTeks, cleanLeft: rand() > 0.5 });
+  });
+  const values = CHART_QUESTIONS[1].data.map((d) => d.nilai);
+  MONTH_GATES.forEach((gate) => {
+    const correct = Math.floor(rand() * 3);
+    const decoys = monthDecoys(gate.index, values, rand);
+    gate.options = [0, 1, 2].map((k) => (k === correct ? gate.nilai : decoys.shift()!));
+    gate.correct = correct;
+  });
+  SLICES.forEach((slice) => {
+    slice.dirtyValue = pickOne(SLICE_DIRTY_BANK[slice.index], rand);
+    slice.cleanLeft = rand() > 0.5;
+  });
+  const questions = sample(FORK_BANK, FORKS.length, rand);
+  FORKS.forEach((fork, k) => {
+    fork.question = questions[k];
+    fork.channels = shuffled(FORK_CHANNELS[k], rand);
+    fork.correct = fork.channels.indexOf(fork.question.jawaban);
+  });
+}
+rerollRiver();
 
 /* ---------------------------- rintangan ---------------------------- */
 
@@ -455,16 +542,12 @@ export const HAZARDS: Hazard[] = (() => {
       else if (roll < 0.49 && zone !== "pasar") push("pusaran", s, lat * 0.6, 3.4);
     }
   }
-  // Kanal yang salah di tiap cabang: batu & jeram.
+  // Tiap kanal di percabangan mendapat rintangan setara, jadi jawaban tidak terbaca dari medannya.
   for (const fork of FORKS) {
     fork.channels.forEach((_, k) => {
       const c = channelLat(k);
-      if (k === fork.correct) {
-        push("arus", fork.s + 34, c, 2.4);
-        push("arus", fork.s + 70, c, 2.4);
-      } else {
-        for (let j = 0; j < 4; j++) push("batu", fork.s + 26 + j * 19 + rand() * 6, c + (rand() * 2 - 1) * 3.2, 0.9 + rand() * 0.5);
-      }
+      push("arus", fork.s + 34, c, 2.4);
+      for (let j = 0; j < 2; j++) push("batu", fork.s + 48 + j * 22 + rand() * 6, c + (rand() > 0.5 ? 2.6 : -2.6), 0.9 + rand() * 0.5);
     });
   }
   return out;
@@ -487,7 +570,7 @@ export const ORBS: { id: number; s: number; lat: number }[] = (() => {
     }
   }
   for (const fork of FORKS) {
-    for (let k = 0; k < 6; k++) out.push({ id: id++, s: fork.s + 24 + k * 12, lat: channelLat(fork.correct) + Math.sin(k) * 1.5 });
+    for (let c = 0; c < 3; c++) for (let k = 0; k < 2; k++) out.push({ id: id++, s: fork.s + 24 + k * 30, lat: channelLat(c) + Math.sin(k + c) * 1.5 });
   }
   return out;
 })();

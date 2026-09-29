@@ -5,8 +5,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { IconFire, IconPackage, IconTimer } from "@/components/ui/icons";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
-import { DRONE_JOBS, DRONE_SITES, type DroneSiteId } from "@/lib/data/worlds";
+import { DRONE_JOB_BANK, DRONE_SITES, type DroneJob, type DroneSiteId } from "@/lib/data/worlds";
 import { cn } from "@/lib/utils";
+import { pickOne, shuffled } from "../quiz-bank";
 import { TouchControls } from "../touch-controls";
 import { stackCompassLabels } from "../hud-layout";
 import { controlHint, readAxis, usePressReader, type WorldInput } from "../world-controls";
@@ -43,16 +44,20 @@ const CLEARANCE = 2.2;
 const DRONE_RADIUS = 1.5;
 const BUG_CHASE_SPEED = 15;
 const FINALE_TIME = 5;
-const JOBS = DRONE_JOBS.length;
+const JOBS = DRONE_JOB_BANK.length;
 
 const padY = (id: DroneSiteId) => surfaceAt(SITE[id].x, SITE[id].z);
 
-/** Urutan tampil kandidat tujuan (tetap, tapi tidak selalu jawaban di posisi pertama). */
-const CANDIDATES = DRONE_JOBS.map((job, k) => {
-  const list = [job.ke, ...job.pengecoh];
-  const shift = (k * 2 + 1) % 3;
-  return [...list.slice(shift), ...list.slice(0, shift)] as DroneSiteId[];
-});
+/** Tugas yang sedang dimainkan & urutan tampil kandidat tujuannya (diisi `rerollJobs`). */
+const ACTIVE_JOBS: DroneJob[] = [];
+const CANDIDATES: DroneSiteId[][] = [];
+
+/** Undi satu varian tugas per slot & acak urutan kandidat. Dipanggil setiap level dimulai. */
+function rerollJobs() {
+  ACTIVE_JOBS.splice(0, ACTIVE_JOBS.length, ...DRONE_JOB_BANK.map((variants) => pickOne(variants)));
+  CANDIDATES.splice(0, CANDIDATES.length, ...ACTIVE_JOBS.map((job) => shuffled([job.ke, ...job.pengecoh])));
+}
+rerollJobs();
 
 type Phase = "pickup" | "deliver" | "golive" | "finale" | "done";
 
@@ -165,7 +170,7 @@ type Target = { x: number; z: number; color: string; label: string };
 function targetsOf(s: Sim): Target[] {
   if (s.phase === "golive" || s.phase === "finale") return [{ x: SITE.hq.x, z: SITE.hq.z, color: "#ffc857", label: "Pusat Operasi" }];
   if (s.phase === "done") return [];
-  const job = DRONE_JOBS[s.job];
+  const job = ACTIVE_JOBS[s.job];
   if (s.dropped) return [{ x: s.dropped.x, z: s.dropped.z, color: "#ffc857", label: "Paket jatuh" }];
   if (s.phase === "pickup") return [{ x: SITE[job.dari].x, z: SITE[job.dari].z, color: "#ffc857", label: SITE[job.dari].nama }];
   const hinted = s.wrongSites.length > 0;
@@ -325,7 +330,7 @@ function DroneController({
 
       /* ---------- landasan & tugas ---------- */
       const near = (x: number, z: number, y: number) => Math.hypot(d.pos.x - x, d.pos.z - z) < PAD_RADIUS + 3 && d.pos.y - y < 20;
-      const job = DRONE_JOBS[Math.min(s.job, JOBS - 1)];
+      const job = ACTIVE_JOBS[Math.min(s.job, JOBS - 1)];
 
       if (!finale && near(SITE.hq.x, SITE.hq.z, padY("hq")) && d.battery < 100) {
         d.battery = Math.min(100, d.battery + 30 * delta);
@@ -362,7 +367,7 @@ function DroneController({
             s.carrying = false;
             s.job += 1;
             events.sound("success");
-            const next = DRONE_JOBS[s.job];
+            const next = ACTIVE_JOBS[s.job];
             if (!next) {
               s.phase = "golive";
               events.toast({ ok: true, judul: "Semua modul terhubung!", teks: `${job.benar} Sekarang kembali ke Pusat Operasi untuk Go-Live!`, konsep: job.konsep });
@@ -785,7 +790,7 @@ function JobCard({ stage }: { stage: Stage }) {
       </div>
     );
   }
-  const job = DRONE_JOBS[stage.job];
+  const job = ACTIVE_JOBS[stage.job];
   return (
     <div className="drone-job">
       <small>TUGAS {stage.job + 1}/{JOBS} · {job.kode}</small>
@@ -835,6 +840,8 @@ function scoreOf(s: Sim) {
 
 export function DroneLevel({ levelIndex, info, paused, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
   const droneRef = useRef<DroneState>(createDrone());
+  // Tugas diundi ulang setiap level dimulai / diulang (sebelum simulasi dibuat).
+  useState(rerollJobs);
   const simRef = useRef<Sim>(createSim());
   const finaleRef = useRef(0);
   const [stage, setStage] = useState<Stage>({ phase: "pickup", job: 0, carrying: false, dropped: null, wrongSites: [], hinted: false });
@@ -843,7 +850,7 @@ export function DroneLevel({ levelIndex, info, paused, quality, input, sound, on
   const [toast, setToast] = useState<Feedback>({
     ok: true,
     judul: "Hari Go-Live dimulai!",
-    teks: `Tugas pertama: ambil ${DRONE_JOBS[0].paket} di ${SITE[DRONE_JOBS[0].dari].nama}. Ikuti penanda kuning di kompas & radar.`,
+    teks: `Tugas pertama: ambil ${ACTIVE_JOBS[0].paket} di ${SITE[ACTIVE_JOBS[0].dari].nama}. Ikuti penanda kuning di kompas & radar.`,
   });
   const [result, setResult] = useState<null | { score: number; live: boolean; delivered: number; wrongs: number; rings: number; bugs: number; timeLeft: number }>(null);
 
@@ -880,11 +887,11 @@ export function DroneLevel({ levelIndex, info, paused, quality, input, sound, on
       modes.hq = "home";
       labels.hq = "GO-LIVE di sini";
     } else if (stage.phase === "pickup" && !stage.dropped) {
-      const job = DRONE_JOBS[stage.job];
+      const job = ACTIVE_JOBS[stage.job];
       modes[job.dari] = "pickup";
       labels[job.dari] = `Ambil: ${job.paket}`;
     } else if (stage.phase === "deliver" && !stage.dropped) {
-      const job = DRONE_JOBS[stage.job];
+      const job = ACTIVE_JOBS[stage.job];
       CANDIDATES[stage.job].forEach((id) => {
         if (stage.wrongSites.includes(id)) modes[id] = "wrong";
         else if (stage.hinted) modes[id] = id === job.ke ? "correct" : "idle";

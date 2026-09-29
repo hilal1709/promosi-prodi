@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import type { GameQuality } from "@/lib/types";
-import { CHART_QUESTIONS, INSIGHT_QUESTIONS } from "@/lib/data/missions";
+import { CHART_QUESTIONS } from "@/lib/data/missions";
 import { fbm, seeded } from "../erp/race-track";
+import { drawVariants, sample, shuffled } from "../quiz-bank";
 
 /* ------------------------------------------------------------------ */
 /* Kepulauan Insight, tata letak deterministik Level 3 Data Science     */
@@ -37,7 +38,6 @@ export interface Island {
 }
 
 const SALES = CHART_QUESTIONS[0].data;
-export const TREND = CHART_QUESTIONS[1].data;
 
 export const ISLANDS: Island[] = [
   { id: "pelabuhan", nama: "Pelabuhan Gresik", kind: "pelabuhan", x: 0, z: 74, r: 36, h: 12, seed: 1, color: "#e9c46a" },
@@ -241,46 +241,220 @@ export interface ForecastOption {
 export interface Forecast {
   shop: number;
   toko: string;
+  /** Penjualan bulan lalu (Juni). */
   nilai: number;
+  pertanyaan: string;
+  konsep: string;
+  /** Riwayat penjualan toko ini; `null` = data hilang. */
+  riwayat: { label: string; nilai: number | null }[];
+  catatan: string;
+  /** Kasus Barokah: keterangan tambahan muncul setelah bukti kapal kandas ditemukan. */
+  butuhBukti?: boolean;
   opsi: ForecastOption[];
 }
 
-const up5 = (n: number) => Math.round(n * 1.05);
+type ForecastCase = Omit<Forecast, "shop" | "toko" | "nilai">;
 
-function forecastFor(k: number): Forecast {
-  const { label, nilai } = SALES[k];
-  let opsi: ForecastOption[];
-  if (label === "Barokah") {
-    opsi = [
-      { jumlah: 0, label: "0 sak: datanya nol, berarti tidak laku", benar: false, penjelasan: "Hati-hati! Angka nol bukan berarti tidak ada permintaan. Kiriman ke Barokah terputus karena kapal suplai kandas, stoknya yang kosong." },
-      { jumlah: 125, label: "125 sak: stok normal, permintaan tetap ada", benar: true, penjelasan: "Tepat! Penjualan nol karena stok kosong (kapal suplai kandas), bukan tidak laku. Pulihkan pasokan setara toko sejenis." },
-      { jumlah: 15, label: "15 sak: coba sedikit dulu", benar: false, penjelasan: "Terlalu sedikit. Pelanggan Barokah sudah menunggu 3 minggu, toko akan kehabisan lagi dalam sehari." },
-    ];
-  } else if (label === "Berkah") {
-    opsi = [
-      { jumlah: up5(nilai), label: `${up5(nilai)} sak: ikuti tren +5%`, benar: true, penjelasan: `Benar. ${nilai} sak bulan lalu × 1,05 ≈ ${up5(nilai)} sak. Harga Rp650.000 di data lama adalah salah ketik, bukan lonjakan permintaan.` },
-      { jumlah: nilai * 10, label: `${nilai * 10} sak: nilai transaksinya 10× lipat!`, benar: false, penjelasan: "Itu terkecoh anomali harga (Rp650.000, kelebihan satu nol). Jumlah unitnya tetap normal." },
-      { jumlah: Math.round(nilai * 0.7), label: `${Math.round(nilai * 0.7)} sak: kurangi, harganya terlalu mahal`, benar: false, penjelasan: "Harga mahal itu salah ketik. Permintaan riil Berkah justru naik mengikuti tren." },
-    ];
-  } else {
-    const low = Math.round(nilai * 0.75);
-    const high = nilai * 2;
-    opsi = [
-      { jumlah: low, label: `${low} sak: kurangi, jaga-jaga`, benar: false, penjelasan: `Stok akan kurang. Tren total penjualan naik ±5% per bulan, jadi ${label} butuh lebih, bukan kurang.` },
-      { jumlah: up5(nilai), label: `${up5(nilai)} sak: ikuti tren +5%`, benar: true, penjelasan: `Tepat! ${nilai} sak bulan lalu × 1,05 ≈ ${up5(nilai)} sak. Prediksi berbasis tren menjaga stok cukup tanpa menumpuk.` },
-      { jumlah: high, label: `${high} sak: gandakan saja`, benar: false, penjelasan: "Berlebihan. Tidak ada data yang menunjukkan permintaan melonjak 2×; semen menumpuk & modal tertahan." },
-    ];
-  }
-  // Urutan opsi diacak deterministik supaya jawaban benar tidak selalu di tengah.
-  const rand = seeded(40 + k);
-  for (let i = opsi.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [opsi[i], opsi[j]] = [opsi[j], opsi[i]];
-  }
-  return { shop: k, toko: label, nilai, opsi };
+const JULI = "berapa sak semen yang kamu turunkan untuk bulan Juli?";
+
+/** Bank studi kasus per toko (index = toko di SALES). Tiap main diundi satu kasus per toko. */
+export const FORECAST_BANK: ForecastCase[][] = [
+  // Makmur
+  [
+    {
+      pertanyaan: JULI,
+      konsep: "Pola musiman",
+      riwayat: [{ label: "Mar", nilai: 110 }, { label: "Apr", nilai: 114 }, { label: "Mei", nilai: 118 }, { label: "Jun", nilai: 120 }],
+      catatan: "Tahun lalu: Juni 115 sak lalu Juli anjlok ke 80 sak karena musim hujan (pengecoran ditunda). Prakiraan cuaca Juli tahun ini juga hujan lebat.",
+      opsi: [
+        { jumlah: 84, label: "84 sak: turun ±30% seperti musim hujan tahun lalu", benar: true, penjelasan: "Tepat! Pola musiman lebih kuat daripada tren bulanan. 120 × 0,7 ≈ 84 sak." },
+        { jumlah: 126, label: "126 sak: tren 4 bulan terakhir naik terus", benar: false, penjelasan: "Tren naik itu terjadi di musim kemarau. Data tahun lalu menunjukkan Juli selalu turun saat hujan." },
+        { jumlah: 40, label: "40 sak: hujan berarti proyek berhenti total", benar: false, penjelasan: "Terlalu pesimis. Tahun lalu penjualan hanya turun ±30%, bukan berhenti. Toko akan kehabisan." },
+      ],
+    },
+    {
+      pertanyaan: JULI,
+      konsep: "Pesanan di muka",
+      riwayat: [{ label: "Mar", nilai: 118 }, { label: "Apr", nilai: 121 }, { label: "Mei", nilai: 119 }, { label: "Jun", nilai: 120 }],
+      catatan: "Penjualan eceran Makmur stabil ±120 sak. Kontraktor drainase desa sudah membayar uang muka untuk 60 sak yang diambil awal Juli.",
+      opsi: [
+        { jumlah: 120, label: "120 sak: penjualannya stabil, samakan saja", benar: false, penjelasan: "Pesanan kontraktor 60 sak sudah pasti tapi terlupa. Pelanggan eceran akan kehabisan." },
+        { jumlah: 180, label: "180 sak: eceran 120 + pesanan kontraktor 60", benar: true, penjelasan: "Benar! Permintaan rutin ditambah pesanan yang sudah pasti (sudah dibayar) = 180 sak." },
+        { jumlah: 240, label: "240 sak: ada proyek, gandakan saja", benar: false, penjelasan: "Proyeknya hanya butuh 60 sak. Menggandakan stok membuat semen menumpuk dan modal tertahan." },
+      ],
+    },
+  ],
+  // Sejahtera
+  [
+    {
+      pertanyaan: JULI,
+      konsep: "Lonjakan sekali terjadi",
+      riwayat: [{ label: "Feb", nilai: 60 }, { label: "Mar", nilai: 62 }, { label: "Apr", nilai: 58 }, { label: "Mei", nilai: 61 }, { label: "Jun", nilai: 95 }],
+      catatan: "Juni ada satu pesanan borongan 35 sak untuk renovasi masjid. Pesanan itu tidak akan berulang.",
+      opsi: [
+        { jumlah: 100, label: "100 sak: Juni 95 sak, tambah 5%", benar: false, penjelasan: "Angka Juni terdongkrak pesanan sekali. Kalau dijadikan patokan, 35-an sak akan menumpuk." },
+        { jumlah: 130, label: "130 sak: lonjakan Juni akan berlanjut", benar: false, penjelasan: "Tidak ada bukti lonjakan berlanjut; renovasi masjid sudah selesai." },
+        { jumlah: 60, label: "60 sak: kembali ke pola normal ±60 sak", benar: true, penjelasan: "Tepat! Pisahkan kejadian sekali dari permintaan rutin. Baseline Sejahtera ±60 sak." },
+      ],
+    },
+    {
+      pertanyaan: JULI,
+      konsep: "Faktor eksternal",
+      riwayat: [{ label: "Mar", nilai: 94 }, { label: "Apr", nilai: 96 }, { label: "Mei", nilai: 95 }, { label: "Jun", nilai: 95 }],
+      catatan: "Awal Juli toko bangunan besar dibuka 200 m dari Sejahtera. Tahun lalu, saat hal serupa terjadi di pulau lain, penjualan toko lama turun ±20%.",
+      opsi: [
+        { jumlah: 95, label: "95 sak: datanya stabil 4 bulan", benar: false, penjelasan: "Data masa lalu belum mencerminkan pesaing baru. Faktor eksternal harus ikut dihitung." },
+        { jumlah: 76, label: "76 sak: turun ±20% karena ada pesaing", benar: true, penjelasan: "Benar! Kasus serupa di pulau lain jadi acuan. 95 × 0,8 = 76 sak." },
+        { jumlah: 30, label: "30 sak: pelanggan pasti pindah semua", benar: false, penjelasan: "Terlalu pesimis. Pelanggan setia & jarak dekat tetap membuat Sejahtera laku." },
+      ],
+    },
+  ],
+  // Barokah
+  [
+    {
+      pertanyaan: JULI,
+      konsep: "Stok kosong ≠ tidak laku",
+      butuhBukti: true,
+      riwayat: [{ label: "Feb", nilai: 118 }, { label: "Mar", nilai: 122 }, { label: "Apr", nilai: 125 }, { label: "Mei", nilai: 40 }, { label: "Jun", nilai: 0 }],
+      catatan: "Penjualan Barokah jatuh sejak pertengahan Mei.",
+      opsi: [
+        { jumlah: 0, label: "0 sak: datanya nol, berarti tidak laku", benar: false, penjelasan: "Hati-hati! Angka nol bukan berarti tidak ada permintaan. Kiriman ke Barokah terputus karena kapal suplai kandas, stoknya yang kosong." },
+        { jumlah: 125, label: "125 sak: pulihkan ke tingkat sebelum stok kosong", benar: true, penjelasan: "Tepat! Penjualan nol karena stok kosong, bukan tidak laku. Pulihkan pasokan seperti April." },
+        { jumlah: 15, label: "15 sak: coba sedikit dulu", benar: false, penjelasan: "Terlalu sedikit. Pelanggan Barokah sudah menunggu berminggu-minggu, toko akan kehabisan lagi dalam sehari." },
+      ],
+    },
+    {
+      pertanyaan: JULI,
+      konsep: "Permintaan tertunda",
+      butuhBukti: true,
+      riwayat: [{ label: "Mar", nilai: 120 }, { label: "Apr", nilai: 124 }, { label: "Mei", nilai: 0 }, { label: "Jun", nilai: 0 }],
+      catatan: "Pemilik toko mencatat 60 sak pesanan warga yang tertunda selama stok kosong.",
+      opsi: [
+        { jumlah: 125, label: "125 sak: kembali ke penjualan normal", benar: false, penjelasan: "Kurang. Permintaan normal ±125 sak belum termasuk 60 sak pesanan yang tertunda." },
+        { jumlah: 185, label: "185 sak: normal 125 + pesanan tertunda 60", benar: true, penjelasan: "Tepat! Selama stok kosong permintaan tidak hilang, melainkan menumpuk (backlog)." },
+        { jumlah: 0, label: "0 sak: 2 bulan tanpa penjualan", benar: false, penjelasan: "Nol karena tidak ada barang, bukan tidak ada pembeli. Kapal suplainya yang kandas." },
+      ],
+    },
+  ],
+  // Jaya
+  [
+    {
+      pertanyaan: JULI,
+      konsep: "Rata-rata bergerak",
+      riwayat: [{ label: "Mar", nilai: 150 }, { label: "Apr", nilai: 260 }, { label: "Mei", nilai: 130 }, { label: "Jun", nilai: 210 }],
+      catatan: "Penjualan Jaya naik-turun tajam tanpa pola musim atau proyek khusus.",
+      opsi: [
+        { jumlah: 290, label: "290 sak: Mei→Juni naik 80, lanjutkan naiknya", benar: false, penjelasan: "Menarik tren dari 2 titik yang berfluktuasi itu menyesatkan. Bulan berikutnya bisa saja turun lagi." },
+        { jumlah: 200, label: "200 sak: rata-rata 3 bulan terakhir", benar: true, penjelasan: "Tepat! (260 + 130 + 210) ÷ 3 = 200. Rata-rata bergerak meredam naik-turun acak." },
+        { jumlah: 130, label: "130 sak: pakai angka terendah biar aman", benar: false, penjelasan: "Terlalu rendah. Dua dari tiga bulan terakhir jauh di atas 130, toko sering kehabisan." },
+      ],
+    },
+    {
+      pertanyaan: "Toko Jaya: berapa sak yang perlu dikirim untuk bulan Juli?",
+      konsep: "Kebutuhan bersih",
+      riwayat: [{ label: "Mar", nilai: 205 }, { label: "Apr", nilai: 208 }, { label: "Mei", nilai: 212 }, { label: "Jun", nilai: 210 }],
+      catatan: "Gudang Jaya masih menyimpan 90 sak sisa Juni. Stok pengaman akhir bulan cukup 50 sak.",
+      opsi: [
+        { jumlah: 210, label: "210 sak: sama dengan penjualan Juni", benar: false, penjelasan: "Lupa menghitung 90 sak yang masih ada di gudang, stok akan menumpuk." },
+        { jumlah: 260, label: "260 sak: penjualan 210 + stok pengaman 50", benar: false, penjelasan: "Hampir! Tapi sisa 90 sak di gudang belum dikurangkan." },
+        { jumlah: 170, label: "170 sak: 210 + 50 pengaman − 90 sisa gudang", benar: true, penjelasan: "Tepat! Kebutuhan bersih = perkiraan permintaan + stok pengaman − stok yang sudah ada." },
+      ],
+    },
+  ],
+  // Amanah
+  [
+    {
+      pertanyaan: JULI,
+      konsep: "Efek promosi",
+      riwayat: [{ label: "Mar", nilai: 100 }, { label: "Apr", nilai: 102 }, { label: "Mei", nilai: 98 }, { label: "Jun", nilai: 150 }],
+      catatan: "Juni ada diskon 20% untuk ulang tahun toko. Mulai Juli harga kembali normal.",
+      opsi: [
+        { jumlah: 158, label: "158 sak: Juni 150 sak, tambah 5%", benar: false, penjelasan: "Lonjakan Juni dipicu diskon. Tanpa promo, pembeli kembali ke pola biasa." },
+        { jumlah: 100, label: "100 sak: pola normal sebelum promo", benar: true, penjelasan: "Tepat! Pisahkan efek promo dari permintaan dasar. Tanpa diskon, Amanah ±100 sak." },
+        { jumlah: 150, label: "150 sak: pelanggan baru pasti bertahan", benar: false, penjelasan: "Sebagian pembeli promo hanya menimbun saat murah. Juli malah bisa sedikit lebih sepi." },
+      ],
+    },
+    {
+      pertanyaan: JULI,
+      konsep: "Tren naik konsisten",
+      riwayat: [{ label: "Feb", nilai: 118 }, { label: "Mar", nilai: 125 }, { label: "Apr", nilai: 133 }, { label: "Mei", nilai: 141 }, { label: "Jun", nilai: 150 }],
+      catatan: "Perumahan baru di Pulau Amanah terus bertambah, penjualan naik ±8 sak tiap bulan tanpa promo.",
+      opsi: [
+        { jumlah: 141, label: "141 sak: rata-rata 3 bulan terakhir", benar: false, penjelasan: "Rata-rata tertinggal saat trennya konsisten naik. Juli justru di atas Juni." },
+        { jumlah: 150, label: "150 sak: samakan dengan Juni", benar: false, penjelasan: "Kenaikan ±8 sak per bulan sudah terjadi 5 bulan berturut-turut, jadi Juli akan kurang." },
+        { jumlah: 158, label: "158 sak: lanjutkan kenaikan ±8 sak", benar: true, penjelasan: "Tepat! Tren linier yang stabil & punya alasan jelas (perumahan baru) layak dilanjutkan." },
+      ],
+    },
+  ],
+  // Sentosa
+  [
+    {
+      pertanyaan: "Toko Sentosa: kapal mampir 2× sebulan. Berapa sak yang diturunkan di kiriman awal Juli ini?",
+      konsep: "Kendala kapasitas",
+      riwayat: [{ label: "Mar", nilai: 80 }, { label: "Apr", nilai: 84 }, { label: "Mei", nilai: 86 }, { label: "Jun", nilai: 88 }],
+      catatan: "Perkiraan Juli ±92 sak. Gudang di atol hanya muat 60 sak; semen di luar gudang cepat lembap.",
+      opsi: [
+        { jumlah: 92, label: "92 sak: kebutuhan sebulan sekaligus", benar: false, penjelasan: "Melebihi kapasitas gudang 60 sak. Sisa 32 sak di luar gudang akan rusak kena lembap." },
+        { jumlah: 46, label: "46 sak: separuh kebutuhan, sisanya kapal kedua", benar: true, penjelasan: "Tepat! Prediksi harus menyesuaikan kendala nyata: 92 sak dibagi 2 kiriman, muat di gudang." },
+        { jumlah: 30, label: "30 sak: sedikit saja supaya tidak lembap", benar: false, penjelasan: "Stok habis sebelum kapal kedua datang di pertengahan bulan." },
+      ],
+    },
+    {
+      pertanyaan: JULI,
+      konsep: "Data hilang (missing value)",
+      riwayat: [{ label: "Mar", nilai: 84 }, { label: "Apr", nilai: null }, { label: "Mei", nilai: 86 }, { label: "Jun", nilai: 88 }],
+      catatan: "Buku catatan April basah terkena air laut, datanya tidak terbaca. Toko tetap buka normal sepanjang April.",
+      opsi: [
+        { jumlah: 65, label: "65 sak: rata-rata 4 bulan, April dihitung 0", benar: false, penjelasan: "Data hilang bukan berarti nol! Mengisi 0 membuat rata-ratanya anjlok." },
+        { jumlah: 90, label: "90 sak: abaikan April, ikuti tren data yang ada", benar: true, penjelasan: "Tepat! Data kosong dikeluarkan dari perhitungan (atau diisi perkiraan), bukan dianggap nol." },
+        { jumlah: 45, label: "45 sak: datanya tidak lengkap, kirim separuh", benar: false, penjelasan: "Tiga bulan data yang ada sudah cukup menunjukkan pola ±86 sak." },
+      ],
+    },
+  ],
+  // Berkah
+  [
+    {
+      pertanyaan: JULI,
+      konsep: "Outlier salah ketik",
+      riwayat: [{ label: "Mar", nilai: 120 }, { label: "Apr", nilai: 124 }, { label: "Mei", nilai: 128 }, { label: "Jun", nilai: 132 }],
+      catatan: "Nilai transaksi Juni melonjak 10× karena ada harga Rp650.000/sak (toko lain Rp65.000).",
+      opsi: [
+        { jumlah: 136, label: "136 sak: lanjutkan kenaikan ±4 sak", benar: true, penjelasan: "Benar. Harga Rp650.000 salah ketik (kelebihan satu nol), jumlah unitnya tetap normal & naik pelan." },
+        { jumlah: 1320, label: "1.320 sak: nilai transaksinya 10× lipat!", benar: false, penjelasan: "Terkecoh anomali harga. Yang diprediksi jumlah sak, dan jumlahnya tidak berubah." },
+        { jumlah: 92, label: "92 sak: kurangi, harganya terlalu mahal", benar: false, penjelasan: "Harga mahal itu salah ketik, pembeli tidak benar-benar membayar Rp650.000." },
+      ],
+    },
+    {
+      pertanyaan: JULI,
+      konsep: "Satuan tidak konsisten",
+      riwayat: [{ label: "Mar", nilai: 120 }, { label: "Apr", nilai: 124 }, { label: "Mei", nilai: 6.4 }, { label: "Jun", nilai: 132 }],
+      catatan: "Data Mei tertulis 6,4 karena admin baru mencatat dalam ton (1 sak = 50 kg).",
+      opsi: [
+        { jumlah: 96, label: "96 sak: rata-rata 4 bulan apa adanya", benar: false, penjelasan: "Angka 6,4 masih dalam ton. Satuan dicampur membuat rata-ratanya tidak bermakna." },
+        { jumlah: 136, label: "136 sak: Mei = 128 sak, tren naik ±4 sak", benar: true, penjelasan: "Tepat! 6,4 ton ÷ 0,05 ton = 128 sak. Setelah satuan diseragamkan, trennya naik pelan." },
+        { jumlah: 200, label: "200 sak: dari 6,4 melonjak ke 132!", benar: false, penjelasan: "Itu bukan lonjakan, hanya perbedaan satuan ton vs sak." },
+      ],
+    },
+    {
+      pertanyaan: JULI,
+      konsep: "Data ganda",
+      riwayat: [{ label: "Mar", nilai: 120 }, { label: "Apr", nilai: 124 }, { label: "Mei", nilai: 256 }, { label: "Jun", nilai: 132 }],
+      catatan: "Audit kasir: seluruh nota Mei ter-input dua kali saat sistem kasir error.",
+      opsi: [
+        { jumlah: 158, label: "158 sak: rata-rata 4 bulan apa adanya", benar: false, penjelasan: "Data Mei terhitung ganda (256 = 2 × 128) sehingga rata-ratanya terlalu tinggi." },
+        { jumlah: 256, label: "256 sak: Mei membuktikan Berkah bisa laku segitu", benar: false, penjelasan: "256 sak tidak pernah benar-benar terjual, itu nota dobel." },
+        { jumlah: 136, label: "136 sak: Mei dikoreksi 128, tren naik ±4 sak", benar: true, penjelasan: "Tepat! Bersihkan duplikat dulu: 120 → 124 → 128 → 132, jadi Juli ±136 sak." },
+      ],
+    },
+  ],
+];
+
+/** Undi satu studi kasus per toko & acak urutan opsinya. Dipanggil setiap level dimulai. */
+export function drawForecasts(): Forecast[] {
+  return drawVariants(FORECAST_BANK).map((item, k) => ({ ...item, shop: k, toko: SALES[k].label, nilai: SALES[k].nilai }));
 }
 
-export const FORECASTS: Forecast[] = SALES.map((_, k) => forecastFor(k));
+export const SHOP_NAMES = SALES.map((item) => item.label);
 
 /* ------------------------------ ubur-ubur data --------------------- */
 
@@ -440,18 +614,87 @@ export interface SeaQuestion {
   opsi: { id: string; label: string; benar: boolean; penjelasan: string }[];
 }
 
-export const SEA_QUIZ: SeaQuestion[] = [
-  ...INSIGHT_QUESTIONS.map((q) => ({ id: q.id, pertanyaan: q.pertanyaan, opsi: q.opsi })),
+/** Bank soal kesimpulan; tiap main diambil SEA_QUIZ_COUNT soal acak. */
+export const SEA_QUIZ_BANK: SeaQuestion[] = [
   {
-    id: "q3",
-    pertanyaan: "Sebelum membuat grafik laporan, apa yang sebaiknya dilakukan pada data Rp650.000 milik Toko Berkah?",
+    id: "korelasi",
+    pertanyaan: "Pulau yang punya banyak warung kopi ternyata juga penjualan semennya tinggi. Kesimpulan yang tepat?",
     opsi: [
-      { id: "a", label: "Biarkan, semua data harus dipakai apa adanya", benar: false, penjelasan: "Outlier salah ketik akan membuat rata-rata harga melonjak dan menyesatkan kesimpulan." },
-      { id: "b", label: "Cek ke sumbernya lalu perbaiki menjadi Rp65.000", benar: true, penjelasan: "Tepat! Anomali diverifikasi dulu, lalu dikoreksi, bukan asal dihapus atau dibiarkan." },
-      { id: "c", label: "Hapus semua data Toko Berkah", benar: false, penjelasan: "Terlalu berlebihan, data penjualan Berkah yang lain valid dan penting." },
+      { id: "a", label: "Buka warung kopi di tiap pulau supaya semen laris", benar: false, penjelasan: "Korelasi bukan sebab-akibat. Warung kopi tidak membuat orang membeli semen." },
+      { id: "b", label: "Keduanya mungkin dipengaruhi faktor ketiga, misalnya jumlah penduduk", benar: true, penjelasan: "Tepat! Pulau yang ramai penduduk punya banyak warung sekaligus banyak pembangunan." },
+      { id: "c", label: "Datanya pasti salah, hapus kolom warung kopi", benar: false, penjelasan: "Datanya tidak salah, hanya perlu ditafsirkan dengan hati-hati." },
+    ],
+  },
+  {
+    id: "error",
+    pertanyaan: "Prediksi Mei 110 sak, realisasi 108. Prediksi Juni 100 sak, realisasi 120. Penilaian yang tepat?",
+    opsi: [
+      { id: "a", label: "Error Juni (20 sak) jauh lebih besar, cari penyebabnya sebelum memakai model lagi", benar: true, penjelasan: "Tepat! Evaluasi prediksi vs realisasi membantu menemukan faktor yang terlewat." },
+      { id: "b", label: "Modelnya gagal, buang dan pakai perasaan saja", benar: false, penjelasan: "Satu bulan meleset belum berarti modelnya tidak berguna; Mei hampir tepat." },
+      { id: "c", label: "Error tidak penting selama stok tidak habis", benar: false, penjelasan: "Error besar berarti stok kurang atau menumpuk, keduanya merugikan." },
+    ],
+  },
+  {
+    id: "sampel",
+    pertanyaan: "Survei kepuasan hanya dibagikan ke pembeli yang datang ke toko hari Minggu, hasilnya 95% puas. Apa masalahnya?",
+    opsi: [
+      { id: "a", label: "Tidak ada, 95% sudah sangat tinggi", benar: false, penjelasan: "Angka tinggi belum tentu mewakili semua pelanggan." },
+      { id: "b", label: "Jumlah pertanyaannya terlalu sedikit", benar: false, penjelasan: "Masalah utamanya bukan jumlah pertanyaan, tapi siapa yang ditanya." },
+      { id: "c", label: "Sampel bias: pelanggan yang kecewa & pindah toko tidak ikut tersurvei", benar: true, penjelasan: "Tepat! Sampel harus mewakili seluruh pelanggan, bukan hanya yang masih setia datang." },
+    ],
+  },
+  {
+    id: "median",
+    pertanyaan: "Rata-rata penjualan 8 toko 190 sak, padahal 7 toko di bawah 150 dan 1 toko 800 sak (proyek tol). Angka apa yang lebih mewakili toko biasa?",
+    opsi: [
+      { id: "a", label: "Median", benar: true, penjelasan: "Tepat! Median tidak terseret satu nilai ekstrem seperti rata-rata." },
+      { id: "b", label: "Rata-rata, karena memakai semua data", benar: false, penjelasan: "Rata-rata terdongkrak toko 800 sak, jadi terlalu tinggi untuk toko biasa." },
+      { id: "c", label: "Nilai tertinggi", benar: false, penjelasan: "Nilai tertinggi justru toko paling tidak biasa." },
+    ],
+  },
+  {
+    id: "data-pendek",
+    pertanyaan: "Tim ingin memprediksi penjualan 12 bulan ke depan hanya dari data Mei & Juni. Saran terbaik?",
+    opsi: [
+      { id: "a", label: "Cukup, tarik garis lurus dari 2 titik itu", benar: false, penjelasan: "Dua titik tidak bisa menangkap pola musim hujan, libur, atau promo." },
+      { id: "b", label: "Kumpulkan data minimal 1–2 tahun agar pola musiman terlihat", benar: true, penjelasan: "Tepat! Prediksi jangka panjang butuh riwayat yang mencakup satu siklus penuh." },
+      { id: "c", label: "Prediksi saja sama dengan Juni untuk 12 bulan", benar: false, penjelasan: "Mengabaikan perubahan musim dan tren sepanjang tahun." },
+    ],
+  },
+  {
+    id: "ab-test",
+    pertanyaan: "Setelah spanduk baru dipasang di Toko Makmur, penjualannya naik 10%. Direktur ingin memasang spanduk di semua pulau. Langkah analis?",
+    opsi: [
+      { id: "a", label: "Langsung pasang, buktinya sudah ada", benar: false, penjelasan: "Kenaikan bisa karena hal lain (cuaca, proyek). Satu toko belum cukup bukti." },
+      { id: "b", label: "Tolak, spanduk tidak ada hubungannya dengan penjualan", benar: false, penjelasan: "Menolak tanpa data juga keliru, justru perlu diuji." },
+      { id: "c", label: "Uji di beberapa toko & bandingkan dengan toko tanpa spanduk", benar: true, penjelasan: "Tepat! Kelompok pembanding (A/B test) memisahkan efek spanduk dari faktor lain." },
+    ],
+  },
+  {
+    id: "indikator",
+    pertanyaan: "Data mana yang paling membantu memprediksi permintaan semen 2 bulan ke depan?",
+    opsi: [
+      { id: "a", label: "Jumlah izin mendirikan bangunan (PBG) yang baru terbit", benar: true, penjelasan: "Tepat! Izin bangunan adalah indikator awal (leading indicator): pembangunan dimulai beberapa minggu kemudian." },
+      { id: "b", label: "Jumlah pengunjung toko kemarin", benar: false, penjelasan: "Itu menggambarkan kondisi hari ini, bukan 2 bulan lagi." },
+      { id: "c", label: "Warna cat yang paling laku", benar: false, penjelasan: "Tidak ada hubungan kuat dengan kebutuhan semen." },
+    ],
+  },
+  {
+    id: "komunikasi",
+    pertanyaan: "Direktur hanya punya 1 menit untuk mendengar hasil analisis armada. Cara menyampaikannya?",
+    opsi: [
+      { id: "a", label: "Tampilkan semua 15 tabel agar lengkap", benar: false, penjelasan: "Terlalu banyak detail membuat pesan utamanya hilang." },
+      { id: "b", label: "Satu grafik kunci, rekomendasi tindakan, dan dampaknya dalam angka", benar: true, penjelasan: "Tepat! Insight yang baik singkat, visual, dan berujung pada keputusan." },
+      { id: "c", label: "Cukup bilang \"datanya bagus, Pak\"", benar: false, penjelasan: "Tanpa bukti & rekomendasi, direktur tidak bisa mengambil keputusan." },
     ],
   },
 ];
+
+export const SEA_QUIZ_COUNT = 3;
+
+export function drawSeaQuiz(): SeaQuestion[] {
+  return sample(SEA_QUIZ_BANK, SEA_QUIZ_COUNT).map((q) => ({ ...q, opsi: shuffled(q.opsi) }));
+}
 
 /* ------------------------------ tabrakan --------------------------- */
 

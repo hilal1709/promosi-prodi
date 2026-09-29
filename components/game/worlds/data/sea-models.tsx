@@ -12,7 +12,7 @@ import { StiltHouse } from "./river-scenery";
 import {
   BOTTLES,
   DOCK_RADIUS,
-  FORECASTS,
+  SHOP_NAMES,
   JELLIES,
   LIGHTHOUSE_DOCK,
   LIGHTHOUSE_ISLAND,
@@ -218,7 +218,7 @@ export const Pinisi = memo(function Pinisi({ simRef, avatar, groupRef }: { simRe
       jib.scale.set(billow * 0.8, 0.3 + ship.sail * 0.7, 1);
     });
     if (flag.current) flag.current.rotation.y = rel + Math.PI + Math.sin(sim.time * 9) * 0.12;
-    const loaded = FORECASTS.length - sim.deliveries.filter((d) => d !== null).length;
+    const loaded = SHOP_NAMES.length - sim.deliveries.filter((d) => d !== null).length;
     cargo.current.forEach((box, k) => {
       if (box) box.visible = k < loaded;
     });
@@ -228,7 +228,7 @@ export const Pinisi = memo(function Pinisi({ simRef, avatar, groupRef }: { simRe
     }
     motion.current.moving = false;
   });
-  const cargoSlots = useMemo(() => Array.from({ length: FORECASTS.length }, (_, k) => [(k % 2 ? 0.55 : -0.55), 2.35 + Math.floor(k / 4) * 0.55, -0.4 + ((k >> 1) % 2) * 0.7] as [number, number, number]), []);
+  const cargoSlots = useMemo(() => Array.from({ length: SHOP_NAMES.length }, (_, k) => [(k % 2 ? 0.55 : -0.55), 2.35 + Math.floor(k / 4) * 0.55, -0.4 + ((k >> 1) % 2) * 0.7] as [number, number, number]), []);
   return (
     <group ref={groupRef}>
       <group ref={body}>
@@ -721,7 +721,7 @@ const SHOP_WALLS = ["#f1e3c6", "#e6ccb2", "#cfe1b9", "#f4d6cc", "#e9d8a6", "#d8e
 const SHOP_ROOFS = ["#9c3d2e", "#2a9d8f", "#bc6c25", "#6d597a"];
 
 export const IslandShops = memo(function IslandShops({ simRef }: { simRef: SeaSimRef }) {
-  const signs = useMemo(() => SHOP_DOCKS.map((dock) => labelTexture("TOKO", FORECASTS[dock.island.shop!].toko, "#1e1e24", "#ffffff", GOLD)), []);
+  const signs = useMemo(() => SHOP_DOCKS.map((dock) => labelTexture("TOKO", SHOP_NAMES[dock.island.shop!], "#1e1e24", "#ffffff", GOLD)), []);
   const lamps = useRef<(THREE.Mesh | null)[]>([]);
   const stacks = useRef<(THREE.Group | null)[]>([]);
   useFrame(() => {

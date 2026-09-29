@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import type { GameQuality } from "@/lib/types";
-import { DATA_CUBES } from "@/lib/data/worlds";
+import { HUNT_CUBE_COUNT } from "@/lib/data/worlds";
 import { fbm, seeded } from "../erp/race-track";
 
 /* ------------------------------------------------------------------ */
@@ -148,7 +148,7 @@ const PERSONALITIES: Personality[] = ["melayang", "berkelana", "pemalu", "telepo
 export const SPRITE_SPAWNS: SpriteSpawn[] = (() => {
   const rand = seeded(77);
   const LAKE_ANGLES = [Math.PI * 1.02, Math.PI * 1.3, Math.PI * 0.72];
-  return DATA_CUBES.map((_, index) => {
+  return Array.from({ length: HUNT_CUBE_COUNT }, (_, index) => {
     const b = index % BIOMES.length;
     const biome = BIOMES[b];
     const slot = Math.floor(index / BIOMES.length);

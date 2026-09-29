@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import CharacterModel, { type CharacterMotion } from "@/components/game/character-model";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { cn } from "@/lib/utils";
-import { BONUS_KINDS, BONUS_SPOTS, FIREWALL_PACKETS, OFFICE_OBJECTS, type FirewallPacket, type OfficeObject } from "@/lib/data/worlds";
+import { BONUS_KINDS, BONUS_SPOTS, FIREWALL_DRAW, FIREWALL_PACKETS, OFFICE_EXTRA_CONCEPTS, OFFICE_OBJECTS, OFFICE_VARIANTS, type FirewallPacket, type OfficeObject } from "@/lib/data/worlds";
+import { pickOne, sample, shuffled } from "../quiz-bank";
 import { TouchControls } from "../touch-controls";
 import {
   BONUS_INFO,
@@ -498,7 +499,24 @@ const DRONE_WAIT = 1.4;
 const SPRINT_SPEED = 7;
 const CROUCH_SPEED = 2.2;
 const WALK_SPEED = 4.2;
-const VIOLATION_CONCEPTS = OFFICE_OBJECTS.filter((item) => item.pelanggaran).map((item) => item.konsep);
+/** Semua konsep pelanggaran yang mungkin muncul + pengecoh tambahan, untuk kuis konsep. */
+const QUIZ_CONCEPTS = [
+  ...new Set([
+    ...OFFICE_OBJECTS.filter((item) => item.pelanggaran).flatMap((item) => (OFFICE_VARIANTS[item.id] ?? []).map((variant) => variant.konsep)),
+    ...OFFICE_EXTRA_CONCEPTS,
+  ]),
+];
+
+/** Undi satu studi kasus per objek kantor (posisi & status pelanggarannya tetap). */
+function drawOfficeObjects(): OfficeObject[] {
+  return OFFICE_OBJECTS.map((item) => ({ ...item, ...pickOne(OFFICE_VARIANTS[item.id] ?? [item]) }));
+}
+
+/** Ambil paket firewall acak, seimbang antara berbahaya & normal. */
+function drawPackets(): FirewallPacket[] {
+  const half = FIREWALL_DRAW / 2;
+  return [...sample(FIREWALL_PACKETS.filter((packet) => packet.bahaya), half), ...sample(FIREWALL_PACKETS.filter((packet) => !packet.bahaya), half)];
+}
 
 function wrapAngle(angle: number) {
   return Math.atan2(Math.sin(angle), Math.cos(angle));
@@ -515,14 +533,7 @@ function sightBlocked(ax: number, az: number, bx: number, bz: number) {
   return false;
 }
 
-function shuffle<T>(list: T[]) {
-  const copy = [...list];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
+const shuffle = <T,>(list: readonly T[]) => shuffled(list);
 
 function InspectScene({
   avatar,
@@ -723,17 +734,19 @@ export function InspectLevel({ levelIndex, info, paused, quality, avatar, input,
   );
   const takenRef = useRef(new Set<string>());
   const [taken, setTaken] = useState<Set<string>>(() => new Set());
+  // Studi kasus tiap objek diundi ulang setiap level dimulai / diulang.
+  const [objects] = useState(drawOfficeObjects);
 
-  const found = OFFICE_OBJECTS.filter((item) => item.pelanggaran && decided[item.id] === "ok").length;
-  const clearedDecoys = OFFICE_OBJECTS.filter((item) => !item.pelanggaran && decided[item.id] === "ok").length;
+  const found = objects.filter((item) => item.pelanggaran && decided[item.id] === "ok").length;
+  const clearedDecoys = objects.filter((item) => !item.pelanggaran && decided[item.id] === "ok").length;
   const securedCount = Object.keys(secured).length;
-  const allDecided = Object.keys(decided).length >= OFFICE_OBJECTS.length;
+  const allDecided = Object.keys(decided).length >= objects.length;
   const ended = hud.left <= 0 || ((found >= VIOLATIONS || allDecided) && !stage);
   const score = clampPercent(
     (found / VIOLATIONS) * 65 + (clearedDecoys / DECOYS) * 15 + (quizCorrect / VIOLATIONS) * 10 + (securedCount / VIOLATIONS) * 10 + docs * 2 - wrongFlags * 8
   );
-  const item = OFFICE_OBJECTS.find((entry) => entry.id === stage?.id);
-  const nearItem = OFFICE_OBJECTS.find((entry) => entry.id === nearId);
+  const item = objects.find((entry) => entry.id === stage?.id);
+  const nearItem = objects.find((entry) => entry.id === nearId);
 
   const tick = (delta: number) => {
     const c = clock.current;
@@ -775,7 +788,7 @@ export function InspectLevel({ levelIndex, info, paused, quality, avatar, input,
     };
     if (ok && flag) {
       // Pelanggaran benar → lanjut kuis konsep, lalu tawaran amankan.
-      setQuizOptions(shuffle([item.konsep, ...shuffle(VIOLATION_CONCEPTS.filter((konsep) => konsep !== item.konsep)).slice(0, 2)]));
+      setQuizOptions(shuffle([item.konsep, ...sample(QUIZ_CONCEPTS.filter((konsep) => konsep !== item.konsep), 2)]));
       setStage({ id: item.id, step: "quiz" });
       return;
     }
@@ -1152,6 +1165,8 @@ function FirewallScene({
 }
 
 export function FirewallLevel({ levelIndex, info, paused, quality, avatar, sound, onPause, onFinish }: WorldLevelProps) {
+  // Paket diundi ulang setiap level dimulai / diulang.
+  const [pool] = useState(drawPackets);
   const live = useRef({ left: FIREWALL_TIME, elapsed: 0, spawnIn: 0.8, uid: 0, lastLane: -1, lives: FIREWALL_LIVES, ended: false, deck: [] as FirewallPacket[] });
   const speedRef = useRef(firewallPace(0).speed);
   const flashRef = useRef(0);
@@ -1178,7 +1193,7 @@ export function FirewallLevel({ levelIndex, info, paused, quality, avatar, sound
 
   const spawn = () => {
     const s = live.current;
-    if (s.deck.length === 0) s.deck = shuffle(FIREWALL_PACKETS);
+    if (s.deck.length === 0) s.deck = shuffle(pool);
     const packet = s.deck.pop()!;
     const lanes = [0, 1, 2].filter((lane) => lane !== s.lastLane);
     const lane = lanes[Math.floor(Math.random() * lanes.length)];

@@ -17,7 +17,8 @@ import {
   ANOMALY_TOTAL,
   BOTTLES,
   DOCK_RADIUS,
-  FORECASTS,
+  drawForecasts,
+  drawSeaQuiz,
   HARD_RADIUS,
   ISLANDS,
   JELLIES,
@@ -28,12 +29,12 @@ import {
   rockHit,
   sailEfficiency,
   scatterFlora,
-  SEA_QUIZ,
   SEA_TIME,
   SHOP_DOCKS,
+  SHOP_NAMES,
   START,
   terrainHeight,
-  TREND,
+  type Forecast,
   WHIRLPOOLS,
   windDir,
   WRECK,
@@ -104,7 +105,7 @@ function createSim(): SeaSim {
     jellies: JELLIES.map((jelly, k) => ({ x: jelly.x, z: jelly.z, alive: true, pop: 0, phase: k * 1.37, vx: 0, vz: 0, cool: 0 })),
     shots: Array.from({ length: MAX_SHOTS }, () => ({ x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, life: 0, target: -1 })),
     bottles: BOTTLES.map(() => false),
-    deliveries: FORECASTS.map(() => null),
+    deliveries: SHOP_NAMES.map(() => null),
     evidence: false,
   };
 }
@@ -517,7 +518,7 @@ function Compass({ simRef, view }: { simRef: RefObject<SeaSim>; view: RefObject<
         const width = el.clientWidth;
         const ship = sim.ship;
         const shops = SHOP_DOCKS.filter((dock) => sim.deliveries[dock.island.shop!] === null)
-          .map((dock) => ({ x: dock.x, z: dock.z, d: Math.hypot(dock.x - ship.x, dock.z - ship.z), label: `Toko ${FORECASTS[dock.island.shop!].toko}`, color: dock.island.color }))
+          .map((dock) => ({ x: dock.x, z: dock.z, d: Math.hypot(dock.x - ship.x, dock.z - ship.z), label: `Toko ${SHOP_NAMES[dock.island.shop!]}`, color: dock.island.color }))
           .sort((a, b) => a.d - b.d)
           .slice(0, 2);
         const done = sim.deliveries.filter((d) => d !== null).length;
@@ -680,33 +681,42 @@ function WindGauge({ simRef }: { simRef: RefObject<SeaSim> }) {
 /* Panel pengiriman (prediksi stok)                                     */
 /* ------------------------------------------------------------------ */
 
-function TrendSpark() {
+function HistorySpark({ riwayat }: { riwayat: Forecast["riwayat"] }) {
   const w = 220;
   const h = 64;
-  const max = 900;
-  const min = 550;
-  const pts = TREND.map((item, k) => ({ x: 12 + k * 32, y: h - 8 - ((item.nilai - min) / (max - min)) * (h - 16), label: item.label }));
-  const last = pts[pts.length - 1];
-  const july = { x: last.x + 32, y: h - 8 - ((TREND[TREND.length - 1].nilai * 1.05 - min) / (max - min)) * (h - 16) };
+  const step = Math.min(40, (w - 44) / riwayat.length);
+  const values = riwayat.flatMap((item) => (item.nilai === null ? [] : [item.nilai]));
+  const max = Math.max(...values) * 1.1 || 1;
+  const pts = riwayat.map((item, k) => ({ x: 12 + k * step, y: item.nilai === null ? null : h - 8 - (item.nilai / max) * (h - 16), label: item.label, nilai: item.nilai }));
+  const july = { x: 12 + riwayat.length * step };
+  const segments: string[][] = [[]];
+  pts.forEach((p) => (p.y === null ? segments.push([]) : segments[segments.length - 1].push(`${p.x},${p.y}`)));
   return (
     <svg viewBox={`0 0 ${w} ${h + 12}`} className="sea-trend">
-      <polyline points={pts.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="#2a6f97" strokeWidth={3} strokeLinejoin="round" />
-      <line x1={last.x} y1={last.y} x2={july.x} y2={july.y} stroke="#e76f51" strokeWidth={3} strokeDasharray="4 3" />
+      {segments.filter((seg) => seg.length > 1).map((seg) => (
+        <polyline key={seg[0]} points={seg.join(" ")} fill="none" stroke="#2a6f97" strokeWidth={3} strokeLinejoin="round" />
+      ))}
       {pts.map((p) => (
         <g key={p.label}>
-          <circle cx={p.x} cy={p.y} r={3.5} fill="#2a6f97" />
+          {p.y === null ? (
+            <text x={p.x} y={h / 2} fontSize={12} fontWeight={800} textAnchor="middle" fill="#e76f51">?</text>
+          ) : (
+            <>
+              <circle cx={p.x} cy={p.y} r={3.5} fill="#2a6f97" />
+              <text x={p.x} y={Math.max(9, p.y - 6)} fontSize={8} textAnchor="middle" fill="currentColor">{String(p.nilai).replace(".", ",")}</text>
+            </>
+          )}
           <text x={p.x} y={h + 10} fontSize={9} textAnchor="middle" fill="currentColor">{p.label}</text>
         </g>
       ))}
-      <circle cx={july.x} cy={july.y} r={4.5} fill="#e76f51" />
-      <text x={july.x} y={h + 10} fontSize={9} fontWeight={800} textAnchor="middle" fill="#e76f51">Jul?</text>
+      <text x={july.x} y={h / 2} fontSize={14} fontWeight={900} textAnchor="middle" fill="#e76f51">?</text>
+      <text x={july.x} y={h + 10} fontSize={9} fontWeight={800} textAnchor="middle" fill="#e76f51">Jul</text>
     </svg>
   );
 }
 
-function DeliveryPanel({ shop, evidence, picked, onPick, onClose }: { shop: number; evidence: boolean; picked: number | null; onPick: (k: number) => void; onClose: () => void }) {
-  const f = FORECASTS[shop];
-  const dock = SHOP_DOCKS[shop];
+function DeliveryPanel({ forecast: f, evidence, picked, onPick, onClose }: { forecast: Forecast; evidence: boolean; picked: number | null; onPick: (k: number) => void; onClose: () => void }) {
+  const dock = SHOP_DOCKS[f.shop];
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if (picked === null && ["Digit1", "Digit2", "Digit3", "Numpad1", "Numpad2", "Numpad3"].includes(event.code)) {
@@ -723,17 +733,17 @@ function DeliveryPanel({ shop, evidence, picked, onPick, onClose }: { shop: numb
   return (
     <div className="world-overlay-card mission-pop sea-deliver">
       <p className="text-xs font-black tracking-[0.15em] text-muted-foreground">{dock.island.nama.toUpperCase()} · PREDIKSI STOK</p>
-      <p className="mt-1 font-black">Toko {f.toko}: berapa sak semen yang kamu turunkan untuk bulan Juli?</p>
+      <p className="mt-1 font-black">{f.pertanyaan.startsWith("Toko ") ? f.pertanyaan : `Toko ${f.toko}: ${f.pertanyaan}`}</p>
       <div className="sea-deliver-data">
         <div>
           <small>Penjualan bulan lalu</small>
           <strong>{f.nilai} sak</strong>
-          {f.toko === "Barokah" && <em className={evidence ? "is-ok" : undefined}>{evidence ? "Bukti: kapal suplai kandas di karang, kiriman terputus 3 minggu." : "Kabar warga: kapal suplai Barokah hilang di dekat karang…"}</em>}
-          {f.toko === "Berkah" && <em>Catatan: ada transaksi Rp650.000/sak di data lama.</em>}
+          <em>{f.catatan}</em>
+          {f.butuhBukti && <em className={evidence ? "is-ok" : undefined}>{evidence ? "Bukti: kapal suplai kandas di karang, kiriman terputus berminggu-minggu." : "Kabar warga: kapal suplai Barokah hilang di dekat karang…"}</em>}
         </div>
         <div>
-          <small>Tren total Jan–Jun (+5%/bln)</small>
-          <TrendSpark />
+          <small>Riwayat penjualan Toko {f.toko} (sak)</small>
+          <HistorySpark riwayat={f.riwayat} />
         </div>
       </div>
       <div className="mt-3 grid gap-2">
@@ -777,6 +787,9 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
   const fx = useRef<FxApi | null>(null);
   const shipGroup = useRef<THREE.Group>(null);
   const flora = useMemo(() => scatterFlora(quality), [quality]);
+  // Studi kasus diundi ulang setiap level dimulai / diulang.
+  const [forecasts] = useState(drawForecasts);
+  const [quiz] = useState(drawSeaQuiz);
 
   const [hud, setHud] = useState<Hud>(EMPTY_HUD);
   const pushHud = useThrottled(setHud, 10);
@@ -786,7 +799,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
   const [anomHit, setAnomHit] = useState(0);
   const [wrongShots, setWrongShots] = useState(0);
   const [bottles, setBottles] = useState({ count: 0, combo: 0 });
-  const [deliveries, setDeliveries] = useState<(boolean | null)[]>(() => FORECASTS.map(() => null));
+  const [deliveries, setDeliveries] = useState<(boolean | null)[]>(() => forecasts.map(() => null));
   const [evidence, setEvidence] = useState(false);
   const [repairs, setRepairs] = useState(0);
   const [panel, setPanel] = useState<number | null>(null);
@@ -802,9 +815,9 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
   const deliveredOk = deliveries.filter((d) => d === true).length;
   const score = clampPercent(
     Math.max(0, Math.min(1, (anomHit - wrongShots * 0.5) / ANOMALY_TOTAL)) * 25 +
-      (deliveredOk / FORECASTS.length) * 35 +
+      (deliveredOk / forecasts.length) * 35 +
       (evidence ? 10 : 0) +
-      (quizCorrect / SEA_QUIZ.length) * 30 +
+      (quizCorrect / quiz.length) * 30 +
       (repairs === 0 ? 2 : 0)
   );
 
@@ -894,7 +907,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
 
   const pickDelivery = (k: number) => {
     if (panel === null || picked !== null) return;
-    const opt = FORECASTS[panel].opsi[k];
+    const opt = forecasts[panel].opsi[k];
     setPicked(k);
     simRef.current.deliveries[panel] = opt.benar;
     setDeliveries([...simRef.current.deliveries]);
@@ -910,11 +923,11 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
     setPicked(null);
     const done = simRef.current.deliveries.filter((d) => d !== null).length;
     if (done === MIN_DELIVERIES) setToast({ ok: true, judul: "Mercusuar Insight terbuka!", teks: "Data cukup untuk ditarik kesimpulan. Kirim sisa muatan atau langsung berlayar ke mercusuar di utara." });
-    if (done === FORECASTS.length) setToast({ ok: true, judul: "Semua muatan terkirim!", teks: "Berlayarlah ke Mercusuar Insight untuk menyusun kesimpulan." });
+    if (done === forecasts.length) setToast({ ok: true, judul: "Semua muatan terkirim!", teks: "Berlayarlah ke Mercusuar Insight untuk menyusun kesimpulan." });
   };
 
-  const q = SEA_QUIZ[question];
-  const quizDone = question >= SEA_QUIZ.length;
+  const q = quiz[question];
+  const quizDone = question >= quiz.length;
   const answerQuiz = (id: string) => {
     if (quizPick) return;
     const opt = q.opsi.find((item) => item.id === id)!;
@@ -927,7 +940,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
 
   let prompt: ReactNode;
   if (running) {
-    if (hud.near >= 0) prompt = <><KeyHint keyboard="E" touch="Labuh" />{hud.near === LIGHTHOUSE_INDEX ? "Labuh di Mercusuar, tarik kesimpulan" : `Labuh & kirim ke Toko ${FORECASTS[SHOP_DOCKS[hud.near].island.shop!].toko}`}</>;
+    if (hud.near >= 0) prompt = <><KeyHint keyboard="E" touch="Labuh" />{hud.near === LIGHTHOUSE_INDEX ? "Labuh di Mercusuar, tarik kesimpulan" : `Labuh & kirim ke Toko ${SHOP_NAMES[SHOP_DOCKS[hud.near].island.shop!]}`}</>;
     else if (hud.boundary) prompt = <>Arus balik terlalu kuat, kembali ke kepulauan</>;
     else if (hud.whirl) prompt = <>Pusaran! Tahan <KeyHint keyboard="Shift" touch="Mesin" /> untuk menyalakan mesin</>;
     else if (hud.grounded) prompt = <>Kandas! Mundur & putar haluan · <KeyHint keyboard="S" touch="Joystick ke bawah" /> turunkan layar</>;
@@ -967,7 +980,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
                 </HudChip>
                 <HudChip tone="green">
                   <IconPackage />
-                  {delivered}/{FORECASTS.length}
+                  {delivered}/{forecasts.length}
                 </HudChip>
                 {bottles.combo >= 3 && (
                   <HudChip tone="gold">
@@ -988,10 +1001,10 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
               {zone.name}
             </div>
           )}
-          {panel !== null && <DeliveryPanel shop={panel} evidence={evidence} picked={picked} onPick={pickDelivery} onClose={closePanel} />}
+          {panel !== null && <DeliveryPanel forecast={forecasts[panel]} evidence={evidence} picked={picked} onPick={pickDelivery} onClose={closePanel} />}
           {asking && !quizDone && (
             <div className="world-overlay-card mission-pop">
-              <p className="text-xs font-black tracking-[0.15em] text-muted-foreground">MERCUSUAR INSIGHT · KESIMPULAN {question + 1}/{SEA_QUIZ.length}</p>
+              <p className="text-xs font-black tracking-[0.15em] text-muted-foreground">MERCUSUAR INSIGHT · KESIMPULAN {question + 1}/{quiz.length}</p>
               <p className="mt-1 font-black">{q.pertanyaan}</p>
               <div className="mt-3 grid gap-2">
                 {q.opsi.map((option) => (
@@ -1018,10 +1031,10 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
                     onClick={() => {
                       setQuizPick(null);
                       setQuestion((n) => n + 1);
-                      if (question + 1 >= SEA_QUIZ.length) setEnded(true);
+                      if (question + 1 >= quiz.length) setEnded(true);
                     }}
                   >
-                    {question + 1 < SEA_QUIZ.length ? "Pertanyaan berikutnya" : "Selesai"}
+                    {question + 1 < quiz.length ? "Pertanyaan berikutnya" : "Selesai"}
                   </Button>
                 </>
               )}
@@ -1043,7 +1056,7 @@ export function SeaLevel({ levelIndex, info, paused, avatar, quality, input, sou
             <LevelEnd
               score={score}
               reason="Armada kembali ke pelabuhan"
-              detail={`Anomali ${anomHit}/${ANOMALY_TOTAL}${wrongShots ? ` (${wrongShots} salah tembak)` : ""} · prediksi tepat ${deliveredOk}/${FORECASTS.length} · bukti Barokah ${evidence ? "ditemukan" : "belum ditemukan"} · kesimpulan ${quizCorrect}/${SEA_QUIZ.length}${repairs ? ` · ${repairs}× perbaikan` : ""}.`}
+              detail={`Anomali ${anomHit}/${ANOMALY_TOTAL}${wrongShots ? ` (${wrongShots} salah tembak)` : ""} · prediksi tepat ${deliveredOk}/${forecasts.length} · bukti Barokah ${evidence ? "ditemukan" : "belum ditemukan"} · kesimpulan ${quizCorrect}/${quiz.length}${repairs ? ` · ${repairs}× perbaikan` : ""}.`}
               isLast
               onNext={() => onFinish(score)}
             />

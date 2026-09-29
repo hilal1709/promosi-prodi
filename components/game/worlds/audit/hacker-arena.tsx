@@ -7,8 +7,9 @@ import { IconBolt, IconCheck, IconCrosshair, IconHeart, IconShield, IconSkull, I
 import { Button } from "@/components/ui/button";
 import { clampPercent, type Feedback } from "@/components/game/missions/mission-kit";
 import { cn } from "@/lib/utils";
-import { AUDIT_FINDINGS } from "@/lib/data/missions";
+import type { AuditFinding } from "@/lib/types";
 import { ARENA_ENEMIES, ARENA_STAFF, type ArenaEnemyKind } from "@/lib/data/worlds";
+import { pickOne, shuffled } from "../quiz-bank";
 import { TouchControls } from "../touch-controls";
 import type { WorldInput } from "../world-controls";
 import { clampDelta, HudChip, HudMeter, Label, LevelEnd, Walker, WorldHud, WorldStage, useThrottled, type WorldLevelProps } from "../world-kit";
@@ -32,7 +33,73 @@ const WAVE1_END = 25;
 const WAVE2_END = 55;
 const BOSS_PHASE_HP = [28, 34, 40];
 const BOSS_ORBIT = 7;
-const BOSS_FINDINGS = ["l3", "l9", "l11"].map((id) => AUDIT_FINDINGS.find((finding) => finding.id === id)!);
+/** Bank studi kasus kuis bos: satu slot per fase, tiap main diundi satu kasus per fase. */
+const BOSS_BANK: AuditFinding[][] = [
+  [
+    {
+      id: "ransomware",
+      judul: "Ransomware mengenkripsi folder bersama divisi keuangan",
+      risikoBenar: ["Tinggi"],
+      rekomendasi: ["Putus PC terinfeksi dari jaringan, lalu pulihkan dari backup yang sudah diuji", "Bayar tebusan, lebih cepat daripada restore", "Jalankan antivirus di PC terinfeksi tanpa memutus jaringan"],
+      rekomendasiBenar: 0,
+      penjelasan: "Isolasi dulu agar tidak menyebar, lalu pulihkan dari backup. Membayar tebusan tidak menjamin data kembali.",
+    },
+    {
+      id: "brute-portal",
+      judul: "Ratusan IP berbeda mencoba login ke portal pelanggan",
+      risikoBenar: ["Sedang", "Tinggi"],
+      rekomendasi: ["Blokir satu IP yang paling sering mencoba", "Aktifkan pembatasan percobaan login, CAPTCHA & MFA", "Matikan portal pelanggan sampai serangan berhenti"],
+      rekomendasiBenar: 1,
+      penjelasan: "Serangan dari banyak IP tidak cukup diatasi blokir satu IP. Kontrol di sisi login menutup celahnya tanpa mematikan layanan.",
+    },
+  ],
+  [
+    {
+      id: "bec",
+      judul: "Email atas nama direktur minta transfer Rp750 juta ke rekening baru vendor",
+      risikoBenar: ["Tinggi"],
+      rekomendasi: ["Balas email itu untuk minta konfirmasi", "Transfer, karena emailnya memakai nama & tanda tangan direktur", "Verifikasi lewat telepon ke nomor resmi direktur & vendor sebelum transfer"],
+      rekomendasiBenar: 2,
+      penjelasan: "Business email compromise: membalas email justru sampai ke penipu. Verifikasi lewat saluran lain yang sudah dikenal.",
+    },
+    {
+      id: "ai-publik",
+      judul: "Staf menempelkan data pelanggan ke chatbot AI publik untuk merangkum komplain",
+      risikoBenar: ["Sedang", "Tinggi"],
+      rekomendasi: ["Hapus riwayat chat staf tersebut", "Tetapkan kebijakan AI, sediakan tool internal yang disetujui & latih staf", "Larang staf tersebut memakai komputer"],
+      rekomendasiBenar: 1,
+      penjelasan: "Masalahnya sistemik, bukan satu orang. Kebijakan, alternatif aman, dan pelatihan mencegah data bocor lagi.",
+    },
+  ],
+  [
+    {
+      id: "vendor-admin",
+      judul: "Akun vendor pemeliharaan punya akses admin permanen ke server ERP",
+      risikoBenar: ["Tinggi"],
+      rekomendasi: ["Ganti password akun vendor setahun sekali", "Putus kontrak vendor tersebut", "Beri akses hanya saat ada tiket, berjangka waktu & dipantau"],
+      rekomendasiBenar: 2,
+      penjelasan: "Akses pihak ketiga dibatasi waktu & tujuan (just-in-time) serta direkam, bukan permanen.",
+    },
+    {
+      id: "patch-telat",
+      judul: "Patch keamanan kritis server ERP belum dipasang selama 4 bulan",
+      risikoBenar: ["Tinggi"],
+      rekomendasi: ["Uji patch di server staging lalu jadwalkan pemasangan secepatnya", "Pasang langsung di produksi siang ini tanpa uji", "Tunggu jadwal upgrade besar tahun depan"],
+      rekomendasiBenar: 0,
+      penjelasan: "Celah kritis harus ditutup cepat, tapi tetap diuji dulu agar tidak merusak sistem produksi.",
+    },
+  ],
+];
+
+/** Undi satu kasus per fase & acak urutan rekomendasinya. */
+function drawBossFindings(): AuditFinding[] {
+  return BOSS_BANK.map((variants) => {
+    const finding = pickOne(variants);
+    const correct = finding.rekomendasi[finding.rekomendasiBenar];
+    const rekomendasi = shuffled(finding.rekomendasi);
+    return { ...finding, rekomendasi, rekomendasiBenar: rekomendasi.indexOf(correct) };
+  });
+}
 const BOSS_PATTERNS: BossAttack[][] = [
   ["ring", "aimed", "summon"],
   ["ring", "charge", "aimed", "summon"],
@@ -778,6 +845,8 @@ function ArenaScene({
 /* ------------------------------- level ------------------------------- */
 
 export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, sound, onPause, onFinish }: WorldLevelProps) {
+  // Kasus kuis bos diundi ulang setiap level dimulai / diulang.
+  const [bossFindings] = useState(drawBossFindings);
   const simRef = useRef<Sim>(null as unknown as Sim);
   if (simRef.current === null) simRef.current = createSim();
   const player = useRef<THREE.Group>(null);
@@ -803,10 +872,10 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
     bannerTimer.current = window.setTimeout(() => setBanner(null), 1300);
   };
 
-  const finding = BOSS_FINDINGS[quizPhase];
+  const finding = bossFindings[quizPhase];
   const bossDown = Boolean(result?.win);
   const score = clampPercent(
-    hud.serverHp * 0.3 + (bossDown ? 30 : phasesCleared * 8) + (quizCorrect / BOSS_FINDINGS.length) * 20 + Math.min(20, hud.kills * 0.6) - hud.wrongStaff * 5
+    hud.serverHp * 0.3 + (bossDown ? 30 : phasesCleared * 8) + (quizCorrect / bossFindings.length) * 20 + Math.min(20, hud.kills * 0.6) - hud.wrongStaff * 5
   );
 
   const answerQuiz = (index: number) => {
@@ -993,7 +1062,7 @@ export function ArenaLevel({ levelIndex, info, paused, quality, avatar, input, s
             <LevelEnd
               score={score}
               reason={result.win ? "Peretas Bayangan dikalahkan!" : hud.serverHp <= 0 ? "Server database jebol" : "Inspektur tumbang"}
-              detail={`${hud.kills} ancaman dinetralkan · server ${Math.round(hud.serverHp)}% · ${quizCorrect}/${BOSS_FINDINGS.length} kontrol tepat · combo terbaik x${hud.bestCombo} · ${hud.wrongStaff} staf salah tembak.`}
+              detail={`${hud.kills} ancaman dinetralkan · server ${Math.round(hud.serverHp)}% · ${quizCorrect}/${bossFindings.length} kontrol tepat · combo terbaik x${hud.bestCombo} · ${hud.wrongStaff} staf salah tembak.`}
               isLast
               onNext={() => onFinish(score)}
             />

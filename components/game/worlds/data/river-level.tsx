@@ -19,6 +19,7 @@ import {
   FORK_LEN,
   forkAt,
   FORKS,
+  rerollRiver,
   GATE_LAT,
   HAZARDS,
   headingAt,
@@ -791,6 +792,8 @@ const EMPTY_HUD: Hud = { s: RAFT_START, hp: 100, stamina: 1, tired: false, time:
 /* ------------------------------------------------------------------ */
 
 export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, sound, onPause, onFinish }: WorldLevelProps) {
+  // Studi kasus diundi ulang setiap level dimulai / diulang (sebelum model 3D dirender).
+  useState(rerollRiver);
   const simRef = useRef<RiverSim>(createSim());
   useEffect(() => {
     VIEW.s = RAFT_START;
@@ -828,7 +831,7 @@ export function RiverLevel({ levelIndex, info, paused, avatar, quality, input, s
         if (state === "clean") {
           sound("success");
           flashOf("good");
-          setToast({ ok: true, judul: `Toko ${shop.label}: ${shop.nilai}`, teks: index === 2 ? "Tepat! Penjualan negatif (−5) sudah dibersihkan menjadi 0." : "Data bersih, batangnya akurat di grafik.", konsep: "Data bersih" });
+          setToast({ ok: true, judul: `Toko ${shop.label}: ${shop.nilai}`, teks: shop.okTeks ?? "Data bersih, batangnya akurat di grafik.", konsep: "Data bersih" });
         } else if (state === "dirty") {
           sound("error");
           flashOf("bad");
